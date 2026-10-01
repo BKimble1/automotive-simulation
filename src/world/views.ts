@@ -355,11 +355,12 @@ export const SYSTEM_VIEWS: Record<string, string> = {
   safety: 'sys-safety',
 };
 
-/** The body's collision capsules (for the camera), in vehicle coordinates. */
+/** The body's collision capsules (for the camera), in vehicle coordinates: the body, the cabin,
+ * and each wheel (so a long move swings round a tyre instead of brushing it). */
 export const KEEP_OUT: { a: Vector3; b: Vector3; r: number }[] = [
   { a: V(-1.95, 0.56, -0.42), b: V(1.78, 0.56, -0.42), r: 0.48 },
   { a: V(-1.95, 0.56, 0.42), b: V(1.78, 0.56, 0.42), r: 0.48 },
   { a: V(-1.2, 1.0, -0.32), b: V(0.35, 1.0, -0.32), r: 0.42 },
   { a: V(-1.2, 1.0, 0.32), b: V(0.35, 1.0, 0.32), r: 0.42 },
+  ...[BODY.xFront, BODY.xRear].flatMap((x) => [-1, 1].map((s) => ({ a: V(x, WHEEL_Y, s * 0.66), b: V(x, WHEEL_Y, s * 0.96), r: 0.36 }))),
 ];
-void WHEEL_Y;
