@@ -22,7 +22,7 @@ import { buildEngine, type EngineParts } from './engineGeo';
 import { buildDrivetrain, type DrivetrainParts } from './drivetrainGeo';
 import { buildChassis, type ChassisParts } from './chassisGeo';
 import { buildSystems, type SystemsParts } from './systemsGeo';
-import { buildCabin, type CabinParts } from './cabinGeo';
+import { buildCabin, buildDoorTrims, type CabinParts } from './cabinGeo';
 import { Rig, type PartNode } from './rig';
 
 export interface Car {
@@ -99,7 +99,9 @@ export function buildCar(bodyGeo: BufferGeometry): Car {
     pivot.add(p.group);
     bodyRoot.add(pivot);
     const node = rig.adopt(pivot, `panel-${p.name}`, spec.comp, 'body', [p.paint, p.glass], []);
-    if (spec.open) rig.explode(node, 'open', new Vector3(), { q: spec.open });
+    // each opening panel on its own group (`open-<panel>`): all of them open together on the
+    // `open` channel, or one alone on `open:<panel>` (the driver's door for the start button)
+    if (spec.open) rig.explode(node, `open-${p.name}`, new Vector3(), { q: spec.open });
     rig.explode(node, 'explode', spec.explode, { q: spec.explodeQ, delay: spec.delay });
     nodes[p.name] = node;
   }
@@ -109,6 +111,7 @@ export function buildCar(bodyGeo: BufferGeometry): Car {
   const drivetrain = buildDrivetrain(rig, sprung);
   const systems = buildSystems(rig, sprung);
   const cabin = buildCabin(rig, sprung);
+  buildDoorTrims(rig, Object.fromEntries(body.panels.map((p) => [p.name, p.group])));
   const chassis = buildChassis(rig, root, sprung);
 
   // ── the full exploded view: in order, with the body lifting first and the powertrain last

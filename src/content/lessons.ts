@@ -442,7 +442,9 @@ const electricalBeats: Beat[] = [
     text: 'Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about 14 volts.',
     duration: 7,
     view: 'charging',
-    program: { start: presetIdle, drive: lightsOn(5, 70) },
+    // the headlights and blower (20 A) come on just after the next step starts; at idle the
+    // alternator can carry that and still charge the battery, so the voltage holds (tested)
+    program: { start: presetIdle, drive: lightsOn(7.3, 20) },
     timeScale: 1,
     chapter: 'Electrical and control',
     readouts: ['volts', 'alternatorAmps', 'batteryAmps'],
@@ -450,7 +452,7 @@ const electricalBeats: Beat[] = [
   {
     id: 'load',
     title: 'More load',
-    text: 'Switch on the lights, the blower and the heated rear window, and the alternator’s regulator raises its field to supply the extra current while the voltage holds.',
+    text: 'Switch on the headlights and the blower, and the alternator’s regulator raises its field to supply the extra current while the voltage holds.',
     duration: 6,
     view: 'charging',
     timeScale: 1,

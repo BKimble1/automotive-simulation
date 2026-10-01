@@ -6,8 +6,15 @@
 import { useReadouts, useRun, type Readouts as R } from '../state/store';
 import { SHAFT_KEY } from '../sim/geartrain';
 
-const n0 = (v: number) => Math.round(v).toLocaleString('en-GB');
-const n1 = (v: number) => v.toFixed(1);
+// rounding never shows a negative zero (−0 reads as a value that is not there)
+const n0 = (v: number) => (Math.round(v) || 0).toLocaleString('en-GB');
+const n1 = (v: number) => (Math.abs(v) < 0.05 ? 0 : v).toFixed(1);
+const n2 = (v: number) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2);
+/** A signed value: + for up or in, − for down or out, nothing for zero. */
+const signed0 = (v: number) => {
+  const r = Math.round(v) || 0;
+  return `${r > 0 ? '+' : ''}${r.toLocaleString('en-GB')}`;
+};
 
 /** Firing order position: the cylinder on its power stroke now. */
 function firing(r: R): string {
@@ -26,11 +33,11 @@ export const READOUTS: Record<string, { label: string; value: (r: R) => string; 
   alternatorAmps: { label: 'Alternator', value: (r) => n0(r.alternatorAmps), unit: 'A' },
   batteryAmps: { label: 'Into battery', value: (r) => n0(-r.batteryAmps), unit: 'A' },
   wheelTorque: { label: 'At the wheels', value: (r) => n0(r.wheelTorque), unit: 'N·m' },
-  accel: { label: 'Acceleration', value: (r) => r.ax.toFixed(2), unit: 'g' },
+  accel: { label: 'Acceleration', value: (r) => n2(r.ax), unit: 'g' },
   firing: { label: 'Firing', value: firing },
   wheelSpeeds: { label: 'Rear wheels L / R', value: (r) => `${n1(r.wheelKmh[2])} / ${n1(r.wheelKmh[3])}`, unit: 'km/h' },
-  wheelTravel: { label: 'Front wheel travel', value: (r) => `${r.wheelTravelMm[0] >= 0 ? '+' : ''}${n0(r.wheelTravelMm[0])}`, unit: 'mm' },
-  pitch: { label: 'Body pitch', value: (r) => r.pitchDeg.toFixed(2), unit: '°' },
+  wheelTravel: { label: 'Front wheel travel', value: (r) => signed0(r.wheelTravelMm[0]), unit: 'mm' },
+  pitch: { label: 'Body pitch', value: (r) => n2(r.pitchDeg), unit: '°' },
   brakeBar: { label: 'Brake pressure', value: (r) => n0(r.brakeBar), unit: 'bar' },
   discC: { label: 'Front disc', value: (r) => n0(r.rotorC[0]), unit: '°C' },
   stopDistance: { label: 'Stopping distance', value: (r) => n1(r.stopDistance), unit: 'm' },

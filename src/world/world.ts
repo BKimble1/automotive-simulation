@@ -542,7 +542,9 @@ export class World {
     rig.resetMechanism();
     this.mech.pose(this.view);
     this.looks.apply(s, c.transitionDt);
-    rig.apply((g) => this.channels.get(`explode:${g}`) + (g === 'open' ? this.channels.get('open') : 0));
+    const ch = this.channels;
+    // a panel opens with all of them (open) or alone (open:<panel>), never twice as far
+    rig.apply((g) => (g.startsWith('open-') ? Math.min(1, Math.max(ch.get('open'), ch.get(`open:${g.slice(5)}`))) : ch.get(`explode:${g}`)));
 
     // ── keep-outs ride on the body
     for (let i = 0; i < this.keepOut.length; i++) {

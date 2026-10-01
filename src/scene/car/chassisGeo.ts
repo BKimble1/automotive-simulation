@@ -164,19 +164,20 @@ function tyreMaterial(src: MeshPhysicalMaterial, u: TyreU, ghost: boolean) {
 }
 
 let blurTex: Texture | null = null;
-/** The spinning wheel as the eye sees it: spoke metal smeared into rings, the hub dark. Built
+/** The spinning wheel as the eye sees it: spoke metal smeared into rings around a clear hub. Built
  * from numbers (no canvas), so the scene also builds where there is no document. */
 function spinBlurTexture(): Texture {
   if (blurTex) return blurTex;
   const N = 128;
   // radius (0 centre … 1 rim) → grey level and opacity, linear between the stops
+  // the hub and centre cap stay clear (they read the same turning or not); the spoke band smears
   const STOPS: [number, number, number][] = [
-    [0.0, 20, 1],
-    [0.24, 26, 1],
-    [0.3, 120, 0.9],
+    [0.0, 40, 0],
+    [0.22, 40, 0],
+    [0.3, 120, 0.85],
     [0.7, 150, 0.8],
-    [0.9, 110, 0.85],
-    [1.0, 70, 0.9],
+    [0.9, 110, 0.8],
+    [1.0, 70, 0.6],
   ];
   const data = new Uint8Array(N * N * 4);
   for (let y = 0; y < N; y++)

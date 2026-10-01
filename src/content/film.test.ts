@@ -49,6 +49,23 @@ describe('the film', () => {
     expect(film.mechNext).toBeCloseTo(lesson.mechNext, 6);
   });
 
+  it('holds the system voltage through the charging steps, as their captions say', () => {
+    for (const seq of [LESSONS.electrical, FILM]) {
+      const pl = new SequencePlayer(new Car());
+      pl.load(seq);
+      for (const id of ['charging', 'load']) {
+        const b = pl.beats.find((x) => x.beat.id === id);
+        if (!b) continue;
+        for (let k = 1; k < 8; k++) {
+          const car = new Car();
+          pl.sample(b.start + (b.beat.duration * k) / 8, car);
+          expect(car.s.volts, `${seq.id} ${id} at ${k}/8`).toBeGreaterThan(13.8);
+          expect(car.s.batteryAmps, `${seq.id} ${id}: the battery charges`).toBeLessThan(0);
+        }
+      }
+    }
+  });
+
   it('splits captions into sentences', () => {
     expect(sentences('One. Two, three. 4 cylinders.')).toEqual(['One.', 'Two, three.', '4 cylinders.']);
   });

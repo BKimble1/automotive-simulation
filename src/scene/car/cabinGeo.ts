@@ -8,7 +8,7 @@
  */
 import { BufferGeometry, Group, Object3D, Vector3 } from 'three';
 import { BODY } from '../../spec/vehicle';
-import { alongAxis, at, extrude, lathe, merge, rbox, rod, torus, tube } from '../geo/shapes';
+import { alongAxis, at, extrude, lathe, merge, rbox, rod, smoothOutline, torus, tube } from '../geo/shapes';
 import type { PartNode, Rig } from './rig';
 
 const V = (x: number, y: number, z: number) => new Vector3(x, y, z);
@@ -23,8 +23,8 @@ export interface CabinParts {
 }
 
 /** A side profile (x, y) extruded across z, centred on z (soft edges from a small bevel). */
-function slab(profile: [number, number][], depth: number, z: number, bevel = 0.012): BufferGeometry {
-  const g = extrude(profile, depth, { bevel, curveSegments: 6 });
+function slab(profile: [number, number][], depth: number, z: number, bevel = 0.012, crease?: number): BufferGeometry {
+  const g = extrude(profile, depth, { bevel, curveSegments: 6, crease });
   g.translate(0, 0, z);
   return g;
 }
@@ -45,12 +45,14 @@ function seat(x: number, z: number, w = 0.52): BufferGeometry[] {
   const g: BufferGeometry[] = [];
   const cushion: [number, number][] = [[x - 0.24, 0.32], [x + 0.22, 0.32], [x + 0.27, 0.36], [x + 0.27, 0.405], [x + 0.22, 0.44], [x - 0.05, 0.425], [x - 0.22, 0.405], [x - 0.25, 0.37]];
   const cBolster: [number, number][] = [[x - 0.24, 0.32], [x + 0.2, 0.32], [x + 0.26, 0.37], [x + 0.22, 0.47], [x - 0.1, 0.485], [x - 0.24, 0.455]];
-  g.push(slab(cushion, w - 0.15, z));
-  for (const s of [-1, 1]) g.push(slab(cBolster, 0.08, z + s * (w / 2 - 0.04)));
+  // upholstery: each profile smoothed through its points and shaded smooth (a sewn, padded form)
+  const pad = (pts: [number, number][], d: number, zz: number, bevel = 0.012) => slab(smoothOutline(pts, 4), d, zz, bevel, 0.7);
+  g.push(pad(cushion, w - 0.15, z));
+  for (const s of [-1, 1]) g.push(pad(cBolster, 0.08, z + s * (w / 2 - 0.04), 0.014));
   const hx = x - 0.235;
   const hy = 0.4;
-  g.push(slab(recline(BACK, RECLINE, hx, hy), w - 0.16, z));
-  for (const s of [-1, 1]) g.push(slab(recline(BACK_BOLSTER, RECLINE, hx, hy), 0.085, z + s * (w / 2 - 0.042)));
+  g.push(pad(recline(BACK, RECLINE, hx, hy), w - 0.16, z));
+  for (const s of [-1, 1]) g.push(pad(recline(BACK_BOLSTER, RECLINE, hx, hy), 0.085, z + s * (w / 2 - 0.042), 0.014));
   return g;
 }
 
@@ -64,6 +66,27 @@ function headRestraint(x: number, z: number): BufferGeometry[] {
     g.push(rod(V(p0[0], p0[1], z + s * 0.07), V(p1[0], p1[1], z + s * 0.07), 0.006, 6));
   }
   return g;
+}
+
+/** The door trims, one on each door (so it swings and lifts with its door): the inner panel, an
+ * armrest and a pull handle. `panels` gives each door's group, which is in the car's frame. */
+export function buildDoorTrims(rig: Rig, panels: Record<string, Object3D>): PartNode[] {
+  const out: PartNode[] = [];
+  for (const [door, x, len] of [['doorFL', 0.45, 0.95], ['doorFR', 0.45, 0.95], ['doorRL', -0.62, 0.8], ['doorRR', -0.62, 0.8]] as const) {
+    const s = door.endsWith('L') ? -1 : 1;
+    const z = s * 0.79;
+    const geo = merge([
+      rbox(len, 0.5, 0.04, 0.03, x, 0.72, z),
+      // the armrest and the pull handle stand in from the panel toward the seat
+      rbox(len * 0.55, 0.035, 0.06, 0.015, x - len * 0.08, 0.66, z - s * 0.04),
+      rbox(0.12, 0.025, 0.03, 0.01, x + len * 0.22, 0.8, z - s * 0.03),
+    ]);
+    const node = rig.part(panels[door], `door-trim-${door.slice(4)}`, 'door-trim', 'cabin', [['trim', geo, '#24262a']], { local: true });
+    // the door carries it when the car is taken apart (it does not lift a second time with the cabin)
+    rig.explode(node, 'explode', new Vector3(), { delay: 0 });
+    out.push(node);
+  }
+  return out;
 }
 
 export function buildCabin(rig: Rig, parent: Object3D): CabinParts {
@@ -97,9 +120,10 @@ export function buildCabin(rig: Rig, parent: Object3D): CabinParts {
   const dashProfile: [number, number][] = [[0.94, 0.9], [0.9, 0.945], [0.7, 0.96], [0.62, 0.95], [0.575, 0.925], [0.553, 0.88], [0.552, 0.8], [0.575, 0.73], [0.64, 0.665], [0.625, 0.6], [0.7, 0.53], [0.92, 0.52], [0.96, 0.72]];
   const binnacle: [number, number][] = [[0.68, 0.955], [0.62, 1.02], [0.54, 1.025], [0.515, 1.005], [0.545, 0.975], [0.6, 0.95]];
   rig.part(root, 'dashboard', 'dashboard', CB, [
-    ['trim', merge([slab(dashProfile, 1.46, 0, 0.012), slab(binnacle, 0.34, -0.37, 0.012)]), '#1b1d21'],
+    // a moulded pad: the profile smoothed through its points, shaded smooth with crisp ends
+    ['trim', merge([slab(smoothOutline(dashProfile, 5), 1.46, 0, 0.012, 0.6), slab(smoothOutline(binnacle, 5), 0.34, -0.37, 0.012, 0.6)]), '#1b1d21'],
     ['trim', merge([rbox(0.08, 0.3, 0.26, 0.02, 0.6, 0.66, 0), rbox(0.02, 0.06, 0.5, 0.008, 0.56, 0.76, 0.42)]), '#2a2d32'],
-    ['chrome', merge([rbox(0.004, 0.006, 1.2, 0.002, 0.54, 0.805, 0.08)])],
+    ['castAl', merge([rbox(0.004, 0.006, 1.2, 0.002, 0.54, 0.805, 0.08)]), '#9aa1aa'],
   ]);
   rig.part(root, 'instrument-cluster', 'instrument-cluster', 'control', [['screen', rbox(0.01, 0.09, 0.28, 0.004, 0.556, 0.93, -0.37)]]);
   rig.part(root, 'centre-display', 'centre-display', 'control', [['screen', rbox(0.012, 0.15, 0.27, 0.006, 0.6, 1.02, 0.0)], ['polymer', rbox(0.03, 0.06, 0.06, 0.008, 0.62, 0.95, 0)]]);
@@ -121,8 +145,6 @@ export function buildCabin(rig: Rig, parent: Object3D): CabinParts {
   symbol.translate(-0.0128, 0, 0);
   const startButton = rig.part(root, 'start-button', 'start-button', 'controls', [['polymerGloss', cap], ['led', symbol]], { pivot: btnAt.clone(), local: true });
 
-  // door trims (inside each door, so the door's inner face reads when it opens)
-  rig.part(root, 'door-trims', 'door-trim', CB, [['trim', merge([-1, 1].flatMap((s) => [rbox(0.95, 0.5, 0.04, 0.03, 0.45, 0.72, s * 0.79), rbox(0.8, 0.5, 0.04, 0.03, -0.62, 0.72, s * 0.79)])), '#24262a']]);
 
   // ───────────────────────── safety ─────────────────────────
   const S = 'safety';

@@ -21,7 +21,7 @@ import {
   type Curve,
 } from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices, toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 export type Axis = 'x' | 'y' | 'z';
 
@@ -298,13 +298,36 @@ export function beltLoop(pulleys: Pulley[], samples = 400): { pts: Vector2[]; le
 }
 
 /** A flat closed outline extruded along +z (or a profile for a cast part). */
-export function extrude(outline: [number, number][], depth: number, opts: { bevel?: number; holes?: [number, number][][]; curveSegments?: number } = {}): BufferGeometry {
+/**
+ * A closed outline through the given points (centripetal Catmull-Rom, `n` points per span):
+ * a moulded part's profile drawn from a few control points.
+ */
+export function smoothOutline(pts: [number, number][], n = 6): [number, number][] {
+  const out: [number, number][] = [];
+  const N = pts.length;
+  const P = (i: number) => pts[((i % N) + N) % N];
+  for (let i = 0; i < N; i++) {
+    const [p0, p1, p2, p3] = [P(i - 1), P(i), P(i + 1), P(i + 2)];
+    for (let k = 0; k < n; k++) {
+      const t = k / n;
+      const t2 = t * t;
+      const t3 = t2 * t;
+      const f = (a: number, b: number, c: number, d: number) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+      out.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+    }
+  }
+  return out;
+}
+
+export function extrude(outline: [number, number][], depth: number, opts: { bevel?: number; holes?: [number, number][][]; curveSegments?: number; crease?: number } = {}): BufferGeometry {
   const s = new Shape(outline.map(([x, y]) => new Vector2(x, y)));
   for (const h of opts.holes ?? []) s.holes.push(new Shape(h.map(([x, y]) => new Vector2(x, y))) as unknown as import('three').Path);
   const bev = opts.bevel ?? 0;
   const g = new ExtrudeGeometry(s, { depth: Math.max(1e-4, depth - 2 * bev), bevelEnabled: bev > 0, bevelThickness: bev, bevelSize: bev, bevelSegments: 2, curveSegments: opts.curveSegments ?? 12 });
   g.translate(0, 0, bev - depth / 2);
   g.computeVertexNormals();
+  // smooth shading across the profile's gentle turns, sharp at its real edges
+  if (opts.crease) return toCreasedNormals(g, opts.crease);
   return g;
 }
 
