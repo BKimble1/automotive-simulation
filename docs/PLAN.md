@@ -119,3 +119,42 @@ interface Component {
 5. Explore hierarchy and depth content  
 6. Engineer labs, Simulate/Diagnose  
 7. hub integration, previews, tests, package
+
+## V2: what changed in the architecture
+
+* **Runs are data.** A `RunSpec` (`src/sim/run.ts`) describes a run completely: start state,
+  driver, road (`RoadSpec`), faults, parameters, length or end condition, time scale.
+  `initRun` is the only way a run starts, so a lab, a scenario, a lesson chain and the workbench
+  inherit nothing from what ran before. Snapshots hold every bit of state, including controller
+  memory, and read-only sampling (`simulate`, `SequencePlayer.sample`) runs on its own `Car`.
+* **Work off the page.** Lab charts and long seeks are computed in a module worker
+  (`src/world/simWorker.ts`, through `jobs.ts`), in short slices. A newer request supersedes an
+  older one, and the page computes in its place if the worker fails. Seeks start from
+  checkpoints, one per simulated second of each chain (`seekCache.ts`). A step waits (held, its
+  last picture kept) while its state is computed.
+* **One pause owner.** The world owns the pause. The director, the sequence player, the
+  narration and the model all read it, so a true pause freezes everything, including authored
+  camera motion, and resumes from the same state. Context loss suspends the presentation, and
+  nothing catches up afterwards.
+* **Readiness.** A step whose subject is not yet built or compiled waits in `preparing`. Its
+  clock holds and nothing of the destination happens early. Programs are compiled for the
+  composer's linear target, which is where they are drawn, and hidden materials (ghost and
+  section variants, the wheels' spin blur) are compiled on stand-ins, so no shader compiles for
+  the first time during a move (tested).
+* **The geartrain** (`src/sim/geartrain.ts`) solves every shaft and planet from the gearsets'
+  tooth counts and the applied elements, during shifts too. The cutaway turns its members at
+  exactly those speeds.
+* **The workbench** (`src/world/driver.ts`, `src/ui/simulate/Workbench.tsx`) writes only the
+  model's inputs, once per frame, with pedal and steering ramps and speed-dependent limits. A
+  manual run has no driver script.
+* **Rigid linkages.** Front knuckles steer about their ball-joint axis, the rack is drawn where
+  both rigid tie rods need it, and rear knuckles follow the arcs their links allow
+  (`src/world/mechanism.ts`; see docs/ENGINEERING.md).
+* **The interface.**
+  * A phone sheet that collapses and resizes (`src/ui/Sheet.tsx`).
+  * Progressive disclosure and tap-to-select in Explore, plus view choices (explained,
+    exterior, opened, cutaway, exploded).
+  * A Recentre button whenever the visitor has moved the camera.
+  * 44 px targets.
+  * Reduced motion across camera, reveals and interface.
+  * A boundary that contains a failing panel.

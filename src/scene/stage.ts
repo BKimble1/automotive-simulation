@@ -188,9 +188,7 @@ export class Stage {
    * displayed scene is never altered: hidden parts are compiled through stand-ins (below).
    */
   async prewarm(scene: Scene = this.scene, opts: { onlyVisible?: boolean } = {}) {
-    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Object3D, c: PerspectiveCamera, t?: Scene | null) => Promise<unknown> };
-    if (r.compileAsync) await r.compileAsync(scene, this.camera);
-    else this.renderer.compile(scene, this.camera);
+    await this.compileInto(scene);
     if (opts.onlyVisible) return;
     // the hidden parts: compile their materials on stand-ins in a scene of their own
     const mats: Material[] = [];
@@ -233,10 +231,29 @@ export class Stage {
       }
     });
     if (!stand.children.length) return;
-    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Object3D, c: PerspectiveCamera, t?: Scene | null) => Promise<unknown> };
-    if (r.compileAsync) await r.compileAsync(stand, this.camera, this.scene);
-    else this.renderer.compile(stand, this.camera, this.scene);
+    await this.compileInto(stand, this.scene);
     stand.clear();
+  }
+
+  /**
+   * Compile for where the scene is really drawn: every tier draws through the composer, into a
+   * linear target, so programs compiled for the screen (sRGB output) would be compiled again,
+   * mid-move, the first time each is drawn.
+   */
+  private async compileInto(scene: Object3D, lights: Scene | null = null) {
+    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Object3D, c: PerspectiveCamera, t?: Scene | null) => Promise<unknown> };
+    const prev = r.getRenderTarget();
+    const target = (this.composer as unknown as { inputBuffer?: import('three').WebGLRenderTarget } | null)?.inputBuffer ?? null;
+    r.setRenderTarget(target);
+    try {
+      // compileAsync compiles synchronously and then waits for the driver: the target only
+      // needs to be bound for the first part
+      const done = r.compileAsync ? r.compileAsync(scene, this.camera, lights) : (r.compile(scene, this.camera, lights), Promise.resolve());
+      r.setRenderTarget(prev);
+      await done;
+    } finally {
+      r.setRenderTarget(prev);
+    }
   }
 
   /** Test hook: simulate a lost context (and restore it). */

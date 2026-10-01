@@ -251,6 +251,12 @@ export class World {
       mats.add(p.mats.glassGhost);
       for (const e of p.extras) mats.add(e.ghost);
     }
+    // anything on the car that starts hidden (the wheels' spin blur, lesson-only parts)
+    this.car.root.traverse((o) => {
+      const m = (o as import('three').Mesh).material;
+      if (!m || o.visible) return;
+      for (const x of Array.isArray(m) ? m : [m]) mats.add(x);
+    });
     await this.stage.compileMaterials([...mats]);
     await nextFrame();
   }
@@ -784,6 +790,8 @@ export class World {
       usePlayer.setState({ t: p.t, playing: p.playing, holding: p.hold || !!this.seekPending, beat: p.index, caption: p.caption(), ended: p.ended, scale });
     }
     if (this.live) this.publishRun();
+    const camOff = this.camera.offFraming;
+    if (camOff !== useApp.getState().camOff) useApp.setState({ camOff });
     useApp.setState({ director: this.director.state });
   }
 

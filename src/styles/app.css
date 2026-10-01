@@ -2076,3 +2076,26 @@ kbd {
 .run-pace {
   margin: -2px 0 8px;
 }
+
+/* Recentre: over the scene, at the top right of the part the interface leaves free */
+.recentre {
+  position: fixed;
+  top: calc(var(--free-t, 64px) + 8px);
+  right: calc(var(--free-r, 0px) + 12px);
+  z-index: 5;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.recentre::after {
+  content: '';
+  position: absolute;
+  inset: -5px -2px;
+}
+

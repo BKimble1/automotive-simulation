@@ -40,6 +40,8 @@ export interface AppState {
   director: string;
   set: (p: Partial<AppState>) => void;
   go: (p: Partial<Pick<AppState, 'mode' | 'system' | 'part' | 'lesson' | 'lab' | 'scenario'>>) => void;
+  /** The visitor has moved the camera away from the directed framing (Recentre shows). */
+  camOff: boolean;
 }
 
 const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
@@ -64,6 +66,7 @@ export const useApp = create<AppState>((set, get) => ({
   info: false,
   sheet: true,
   sheetH: 0.42,
+  camOff: false,
   sheetDragging: false,
   contextLost: false,
   director: 'idle',

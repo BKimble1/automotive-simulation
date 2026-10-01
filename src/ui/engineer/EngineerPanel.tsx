@@ -188,8 +188,12 @@ export function EngineerPanel({ world }: { world: World }) {
               {same ? 'Running this setting' : `Run: ${changed}`}
             </button>
           </div>
-          <div className="eng-run" aria-live="polite">
-            <span className="eng-run__status">{slow ? 'Computing the chart…' : status}</span>
+          <div className="eng-run">
+            {/* the clock ticks visibly; only changes of state are announced */}
+            <span className="eng-run__status" aria-hidden="true">{slow ? 'Computing the chart…' : status}</span>
+            <span className="sr-only" role="status">
+              {slow ? 'Computing the chart' : run.status === 'paused' ? 'Run paused' : run.status === 'ended' ? 'Run complete' : run.status === 'none' ? '' : 'Run playing'}
+            </span>
             <span className="eng-run__btns">
               {run.status !== 'ended' && run.status !== 'none' && (
                 <button className="pbtn" onClick={() => world.setPaused(run.status !== 'paused')} aria-label={run.status === 'paused' ? 'Resume the run' : 'Pause the run'}>

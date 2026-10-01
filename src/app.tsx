@@ -99,6 +99,17 @@ function Veil() {
   );
 }
 
+/** Back to the directed framing: shown only while the visitor has moved the camera away. */
+function Recentre({ world }: { world: World }) {
+  const off = useApp((s) => s.camOff);
+  if (!off) return null;
+  return (
+    <button className="recentre pe" onClick={() => world.camera.recenter()} aria-label="Recentre the view" title="Recentre the view (Home)">
+      Recentre
+    </button>
+  );
+}
+
 function NoWebGL() {
   const home = import.meta.env.VITE_FABONE_HOME;
   return (
@@ -139,6 +150,7 @@ function App() {
           </PanelBoundary>
         )}
         <Notices />
+        {ready && world && <Recentre world={world} />}
         {ready && <Legend />}
         {ready && <Info />}
       </div>

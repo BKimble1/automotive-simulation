@@ -110,6 +110,10 @@ const _b = new Vector3();
 const _k = new Vector3();
 const _u = new Vector3();
 const _rackAxis = new Vector3();
+const _r0 = new Vector3();
+const _r1 = new Vector3();
+const _c = new Vector3();
+const _qi = new Quaternion();
 /** The body's roll and pitch pivot (about the roll centres' height). */
 const BODY_PIVOT = new Vector3(0, 0.12, 0);
 
@@ -266,6 +270,9 @@ export class Mechanism {
 
   /** The rack's travel this frame, m along the car's z (set by solveRack). */
   rackD = 0;
+  private _want: number[] = [];
+  /** Each rear corner's straight links, found once. */
+  private rearLinks = new Map<number, Link[]>();
   /** What is left of the tie rods' length error after the rack is placed (tests read it), m. */
   rackResidual = 0;
 
@@ -279,7 +286,8 @@ export class Mechanism {
   private solveRack(links: Link[], v: MechView): number {
     const lin = -v.steerWheel * (STEERING.rackPerRev / (2 * Math.PI));
     const axis = _rackAxis.set(0, 0, 1).applyQuaternion(this.bodyQ);
-    const want: number[] = [];
+    const want = this._want;
+    want.length = 0;
     for (const l of links) {
       if (l.kind !== 'tierod' || !CORNERS[l.corner].front) continue;
       const a0 = this.bodyPoint(l.a, _a);
@@ -313,7 +321,11 @@ export class Mechanism {
    */
   private solveRear(ci: number, links: Link[], v: MechView) {
     const d = this.rearShift[ci];
-    const mine = links.filter((l) => l.corner === ci && l.kind === 'stretch');
+    let mine = this.rearLinks.get(ci);
+    if (!mine) {
+      mine = links.filter((l) => l.corner === ci && l.kind === 'stretch');
+      this.rearLinks.set(ci, mine);
+    }
     if (!mine.length) return;
     for (let it = 0; it < 4; it++) {
       // normal equations for (dx, dz)
@@ -389,12 +401,12 @@ export class Mechanism {
       // a hinge on the body: turn about the inner pivots' axis so the ball joint follows
       const h = _v.subVectors(l.a2!, l.a).normalize();
       const restVec = _v2.subVectors(l.b, l.a);
-      const r0 = restVec.clone().addScaledVector(h, -restVec.dot(h));
-      // the target, in the body's frame
-      const inv = this.bodyQ.clone().invert();
-      const tgt = b.clone().sub(a).applyQuaternion(inv);
+      const r0 = _r0.copy(restVec).addScaledVector(h, -restVec.dot(h));
+      // the target, in the body's frame (scratch objects: this runs for every arm, every frame)
+      const inv = _qi.copy(this.bodyQ).invert();
+      const tgt = _r1.copy(b).sub(a).applyQuaternion(inv);
       const r1 = tgt.addScaledVector(h, -tgt.dot(h));
-      const ang = Math.atan2(h.dot(r0.clone().cross(r1)), r0.dot(r1));
+      const ang = Math.atan2(h.dot(_c.copy(r0).cross(r1)), r0.dot(r1));
       _q.setFromAxisAngle(h, ang);
       n.mq.copy(this.bodyQ).multiply(_q);
       n.mp.subVectors(a, l.a);

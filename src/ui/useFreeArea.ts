@@ -41,6 +41,10 @@ export function useFreeArea(world: World | null) {
         const first = last === '';
         last = key;
         world.setFree(l / W, t / H, r / W, b / H, first);
+        // controls that float over the scene (Recentre) sit inside the free area
+        const st = document.documentElement.style;
+        st.setProperty('--free-t', `${Math.round(t)}px`);
+        st.setProperty('--free-r', `${Math.round(W - r)}px`);
       }
     };
     const schedule = () => {
