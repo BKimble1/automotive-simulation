@@ -15,10 +15,10 @@
  */
 import { EffectComposer, EffectPass, RenderPass, BloomEffect, ToneMappingEffect, ToneMappingMode, VignetteEffect, SMAAEffect, SMAAPreset, FXAAEffect } from 'postprocessing';
 import { N8AOPostPass } from 'n8ao';
-import { Color, HalfFloatType, Mesh, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, type Material, type Object3D, type Texture } from 'three';
+import { Color, HalfFloatType, InstancedBufferAttribute, InstancedMesh, Mesh, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, type Material, type Object3D, type Texture } from 'three';
 import { buildEnvironment } from './env';
 import { FrameMonitor, FrameStats, TIERS, initialTier, useQuality, type Tier } from './quality';
-import { CAPTURE, frameTime } from './time';
+import { CAPTURE, VIRTUAL_TIME, frameTime } from './time';
 
 export class Stage {
   renderer: WebGLRenderer;
@@ -220,7 +220,10 @@ export class Stage {
       for (const m of cands) {
         if (!m || !(m as Material).isMaterial || !wanted.has(m as Material) || used.has(m as Material)) continue;
         used.add(m as Material);
-        const p = new Mesh(mesh.geometry, m as Material);
+        // an instanced mesh needs the instanced program: its stand-in is instanced too
+        const inst = (mesh as InstancedMesh).isInstancedMesh ? (mesh as InstancedMesh) : null;
+        const p = inst ? new InstancedMesh(mesh.geometry, m as Material, 1) : new Mesh(mesh.geometry, m as Material);
+        if (inst?.instanceColor) (p as InstancedMesh).instanceColor = new InstancedBufferAttribute(new Float32Array(3), 3);
         p.castShadow = mesh.castShadow;
         p.receiveShadow = mesh.receiveShadow;
         p.renderOrder = mesh.renderOrder;
@@ -232,6 +235,7 @@ export class Stage {
     });
     if (!stand.children.length) return;
     await this.compileInto(stand, this.scene);
+    for (const c of stand.children) if ((c as InstancedMesh).isInstancedMesh) (c as InstancedMesh).dispose();
     stand.clear();
   }
 
@@ -253,6 +257,37 @@ export class Stage {
       await done;
     } finally {
       r.setRenderTarget(prev);
+    }
+    await this.firstUse();
+  }
+
+  /** Programs whose first use is done (see firstUse). */
+  private usedPrograms = new WeakSet<object>();
+  /** Nothing authored is moving, so a stalled frame would go unseen (the World sets this). */
+  quiet: () => boolean = () => true;
+
+  /**
+   * Take each new program's first use now, not at its first draw. three.js reads a program's
+   * link result and its uniform and attribute tables at first use, and those reads wait for the
+   * driver to finish linking. Without KHR_parallel_shader_compile (Firefox, software rendering,
+   * some phones) compileAsync returns before anything is linked, so that wait would land on the
+   * first frame of a move: seconds on a software renderer. Here it happens while the
+   * destination is still being prepared, one program at a time, with the page free to respond
+   * in between, and (where the wait is real) at a still moment.
+   */
+  private async firstUse() {
+    const all = () => (this.renderer.info.programs ?? []) as unknown as { getUniforms(): unknown; getAttributes(): unknown }[];
+    const gl = this.renderer.getContext();
+    const waits = !gl.getExtension('KHR_parallel_shader_compile') && !VIRTUAL_TIME;
+    for (const p of [...all()]) {
+      if (this.usedPrograms.has(p)) continue;
+      // let an authored move finish first (a few seconds at most): a stall then goes unseen
+      if (waits) for (let t = 0; t < 3000 && !this.quiet(); t += 50) await new Promise((r) => setTimeout(r, 50));
+      if (gl.isContextLost() || !all().includes(p)) continue;
+      this.usedPrograms.add(p);
+      p.getUniforms();
+      p.getAttributes();
+      await new Promise((r) => setTimeout(r, 0));
     }
   }
 

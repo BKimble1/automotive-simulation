@@ -154,6 +154,7 @@ export class World {
       },
       adjust: (c) => c,
     });
+    this.stage.quiet = () => this.director.settled;
     // the visitor may take the camera only when no authored move owns it
     this.camera.permit = () => this.director.canOrbit;
     this.stage.onContextChange = (lost) => {

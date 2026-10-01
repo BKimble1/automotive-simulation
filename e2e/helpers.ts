@@ -9,13 +9,13 @@ declare global {
 }
 
 /** Open the app on the virtual clock and wait until the car is built and compiled. */
-export async function open(page: Page, query = '') {
+export async function open(page: Page, query = '', quality = 'low') {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(String(e)));
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push(m.text());
   });
-  await page.goto(`./?virt=1&quality=low${query ? `&${query}` : ''}`);
+  await page.goto(`./?virt=1&quality=${quality}${query ? `&${query}` : ''}`);
   await page.waitForFunction(() => window.__fabStores?.useApp?.getState().ready, null, { timeout: 150_000 });
   for (let i = 0; i < 120; i++) {
     await page.evaluate(() => window.__fabAdvance(1, false));

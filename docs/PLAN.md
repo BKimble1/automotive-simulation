@@ -137,10 +137,19 @@ interface Component {
   camera motion, and resumes from the same state. Context loss suspends the presentation, and
   nothing catches up afterwards.
 * **Readiness.** A step whose subject is not yet built or compiled waits in `preparing`. Its
-  clock holds and nothing of the destination happens early. Programs are compiled for the
-  composer's linear target, which is where they are drawn, and hidden materials (ghost and
-  section variants, the wheels' spin blur) are compiled on stand-ins, so no shader compiles for
-  the first time during a move (tested).
+  clock holds and nothing of the destination happens early.
+  * **Where programs are compiled.** Programs are compiled for the composer's linear target,
+    which is where they are drawn.
+  * **Hidden materials** (ghost and section variants, the wheels' spin blur) are compiled on
+    stand-ins. A stand-in is instanced where the mesh is, as the timing chain and the flow
+    particles are.
+  * **First use.** Each program's first use, when three.js reads its link result and its
+    uniforms, is taken during preparation. Where the browser links in parallel this costs
+    nothing. Where it does not (Firefox, software rendering, some phones), that read waits for
+    the driver, so it is taken at a still moment, one program at a time.
+  * **Tested.** No program is compiled or first used during any move, at medium quality,
+    across every system, view and several parts. Taking a program's first use at its first draw
+    used to stall the opening frame of a move by 3–8 s on SwiftShader.
 * **The geartrain** (`src/sim/geartrain.ts`) solves every shaft and planet from the gearsets'
   tooth counts and the applied elements, during shifts too. The cutaway turns its members at
   exactly those speeds.

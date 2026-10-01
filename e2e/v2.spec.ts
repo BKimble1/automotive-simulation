@@ -271,16 +271,34 @@ test.describe('V2: camera and continuity', () => {
     expect(errors).toEqual([]);
   });
 
-  test('no shader is compiled for the first time during a move, on any view', async ({ page }, info) => {
+  test('no program is compiled or first used during a move, on any view or part', async ({ page }, info) => {
     only(['desktop'])(null, info);
-    test.setTimeout(900_000);
+    test.setTimeout(2_400_000);
+    // A program's first use is when three.js reads its link result and its uniform table, and
+    // where linking is not parallel that read waits for the driver: a stall in the middle of a
+    // move. Count those reads (each asks for the program's ACTIVE_UNIFORMS) as well as the
+    // programs. Medium quality: the detailed body and the post-processing chain are in use.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __firstUses: number };
+      w.__firstUses = 0;
+      for (const C of [WebGL2RenderingContext, WebGLRenderingContext]) {
+        const f = C.prototype.getProgramParameter;
+        C.prototype.getProgramParameter = function (this: WebGLRenderingContext, prog: WebGLProgram, pname: number) {
+          if (pname === 0x8b86) w.__firstUses++;
+          return f.call(this, prog, pname);
+        } as typeof f;
+      }
+    });
     // a smaller canvas: the software renderer draws every sampled frame of every move
     await page.setViewportSize({ width: 960, height: 540 });
-    const errors = await open(page, 'mode=explore');
+    const errors = await open(page, 'mode=explore', 'medium');
     await frames(page, 30);
     await page.evaluate(() => window.__fabAdvance(1, true));
     const programs = () => page.evaluate(() => window.__fab.stage.renderer.info.programs?.length ?? 0);
+    const firstUses = () => page.evaluate(() => (window as unknown as { __firstUses: number }).__firstUses);
     const p0 = await programs();
+    const u0 = await firstUses();
+    expect(u0, 'the count sees the programs used while the car was prepared').toBeGreaterThan(p0 / 2);
     // draw a frame every 0.2 s through each move
     const through = async (n: number) => {
       // (advancing several frames draws the last of them)
@@ -297,7 +315,15 @@ test.describe('V2: camera and continuity', () => {
         }
       }
     }
-    expect(await programs()).toBe(p0);
+    // parts: an instanced mechanism (the timing chain) and parts deep inside their systems
+    for (const [system, part] of [['power', 'timing-chain'], ['driveline', 'differential'], ['brakes', 'brake-caliper']]) {
+      await go(page, { system, part });
+      await through(10);
+    }
+    await go(page, { system: null, part: null });
+    await through(10);
+    expect(await programs(), 'no new program').toBe(p0);
+    expect(await firstUses(), 'no program used for the first time').toBe(u0);
     expect(errors).toEqual([]);
   });
 });
