@@ -93,14 +93,19 @@ export function stretch(ts: TimeScale | undefined, k: number): TimeScale | undef
 
 /** Fit the beats to the narration: durations, stretched time scales and spoken cues. */
 export function timedFilm(beats: Beat[], narration: NarrationManifest): Beat[] {
-  return beats.map((b) => {
+  return beats.map((b, i) => {
     const seg = narration.segments.find((s) => s.id === b.id);
     if (!seg) return { ...b, narration: undefined, cues: [{ at: 0, text: b.text }] };
     const need = seg.durationMs / 1000 + 0.5;
     const duration = Math.max(b.duration, need);
     const k = duration / b.duration;
     const cues: Cue[] = seg.cues.map((c) => ({ at: c.startMs / 1000, text: c.text }));
-    return { ...b, duration, timeScale: stretch(b.timeScale, k), narration: b.id, cues };
+    // a real-time beat that ends its chain simply runs longer (no false slow motion); any other
+    // beat keeps its mechanical span, so the next beat of its chain starts where it should
+    const next = beats[i + 1];
+    const endsChain = !next || !!next.program;
+    const keepScale = endsChain && (b.timeScale === undefined || b.timeScale === 1);
+    return { ...b, duration, timeScale: keepScale ? b.timeScale : stretch(b.timeScale, k), narration: b.id, cues };
   });
 }
 

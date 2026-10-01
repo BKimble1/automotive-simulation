@@ -11,6 +11,8 @@ import { Header } from './ui/Header';
 import { Intro } from './ui/Intro';
 import { Modes } from './ui/Modes';
 import { Notices } from './ui/Notices';
+import { Legend } from './ui/Legend';
+import { Info } from './ui/Info';
 import type { World } from './world/world';
 import { attachController } from './world/controller';
 import { useFreeArea } from './ui/useFreeArea';
@@ -65,7 +67,7 @@ function Stage({ onWorld }: { onWorld: (w: World) => void }) {
       world?.dispose();
     };
   }, [set, onWorld]);
-  return <canvas ref={ref} className="stage stage--grab" aria-label="The S-1 sedan in the studio: drag to look around" tabIndex={0} />;
+  return <canvas ref={ref} className="stage stage--grab" aria-label="The S-1 sedan. Drag, or use the arrow keys, to look around; + and − zoom; Home recentres" tabIndex={0} />;
 }
 
 function Veil() {
@@ -124,6 +126,8 @@ function App() {
         {ready && mode === 'intro' && <Intro />}
         {ready && world && <Modes world={world} />}
         <Notices />
+        {ready && <Legend />}
+        {ready && <Info />}
       </div>
       <Veil />
       {progress < 0 && <NoWebGL />}

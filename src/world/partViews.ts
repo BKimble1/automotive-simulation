@@ -62,8 +62,10 @@ export function viewFor(id: string, car: Car): View | null {
     delete channels[`ghost:${a}`];
     delete channels[`hide:${a}`];
   }
+  // the subject's colour fills it (not only its rim), so a small part reads at a glance
+  const tint = Object.fromEntries(nodes.filter((n) => !n.startsWith('panel-')).map((n) => [n, '#b9b2ff']));
   if (authored) {
-    const v: View = { ...authored, id: `part:${id}`, channels, focus: assemblies.length ? assemblies : authored.focus, free: true };
+    const v: View = { ...authored, id: `part:${id}`, channels, tint, focus: assemblies.length ? assemblies : authored.focus, free: true };
     cache.set(id, v);
     return v;
   }
@@ -79,6 +81,7 @@ export function viewFor(id: string, car: Car): View | null {
     id: `part:${id}`,
     shot: { id: `part:${id}`, target: centre, az, el: Math.max(0.15, Math.min(0.75, sys.el + 0.05)), dist, fov: 30, ox: -0.1, subject: { w, h }, orbit: { az: [-0.9, 0.9], el: [0.02, 1.2], dist: [0.6, 1.8] } },
     channels,
+    tint,
     focus: assemblies,
     free: true,
     requires: ['car'],

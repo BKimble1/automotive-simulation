@@ -673,12 +673,30 @@ export class Director {
       e.preventDefault();
       this.user.zoom *= Math.exp(MathUtils.clamp(e.deltaY, -120, 120) * 0.0012);
     };
+    // the keyboard, with the canvas focused: arrows orbit (a smooth nudge that settles), + and −
+    // zoom, Home returns to the directed framing
+    const key = (e: KeyboardEvent) => {
+      if (!this.canOrbit() || e.altKey || e.ctrlKey || e.metaKey) return;
+      const nudge = e.shiftKey ? 1.6 : 0.8;
+      let used = true;
+      if (e.key === 'ArrowLeft') this.userVel.az = -nudge;
+      else if (e.key === 'ArrowRight') this.userVel.az = nudge;
+      else if (e.key === 'ArrowUp') this.userVel.el = nudge * 0.6;
+      else if (e.key === 'ArrowDown') this.userVel.el = -nudge * 0.6;
+      else if (e.key === '+' || e.key === '=') this.user.zoom *= 0.88;
+      else if (e.key === '-' || e.key === '_') this.user.zoom *= 1.12;
+      else if (e.key === 'Home') this.recenter();
+      else used = false;
+      if (used) e.preventDefault();
+    };
+    el.addEventListener('keydown', key);
     el.addEventListener('pointerdown', down);
     el.addEventListener('pointermove', move);
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
     el.addEventListener('wheel', wheel, { passive: false });
     return () => {
+      el.removeEventListener('keydown', key);
       el.removeEventListener('pointerdown', down);
       el.removeEventListener('pointermove', move);
       el.removeEventListener('pointerup', up);

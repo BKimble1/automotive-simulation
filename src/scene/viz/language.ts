@@ -26,7 +26,7 @@ export const LANGUAGE: Record<FlowKind, Language> = {
   exhaust: { label: 'Exhaust gas', color: '#A7A39C', style: 'puff', size: 0.022, density: 22, pattern: 'soft, larger puffs' },
   oil: { label: 'Oil', color: '#D08A3A', style: 'dash', size: 0.01, density: 34, pattern: 'slow, thick dashes' },
   coolant: { label: 'Coolant', color: '#2BB592', style: 'dash', size: 0.008, density: 40, pattern: 'medium dashes' },
-  hydraulic: { label: 'Brake pressure', color: '#CC79A7', style: 'band', size: 0.006, density: 26, pattern: 'pressure fronts along the line' },
+  hydraulic: { label: 'Hydraulic fluid', color: '#CC79A7', style: 'band', size: 0.006, density: 26, pattern: 'pressure fronts along brake lines and in the converter' },
   power: { label: 'Electrical power', color: '#EAF1FF', style: 'packet', size: 0.008, density: 26, pattern: 'square packets on the wires' },
   signal: { label: 'Control signals', color: '#8B7DFF', style: 'pulse', size: 0.006, density: 30, pattern: 'thin dotted pulses' },
   heat: { label: 'Heat', color: '#D55E00', style: 'glow', size: 0, density: 0, pattern: 'a warm tint on hot surfaces' },
