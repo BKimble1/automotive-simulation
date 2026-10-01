@@ -70,7 +70,7 @@ const startBeats: Beat[] = [
     title: 'A stable idle',
     text: 'The starter disengages. The engine control module holds the speed near 750 rpm by adjusting the throttle.',
     duration: 4,
-    view: 'firing-order',
+    view: 'cylinder-cutaway',
     timeScale: { from: 0.05, to: 1, ramp: 2.5 },
   },
 ];

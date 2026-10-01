@@ -44,7 +44,7 @@ export const KINDS: Record<string, KindSpec> = {
   /** Assemblies or parts ghosting. */
   ghost: { stage: 1, duration: 0.8 },
   /** Parts fading out of the way completely. */
-  hide: { stage: 1, duration: 0.7 },
+  hide: { stage: 0, duration: 0.7 },
   /** Lesson-only parts fading in (structure, deployed airbags, the rolling road). */
   show: { stage: 2, duration: 0.9 },
   /** Taking apart: the whole car, the engine, the converter, a brake. */

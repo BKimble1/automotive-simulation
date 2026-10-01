@@ -13,6 +13,7 @@ import { CRANK_Y, DECK_Y, FLEX_X, XC } from '../scene/car/engineGeo';
 import { DIFF_C, TRANS } from '../scene/car/drivetrainGeo';
 import { BODY, WHEEL_Y } from '../spec/vehicle';
 import { ASSEMBLIES } from './looks';
+import { labels } from './labelDefs';
 
 export interface View {
   id: string;
@@ -171,14 +172,14 @@ export const VIEWS: Record<string, View> = {
   'start-button': {
     id: 'start-button',
     shot: { id: 'start-button', target: V(0.54, 0.865, -0.6), az: 3.85, el: 0.3, dist: 0.72, fov: 30, ox: 0.02, subject: { w: 0.3, h: 0.2 }, orbit: false },
-    channels: { ...bodyGhost(['doorFL', 'doorRL', 'shell'], 0.88), ...hideAll(['door-trims', 'seat-driver', 'head-restraints', 'seat-belt-driver', 'airbag-modules']), studio: 0.6, dim: 0.5, 'hl:start-button': 0.9 },
+    channels: { ...bodyGhost(['doorFL', 'doorRL', 'shell'], 0.88), ...hideAll(['door-trims', 'seat-driver', 'head-restraints', 'seat-belt-driver', 'airbag-modules']), studio: 0.6, dim: 0.5, 'hl:start-button': 0.9, ...labels('start-button') },
     focus: ['cabin', 'controls', 'steering', 'control'],
     requires: ['car'],
   },
   'battery-starter': {
     id: 'battery-starter',
     shot: { id: 'battery-starter', target: V(1.08, 0.5, 0.18), az: 1.95, el: 0.62, dist: 2.3, fov: 30, ox: 0.08, subject: { w: 1.3, h: 0.8 }, orbit: false },
-    channels: { ...bodyGhost(PANELS_FRONT, 0.92), ...bodyGhost(['shell'], 0.5), ...ghostParts(['engine-block', 'cylinder-head', 'cam-cover', 'intake-manifold', 'oil-pan', 'transmission-case', 'air-filter-box', 'air-duct', 'exhaust-manifold'], 0.7), studio: 0.6, dim: 0.6, 'hl:electrical': 0.7, 'flow:starterCurrent': 1, 'flow:groundReturn': 1, 'flow:ecuPower': 1 },
+    channels: { ...bodyGhost(PANELS_FRONT, 0.92), ...bodyGhost(['shell'], 0.5), ...ghostParts(['cabin', 'controls', 'safety', 'hvac', 'suspension', 'steering'], 0.85), ...ghostParts(['engine-block', 'cylinder-head', 'cam-cover', 'intake-manifold', 'oil-pan', 'transmission-case', 'air-filter-box', 'air-duct', 'exhaust-manifold'], 0.7), studio: 0.6, dim: 0.6, 'hl:electrical': 0.7, 'flow:starterCurrent': 1, 'flow:groundReturn': 1, 'flow:ecuPower': 1, ...labels('battery', 'starter') },
     focus: ['electrical', 'control'],
     requires: ['car'],
   },
@@ -186,21 +187,21 @@ export const VIEWS: Record<string, View> = {
     id: 'starter-flexplate',
     // buried parts are framed from outside the body with a longer lens (the camera never enters the car)
     shot: { id: 'starter-flexplate', target: V(FLEX_X - 0.01, CRANK_Y - 0.085, -0.065), az: 2.45, el: 0.08, dist: 1.7, fov: 20, ox: 0.04, subject: { w: 0.34, h: 0.3 }, orbit: false },
-    channels: { ...all(0.94), ...isolate(['engine', 'electrical', 'transmission', 'lubrication']), ...ghostParts(['transmission'], 0.9), ...ghostParts(['oil-pan', 'engine-block', 'cylinder-head', 'cam-cover'], 0.85), ...hideAll(['accessory-belt', 'alternator', 'pulley-alternator', 'wiring-harness', 'converter-impeller', 'converter-turbine', 'converter-stator', 'lockup-clutch', 'trans-pump', 'input-shaft']), studio: 0.6, dim: 0.6, 'hl:electrical': 0.5, 'hl:flexplate': 0.6, 'flow:starterCurrent': 0.6 },
+    channels: { ...all(0.94), ...isolate(['engine', 'electrical', 'transmission', 'lubrication']), ...ghostParts(['transmission-case', 'transmission-pan', 'valve-body', 'trans-mount', 'oil-pan', 'engine-block', 'cylinder-head', 'cam-cover', 'timing-cover'], 0.85), ...labels('starter-pinion', 'ring-gear-flex'), ...hideAll(['accessory-belt', 'alternator', 'pulley-alternator', 'wiring-harness', 'converter-impeller', 'converter-turbine', 'converter-stator', 'lockup-clutch', 'trans-pump', 'input-shaft']), studio: 0.6, dim: 0.6, 'hl:electrical': 0.5, 'hl:flexplate': 0.6, 'flow:starterCurrent': 0.6 },
     focus: ['electrical', 'transmission', 'engine'],
     requires: ['car'],
   },
   'cylinder-cutaway': {
     id: 'cylinder-cutaway',
-    shot: { id: 'cylinder-cutaway', target: V(XC[0], DECK_Y - 0.06, -0.01), az: 1.95, el: 0.22, dist: 0.95, fov: 30, ox: 0.1, subject: { w: 0.42, h: 0.5 }, orbit: { az: [-0.45, 0.45], el: [0.0, 0.5], dist: [0.8, 1.3] } },
-    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL', 'doorFR'], 0.8), ...isolate(['engine', 'ignition', 'injection', 'intake', 'exhaust', 'lubrication'], ['wheels']), ...hideAll(FRONT_DRIVE), 'cut:engine': 1, studio: 0.75, dim: 0.75, 'flow:combustion': 1 },
+    shot: { id: 'cylinder-cutaway', target: V(XC[0], DECK_Y - 0.05, -0.01), az: 1.95, el: 0.2, dist: 0.85, fov: 30, ox: 0.06, subject: { w: 0.34, h: 0.44 }, orbit: { az: [-0.45, 0.45], el: [0.0, 0.5], dist: [0.8, 1.3] } },
+    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL', 'doorFR'], 0.8), ...isolate(['engine', 'ignition', 'injection', 'intake', 'exhaust', 'lubrication'], ['wheels']), ...hideAll(FRONT_DRIVE), 'cut:engine': 1, studio: 0.75, dim: 0.75, 'flow:combustion': 1, ...labels('intake-valve', 'exhaust-valve', 'spark-plug', 'piston') },
     focus: ['engine', 'ignition', 'injection', 'intake', 'exhaust', 'lubrication'],
     requires: ['car'],
   },
   'firing-order': {
     id: 'firing-order',
-    shot: { id: 'firing-order', target: V((XC[0] + XC[3]) / 2, DECK_Y - 0.1, 0), az: 2.6, el: 0.3, dist: 1.55, fov: 30, ox: 0.1, subject: { w: 0.75, h: 0.55 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.8], dist: [0.8, 1.3] } },
-    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL'], 0.7), ...ghostParts(ENGINE_CASINGS, 0.9), ...ghostParts(['air-filter-box', 'air-duct', 'fuel-rail', 'fuel-injectors', 'ignition-coils', 'throttle-body', 'maf-sensor', 'map-sensor', 'brake-booster', 'master-cylinder', 'brake-reservoir', 'fuse-box', 'starter'], 0.85), studio: 0.7, dim: 0.75, 'flow:combustion': 0.7, 'hl:engine': 0.3 },
+    shot: { id: 'firing-order', target: V((XC[0] + XC[3]) / 2, DECK_Y - 0.08, 0), az: 2.55, el: 0.3, dist: 1.3, fov: 30, ox: 0.06, subject: { w: 0.62, h: 0.5 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.8], dist: [0.8, 1.3] } },
+    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL', 'doorFR'], 0.85), ...isolate(['engine', 'ignition']), ...ghostParts(ENGINE_CASINGS, 0.9), ...ghostParts(['ignition-coils'], 0.85), ...hideAll(FRONT_DRIVE), studio: 0.7, dim: 0.75, 'flow:combustion': 0.85, ...labels('cyl1', 'cyl2', 'cyl3', 'cyl4') },
     focus: ['engine', 'ignition', 'injection'],
     requires: ['car'],
   },
@@ -214,7 +215,7 @@ export const VIEWS: Record<string, View> = {
   converter: {
     id: 'converter',
     shot: { id: 'converter', target: V(TRANS.convX - 0.01, TRANS.axisY, 0.0), az: 3.3, el: 0.24, dist: 1.6, fov: 17, ox: 0.04, subject: { w: 0.34, h: 0.32 }, orbit: { az: [-0.4, 0.4], el: [0.0, 0.6], dist: [0.9, 1.3] } },
-    channels: { ...all(1), 'cut:transmission': 1, ...isolate(['transmission', 'engine', 'lubrication'], ['wheels']), ...ghostParts(['engine'], 0.8), ...hideAll(['starter', 'starter-pinion']), studio: 0.75, dim: 0.75, 'hl:converter-impeller': 0.8, 'hl:converter-turbine': 0.8, 'hl:converter-stator': 0.7, 'flow:converter': 1 },
+    channels: { ...all(1), 'cut:transmission': 1, ...isolate(['transmission', 'engine', 'lubrication'], ['wheels']), ...ghostParts(['engine'], 0.8), ...hideAll(['starter', 'starter-pinion']), studio: 0.75, dim: 0.75, 'hl:converter-impeller': 0.8, 'hl:converter-turbine': 0.8, 'hl:converter-stator': 0.7, 'flow:converter': 1, ...labels('impeller', 'turbine', 'stator') },
     // the three elements colour-coded: the engine's impeller, the gearbox's turbine, the stator
     tint: { 'converter-impeller': '#4f9cf0', 'converter-turbine': '#f0a23c', 'converter-stator': '#e6e9ee' },
     focus: ['transmission', 'engine'],
@@ -230,14 +231,14 @@ export const VIEWS: Record<string, View> = {
   differential: {
     id: 'differential',
     shot: { id: 'differential', target: V(DIFF_C.x + 0.02, DIFF_C.y + 0.01, 0), az: -1.95, el: 0.48, dist: 1.75, fov: 17, ox: 0.1, subject: { w: 0.5, h: 0.4 }, orbit: { az: [-0.5, 0.5], el: [0.05, 0.8], dist: [0.9, 1.3] } },
-    channels: { ...all(1), 'cut:diff': 1, ...isolate(['driveline', 'wheels'], ['suspension', 'brakes']), studio: 0.75, dim: 0.75, 'hl:driveline': 0.25 },
+    channels: { ...all(1), 'cut:diff': 1, ...isolate(['driveline', 'wheels'], ['suspension', 'brakes']), studio: 0.75, dim: 0.75, 'hl:driveline': 0.25, ...labels('ring-gear', 'spiders', 'side-gears') },
     focus: ['driveline', 'wheels'],
     requires: ['car'],
   },
   'rear-contact': {
     id: 'rear-contact',
     shot: { id: 'rear-contact', target: V(BODY.xRear + 0.05, 0.3, -0.82), az: 3.0, el: 0.08, dist: 1.9, fov: 30, ox: 0.08, subject: { w: 1.0, h: 0.78 }, orbit: false },
-    channels: { ...bodyGhost(['doorRL', 'shell', 'bumperRear'], 0.85), 'show:road': 1, 'arrow:tyre': 1, studio: 0.4, dim: 0.4, 'flow:torque': 0.6 },
+    channels: { ...bodyGhost(['doorRL', 'shell', 'bumperRear'], 0.85), 'show:road': 1, 'arrow:tyre': 1, studio: 0.4, dim: 0.4, 'flow:torque': 0.6, ...labels('contact-patch') },
     focus: ['wheels', 'driveline', 'brakes', 'suspension'],
     requires: ['car'],
   },

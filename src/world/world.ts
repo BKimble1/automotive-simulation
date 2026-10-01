@@ -36,6 +36,8 @@ import { Mechanism, emptyView, interpolate } from './mechanism';
 import { SequencePlayer, type Sequence } from './sequence';
 import { KEEP_OUT, VIEWS, type View } from './views';
 import { FLOW_DEFS } from './flowDefs';
+import { LabelLayer } from '../scene/labels';
+import { labelDefs } from './labelDefs';
 import { usePlayer, useReadouts, useApp } from '../state/store';
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
@@ -60,6 +62,7 @@ export class World {
   model = new Car(presetIdle());
   player: SequencePlayer;
   car!: CarScene;
+  labels: LabelLayer | null = null;
   looks!: Looks;
   mech!: Mechanism;
   flows!: Flows;
@@ -112,6 +115,7 @@ export class World {
   /** The part of the view the interface leaves free (fractions), measured by the interface. */
   setFree(l: number, t: number, r: number, b: number, snap = false) {
     this.camera.free = { l, t, r, b };
+    if (this.labels) this.labels.free = { l, t, r, b };
     if (snap) this.camera.snapFraming();
   }
 
@@ -131,6 +135,7 @@ export class World {
       this.flows = new Flows(this.car.sprung);
       for (const d of FLOW_DEFS(this.car)) this.flows.add(d, TIERS[tier].particles);
       this.arrows = new ArrowSet(this.car.root);
+      if (this.canvas.parentElement) this.labels = new LabelLayer(this.canvas.parentElement, labelDefs(this.car));
       this.engineViz = new EngineViz(this.car.sprung, this.car.engine.injectorTips, this.car.engine.plugTips);
       // the camera stays out of the body (its capsules ride on the body) and above the floor
       this.keepOut = KEEP_OUT.map((k) => ({ a: k.a.clone(), b: k.b.clone(), r: k.r }));
@@ -341,6 +346,12 @@ export class World {
     // ── camera
     this.camera.update(c.cameraDt, c.inputDt);
 
+    // ── labels follow the camera
+    if (this.labels && render) {
+      this.car.sprung.updateMatrixWorld();
+      this.labels.update(this.stage.camera, this.car.sprung.matrixWorld, this.stage.width, this.stage.height, (id) => this.channels.get(`label:${id}`));
+    }
+
     // ── render
     if (render) this.stage.render(dt);
 
@@ -499,6 +510,7 @@ export class World {
 
   dispose() {
     this.running = false;
+    this.labels?.dispose();
     cancelAnimationFrame(this.raf);
     this.detachInput?.();
     this.stage.dispose();
