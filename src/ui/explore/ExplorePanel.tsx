@@ -288,6 +288,7 @@ export function ExplorePanel({ world }: { world: World }) {
           {here.kind === 'part' && <span className="ex-depth">{DEPTH[here.depth]}</span>}
           {here.aliases.length > 0 && <p className="ex-aka">Also called {here.aliases.slice(0, 4).join(', ')}</p>}
           <p className="ex-fn">{here.function}</p>
+          {here.id === 'cabin' && <p className="ex-hint">The cabin air and refrigerant flows shown here are illustrative: the climate system is not simulated.</p>}
           <Lessons ids={lessons} />
           <ViewChoices world={world} here={here} />
           {here.kind !== 'part' ? (

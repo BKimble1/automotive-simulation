@@ -30,7 +30,7 @@ import { Studio } from '../scene/studio';
 import { Road } from '../scene/road';
 import { Channels } from '../scene/channels';
 import { Director as CameraDirector, type KeepOut } from '../scene/camera/director';
-import { frameTime, tickRealtime, tickVirtual, VIRTUAL_TIME, TEST_HOOKS } from '../scene/time';
+import { frameTime, params, tickRealtime, tickVirtual, VIRTUAL_TIME, TEST_HOOKS } from '../scene/time';
 import { TIERS, useQuality, type Tier } from '../scene/quality';
 import { loadBody } from '../scene/car/bodyData';
 import { splitPanels } from '../scene/car/body';
@@ -213,6 +213,9 @@ export class World {
       this.readyGroups.add('hero');
       // the rest compiles off screen: every material's other variants (ghost, section)
       void this.compileVariants().then(async () => {
+        // test hook: hold the rest of the car back, as a slow device would (?prepdelay=ms)
+        const hold = TEST_HOOKS ? Number(params.get('prepdelay') ?? 0) : 0;
+        if (hold > 0) await new Promise((r) => setTimeout(r, hold));
         if (this.disposed) return;
         this.readyGroups.add('car');
         this.readyGroups.add('detail');

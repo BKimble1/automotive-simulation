@@ -30,7 +30,7 @@ export const LANGUAGE: Record<FlowKind, Language> = {
   power: { label: 'Electrical power', color: '#EAF1FF', style: 'packet', size: 0.008, density: 26, pattern: 'square packets on the wires' },
   signal: { label: 'Control signals', color: '#8B7DFF', style: 'pulse', size: 0.006, density: 30, pattern: 'thin dotted pulses' },
   heat: { label: 'Heat', color: '#D55E00', style: 'glow', size: 0, density: 0, pattern: 'a warm tint on hot surfaces' },
-  refrigerant: { label: 'Refrigerant', color: '#9AD0F5', style: 'droplet', size: 0.006, density: 30, pattern: 'pale droplets (air conditioning)' },
+  refrigerant: { label: 'Refrigerant', color: '#9AD0F5', style: 'droplet', size: 0.006, density: 30, pattern: 'pale droplets (air conditioning; illustrative, not simulated)' },
 };
 
 export const LEGEND_ORDER: FlowKind[] = ['torque', 'air', 'fuel', 'exhaust', 'oil', 'coolant', 'hydraulic', 'power', 'signal', 'heat'];

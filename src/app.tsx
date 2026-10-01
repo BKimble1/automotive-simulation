@@ -10,6 +10,7 @@ import './styles/app.css';
 import { Header } from './ui/Header';
 import { Intro } from './ui/Intro';
 import { Modes } from './ui/Modes';
+import { PanelBoundary } from './ui/PanelBoundary';
 import { Notices } from './ui/Notices';
 import { Legend } from './ui/Legend';
 import { Info } from './ui/Info';
@@ -22,7 +23,10 @@ function webglAvailable(): boolean {
   if (new URLSearchParams(location.search).get('nowebgl') === '1') return false;
   try {
     const c = document.createElement('canvas');
-    return !!c.getContext('webgl2');
+    const gl = c.getContext('webgl2');
+    // a probe only: give its context back at once (browsers cap how many may live)
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    return !!gl;
   } catch {
     return false;
   }
@@ -129,7 +133,11 @@ function App() {
       <div className="ui">
         {ready && <Header />}
         {ready && mode === 'intro' && <Intro />}
-        {ready && world && <Modes world={world} />}
+        {ready && world && (
+          <PanelBoundary resetKey={`${mode}`}>
+            <Modes world={world} />
+          </PanelBoundary>
+        )}
         <Notices />
         {ready && <Legend />}
         {ready && <Info />}

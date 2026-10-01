@@ -70,6 +70,8 @@ function describe(lab: Lab, v: LabValues): string {
 }
 
 interface Run extends ChartRun {
+  /** The lab it belongs to (a run never outlives its lab, even for the one render after a switch). */
+  lab: string;
   values: LabValues;
   pending: boolean;
 }
@@ -79,8 +81,12 @@ export function EngineerPanel({ world }: { world: World }) {
   const go = useApp((s) => s.go);
   const lab = LAB_BY_ID[labId ?? ''] ?? null;
   const run = useRun();
-  const [values, setValues] = useState<LabValues>(() => (lab ? defaults(lab) : {}));
-  const [runs, setRuns] = useState<Run[]>([]);
+  const [stored, setValues] = useState<LabValues>(() => (lab ? defaults(lab) : {}));
+  const [allRuns, setRuns] = useState<Run[]>([]);
+  // the values and runs of this lab only: right after a switch the state still holds the last
+  // lab's until the effect below resets it
+  const values: LabValues = lab && lab.controls.every((c) => c.id in stored) ? stored : lab ? defaults(lab) : {};
+  const runs = allRuns.filter((r) => r.lab === lab?.id);
   const [active, setActive] = useState(0);
   const [slow, setSlow] = useState(false);
   const serial = useRef(0);
@@ -94,7 +100,7 @@ export function EngineerPanel({ world }: { world: World }) {
     const label = replaceBaseline ? 'Baseline' : describe(l, v);
     setRuns((rs) => {
       const kept = replaceBaseline ? [] : rs.filter((r) => r.label === 'Baseline' || rs.indexOf(r) >= rs.length - 1);
-      return [...kept.filter((r) => !(r.label === label && !replaceBaseline)), { id, label, values: v, samples: [], pending: true }];
+      return [...kept.filter((r) => !(r.label === label && !replaceBaseline)), { id, lab: l.id, label, values: v, samples: [], pending: true }];
     });
     setActive(id);
     setSlow(false);

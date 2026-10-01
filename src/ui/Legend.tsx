@@ -42,6 +42,11 @@ export function Legend() {
             <b>X-ray</b> bodywork and parts turned to tinted glass to show what is behind
           </span>
         </li>
+        <li className="legend__note">
+          <span>
+            The refrigerant and the cabin’s air are drawn to show where they go; the climate system is not simulated, so their flows are illustrative. Every other flow moves with the model.
+          </span>
+        </li>
         <li>
           <i className="sw sw--cut" />
           <span>

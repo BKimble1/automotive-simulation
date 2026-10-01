@@ -13,14 +13,19 @@ dashboard graphics.
 npm ci
 npm run dev          # http://127.0.0.1:5176
 npm run build        # tsc -b && vite build → dist/
-npm test             # 65 unit tests (vitest)
-npm run e2e          # 44 browser tests: 11 tests × desktop, laptop, tablet, phone (Playwright, on the build)
+npm test             # unit tests (vitest): the model, labs, film, rig
+npm run e2e          # browser tests on desktop, laptop, tablet and phone (Playwright, on the build):
+                     #   e2e/app.spec.ts (every size) and e2e/v2.spec.ts (rendered frames, pause,
+                     #   isolation, camera reversals, workbench, diagnosis, context loss, layouts,
+                     #   ten-minute endurance, real requestAnimationFrame playback)
 ```
 
 Deep links: `?mode=watch[&t=seconds]`, `?mode=explore[&system=brakes][&part=brake-caliper][&lesson=braking]`,
-`?mode=engineer[&lab=gearing]`, `?mode=simulate[&scenario=overheat]`. Test hooks: `?virt=1`
-(a frame-stepped clock: every frame is exactly 1/30 s, advanced with `window.__fabAdvance(n,
-render)`), `?quality=low|medium|high`, `?nowebgl=1`.
+`?mode=engineer[&lab=gearing]`, `?mode=simulate[&scenario=overheat]`,
+`?mode=simulate&scenario=drive` (the driving workbench). Test hooks: `?virt=1` (a frame-stepped
+clock: every frame is exactly 1/30 s, advanced with `window.__fabAdvance(n, render)`),
+`?quality=low|medium|high`, `?nowebgl=1`, `?prepdelay=ms` (hold the car's preparation back, as
+a slow device would; test builds only).
 
 ## What is in it
 
@@ -33,11 +38,20 @@ render)`), `?quality=low|medium|high`, `?nowebgl=1`.
   changes while it works, material, failure symptoms and other designs; search by any name;
   Back up the hierarchy; ten hero lessons ("Show how it works").
 * **Engineer** — eight labs (gearing, torque and power, stopping distance, springs and
-  dampers, weight transfer, cornering grip, torque converter, electrical balance): change a
-  parameter, run the car's model, compare runs on a chart.
-* **Simulate** — six everyday scenarios with live instruments, and six faults to diagnose
-  (complaint, inspect, measure, conclude, reveal, repair): a misfire, a stuck thermostat, a
-  failed alternator, low oil, a worn damper, a weak battery.
+  dampers, weight transfer, cornering grip, torque converter, electrical balance): a baseline
+  runs at once, then up to two labelled comparisons; the chart is computed off the page (a
+  worker) while the same run plays on the car; results say "not reached" rather than show NaN.
+* **Simulate** — **Drive it yourself**, a manual workbench (start/stop, P R N D, throttle,
+  brake, steering, dry/wet/snow and a bump, torque-path and brake views; keys on a desktop,
+  pedal and steering pads on a touch screen); six everyday scenarios with live instruments;
+  and six faults to diagnose (complaint, inspect, measure, conclude, reveal, repair, restart):
+  a misfire, a stuck thermostat, a failed alternator, low oil, a worn damper, a weak battery.
+
+Workbench keys (when no field, slider or other control has the keyboard): **W / ↑**
+accelerate, **S / ↓** brake, **A D / ← →** steer, **Space** brake hard, **P R N** and
+**Shift+D** select, **Enter** start or stop. Leaving Park needs the brake; Park and the other
+direction are refused at speed, with the reason shown. Held controls are released when the
+window loses focus, the page is hidden or a pointer is cancelled.
 
 ### The ten hero lessons
 
@@ -78,7 +92,12 @@ and put back together.
   oil and coolant dashes, hydraulic bands, power packets, signal pulses, heat as a tint).
 * **Resilience**: progressive loading (a light body first, every material variant compiled
   before the director may go there, the detailed body after), quality tiers with hysteresis,
-  reduced motion, WebGL context loss and restore, a plain message without WebGL 2.
+  reduced motion (camera, reveals and interface), WebGL context loss and restore (the
+  presentation is suspended, nothing catches up afterwards), one pause owner (the world), a
+  plain message without WebGL 2.
+* **Engineering assumptions** and the checks against independent calculations are in
+  [docs/ENGINEERING.md](docs/ENGINEERING.md): what is designed, typical, derived or only
+  visual, and what the S-1 is not (a real manufacturer's car, or a validated digital twin).
 
 ## Layout
 
@@ -93,6 +112,7 @@ scripts/       bake-body.mjs (the body's surface), narration.sh
 tools/         the offline narration pipeline (Kokoro)
 e2e/           Playwright tests
 docs/PLAN.md   design notes and the lessons taken from earlier FAB / ONE simulations
+docs/ENGINEERING.md  model assumptions, simplifications and independent checks
 ```
 
 ## Regenerating

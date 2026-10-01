@@ -1940,6 +1940,7 @@ kbd {
 .ex-back,
 .pbtn,
 .wordmark,
+.top__sim,
 .chart__run {
   position: relative;
 }
@@ -1959,6 +1960,12 @@ kbd {
   content: '';
   position: absolute;
   inset: -12px -8px;
+}
+/* the simulation's name (back to its start): a full-height target, not just its line of text */
+.top__sim::after {
+  content: '';
+  position: absolute;
+  inset: -16px -4px -16px 0;
 }
 .chart__run::after {
   content: '';

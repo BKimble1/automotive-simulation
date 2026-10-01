@@ -25,6 +25,14 @@ export const CORNERS = [
   { id: 'RR', x: BODY.xRear, z: BODY.trackRear / 2, front: false, side: 1 },
 ] as const;
 
+/**
+ * The steering linkage's hard points (m): the steering arm's ball joint ahead of the axle
+ * (`tieX`) and inboard of the wheel's centre plane (`tieZ`), and the rack's ends from the car's
+ * centre line (`rackZ`). Chosen so that, turning about the ball-joint axis, the linkage gives the
+ * model's Ackermann angles with the tie rods at constant length (tested).
+ */
+export const STEER_GEO = { tieX: 0.17, tieZ: 0.07, rackZ: 0.33 };
+
 const RIM_R = (18 * 0.0254) / 2;
 const RIM_W = 8.5 * 0.0254;
 const TYRE_W = TIRE.widthMm / 1000;
@@ -371,7 +379,7 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
     const up = merge([
       rbox(0.07, 0.3, 0.05, 0.02, 0.0, c.front ? 0.04 : 0.02, kz),
       at(alongAxis(lathe([[0.0, -0.03], [0.06, -0.03], [0.065, 0.02], [0.0, 0.02]], 'y', 32), 'z'), 0, 0, kz + sd * 0.0),
-      ...(c.front ? [rod(new Vector3(0, -0.02, kz), new Vector3(0.17, -0.04, kz - sd * 0.02), 0.014, 10)] : []),
+      ...(c.front ? [rod(new Vector3(0, -0.02, kz), new Vector3(STEER_GEO.tieX, 0.28 - WHEEL_Y, -sd * STEER_GEO.tieZ), 0.014, 10)] : []),
     ]);
     rig.part(group, `upright-${c.id}`, c.front ? 'steering-knuckle' : 'rear-upright', S, [['castAl', up]], { local: true });
     rig.part(group, `hub-${c.id}`, 'wheel-hub-bearing', S, [['machined', rod(new Vector3(0, 0, -sd * 0.09), new Vector3(0, 0, sd * 0.03), 0.045, 28)]], { local: true });
@@ -384,7 +392,9 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
     if (c.front) {
       local.lbj = P(0.005, 0.17 - WHEEL_Y, -sd * 0.07);
       local.ubj = P(-0.02, 0.53 - WHEEL_Y, -sd * 0.13);
-      local.tie = P(0.17, 0.28 - WHEEL_Y, -sd * 0.09);
+      // the steering arm's ball joint: ahead of the axle and outboard of the steering axis
+      // (lower to upper ball joint), so the linkage turns the inner wheel more (Ackermann)
+      local.tie = P(STEER_GEO.tieX, 0.28 - WHEEL_Y, -sd * STEER_GEO.tieZ);
       local.damper = P(0.015, 0.21 - WHEEL_Y, -sd * 0.17);
       const lowerIn = [P(c.x + 0.17, 0.2, sd * 0.36), P(c.x - 0.2, 0.2, sd * 0.36)];
       const upperIn = [P(c.x + 0.1, 0.56, sd * 0.43), P(c.x - 0.12, 0.56, sd * 0.43)];
@@ -393,7 +403,7 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
       links.push(armLink(rig, root, `lower-arm-${c.id}`, 'lower-control-arm', S, lowerIn[0], lowerIn[1], toWorld(local.lbj), ci, 0.016));
       links.push(armLink(rig, root, `upper-arm-${c.id}`, 'upper-control-arm', S, upperIn[0], upperIn[1], toWorld(local.ubj), ci, 0.012));
       // tie rod from the rack's end to the steering arm
-      const rackEnd = P(c.x + 0.17, 0.3, sd * 0.33);
+      const rackEnd = P(c.x + STEER_GEO.tieX, 0.3, sd * STEER_GEO.rackZ);
       links.push(stretchLink(rig, root, `tie-rod-${c.id}`, 'tie-rod', 'steering', rackEnd, toWorld(local.tie), ci, 0.009, 'tierod'));
       // coil-over: damper body on the arm, rod and spring up to the tower
       const top = P(c.x + 0.03, 0.74, sd * 0.56);
@@ -448,20 +458,21 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
 
   // ───────────────────────── steering ─────────────────────────
   const rackY = 0.3;
-  const rackX = BODY.xFront + 0.17;
+  const rackX = BODY.xFront + STEER_GEO.tieX;
+  const rz = STEER_GEO.rackZ;
   const rack = rig.part(
     sprung,
     'steering-rack',
     'steering-rack',
     'steering',
     [
-      ['machined', rod(new Vector3(rackX, rackY, -0.33), new Vector3(rackX, rackY, 0.33), 0.012, 14)],
+      ['machined', rod(new Vector3(rackX, rackY, -rz), new Vector3(rackX, rackY, rz), 0.012, 14)],
     ],
     { pivot: new Vector3(rackX, rackY, 0) },
   );
   rig.part(sprung, 'steering-gear-housing', 'steering-rack', 'steering', [
     ['castAl', rod(new Vector3(rackX, rackY, -0.26), new Vector3(rackX, rackY, 0.22), 0.026, 18)],
-    ['rubber', merge([-1, 1].map((s) => rod(new Vector3(rackX, rackY, s * 0.22), new Vector3(rackX, rackY, s * 0.31), 0.022, 14, 0.014)))],
+    ['rubber', merge([-1, 1].map((s) => rod(new Vector3(rackX, rackY, s * 0.22), new Vector3(rackX, rackY, s * (rz - 0.02)), 0.022, 14, 0.014)))],
   ]);
   rig.part(sprung, 'eps-motor', 'eps-motor', 'steering', [
     ['castAl', at(alongAxis(lathe([[0, 0], [0.045, 0], [0.045, 0.13], [0.035, 0.14], [0, 0.14]], 'y', 28), 'x'), rackX - 0.16, rackY - 0.02, -0.18)],
