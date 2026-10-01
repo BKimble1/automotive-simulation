@@ -4,6 +4,7 @@
  * ten times a second; each chip has a plain label and its unit.
  */
 import { useReadouts, type Readouts as R } from '../state/store';
+import { SHAFT_KEY } from '../sim/geartrain';
 
 const n0 = (v: number) => Math.round(v).toLocaleString('en-GB');
 const n1 = (v: number) => v.toFixed(1);
@@ -40,7 +41,35 @@ export const READOUTS: Record<string, { label: string; value: (r: R) => string; 
   oilBar: { label: 'Oil pressure', value: (r) => n1(r.oilBar), unit: 'bar' },
   oilC: { label: 'Oil', value: (r) => n0(r.oilC), unit: '°C' },
   misfires: { label: 'Misfires counted', value: (r) => n0(r.misfireCount) },
+  ratio: { label: 'Ratio', value: (r) => (Math.abs(r.shaftRpm[7]) > 30 ? `${(r.shaftRpm[0] / r.shaftRpm[7]).toFixed(2)} : 1` : '–') },
+  slip: {
+    label: 'Clutch slip',
+    value: (r) => (r.applying ? `${r.applying} ${n0(Math.abs(r.slipRpm[r.applying as keyof R['slipRpm']]))} rpm` : 'none'),
+  },
 };
+
+/**
+ * The gearbox's eight shafts: their colour in the scene, their name and their speed now. A held
+ * member reads "held" (its brake applied); members joined by an applied clutch turn together.
+ */
+export function GearKey() {
+  const r = useReadouts();
+  return (
+    <ul className="gearkey" aria-label="The gearbox's eight shafts">
+      {SHAFT_KEY.map((k, i) => {
+        const rpm = r.shaftRpm[i] ?? 0;
+        const held = k.held && r.elements.includes(k.held) && Math.abs(rpm) < 1;
+        return (
+          <li key={k.shaft}>
+            <i style={{ borderColor: k.color }} aria-hidden="true" />
+            <span className="gearkey__name">{k.label}</span>
+            <span className="gearkey__v num">{held ? `held by ${k.held}` : `${n0(rpm)} rpm`}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export function ReadoutChips({ ids, timeScale }: { ids: string[]; timeScale: number }) {
   const r = useReadouts();
@@ -49,6 +78,7 @@ export function ReadoutChips({ ids, timeScale }: { ids: string[]; timeScale: num
   return (
     <div className="readouts" role="group" aria-label="Live values">
       {pace && <span className="chip chip--pace">{pace}</span>}
+      {ids.includes('gearKey') && <GearKey />}
       {ids.map((id) => {
         const d = READOUTS[id];
         if (!d) return null;

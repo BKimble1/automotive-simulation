@@ -30,12 +30,12 @@ export function buildEnvironment(renderer: WebGLRenderer): Texture {
   scrim.rotation.x = Math.PI / 2;
   scene.add(scrim);
   // a brighter core in the scrim: the crisp line on the paint
-  const core = panel(6.8, 0.5, '#ffffff', 5.5);
+  const core = panel(6.8, 0.5, '#ffffff', 3.6);
   core.position.set(0.2, 5.15, 0.6);
   core.rotation.x = Math.PI / 2;
   scene.add(core);
   // key box, front left (the camera's usual side)
-  const key = panel(2.4, 3.4, '#fff4e6', 4.2);
+  const key = panel(2.4, 3.4, '#fff4e6', 3.4);
   key.position.set(3.6, 2.6, 4.2);
   key.lookAt(0, 0.8, 0);
   scene.add(key);
@@ -45,10 +45,18 @@ export function buildEnvironment(renderer: WebGLRenderer): Texture {
     [-4.2, -3.6],
     [4.8, -3.4],
   ]) {
-    const s = panel(0.5, 4.4, '#e3ebff', 5.2);
+    const s = panel(0.5, 4.4, '#e3ebff', 3.8);
     s.position.set(x, 2.2, z);
     s.lookAt(0, 0.9, 0);
     scene.add(s);
+  }
+  // two broad, dim fills low at the sides: the lower body's surfaces turn into the light
+  // instead of falling into black
+  for (const z of [-7, 7]) {
+    const fill = panel(9, 2.2, '#c9d0dc', 0.55);
+    fill.position.set(0.5, 1.4, z);
+    fill.lookAt(0, 0.7, 0);
+    scene.add(fill);
   }
   // a low horizon strip: a soft line along the lower doors and sills
   const horizon = panel(14, 0.25, '#cfd6e2', 1.6);

@@ -8,6 +8,7 @@
  * (+x, az π/2); the left side is az π, the rear −π/2. el is the elevation (rad).
  */
 import { Vector3 } from 'three';
+import { SHAFT_KEY } from '../sim/geartrain';
 import type { Shot } from '../scene/camera/director';
 import { CRANK_Y, DECK_Y, FLEX_X, XC } from '../scene/car/engineGeo';
 import { DIFF_C, TRANS } from '../scene/car/drivetrainGeo';
@@ -259,9 +260,10 @@ export const VIEWS: Record<string, View> = {
   },
   'gear-elements': {
     id: 'gear-elements',
-    shot: { id: 'gear-elements', target: V(0.79, TRANS.axisY + 0.01, 0.0), az: 3.22, el: 0.28, dist: 1.25, fov: 30, ox: 0.04, subject: { w: 0.62, h: 0.36 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.7], dist: [0.8, 1.4] } },
-    channels: { ...all(1), 'cut:transmission': 1, ...isolate(['transmission', 'engine', 'driveline'], ['wheels']), ...ghostParts(['engine'], 0.85), ...hideAll(['converter-impeller', 'converter-turbine', 'converter-stator', 'lockup-clutch']), studio: 0.75, dim: 0.75, 'flow:elements': 1, ...labels('el-A', 'el-B', 'el-C', 'el-D', 'el-E') },
-    tint: { 'shift-element-A': '#f0a23c', 'shift-element-B': '#f0a23c', 'shift-element-C': '#f0a23c', 'shift-element-D': '#f0a23c', 'shift-element-E': '#f0a23c' },
+    shot: { id: 'gear-elements', target: V(0.775, TRANS.axisY + 0.01, 0.0), az: 3.3, el: 0.42, dist: 1.0, fov: 30, ox: 0.04, subject: { w: 0.44, h: 0.3 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.7], dist: [0.8, 1.4] } },
+    channels: { ...all(1), 'cut:transmission': 1, ...isolate(['transmission', 'engine', 'driveline'], ['wheels']), ...ghostParts(['engine'], 0.85), ...hideAll(['converter-impeller', 'converter-turbine', 'converter-stator', 'lockup-clutch']), studio: 0.75, dim: 0.75, 'flow:elements': 1, ...Object.fromEntries(SHAFT_KEY.flatMap((k) => k.parts.map((p) => [`hl:${p}`, 0.75]))), ...labels('el-A', 'el-B', 'el-C', 'el-D', 'el-E') },
+    // the eight shafts by colour (members joined in the gearbox share one), the elements bright
+    tint: { ...Object.fromEntries(SHAFT_KEY.flatMap((k) => k.parts.map((p) => [p, k.color]))), 'shift-element-A': '#f2f2f2', 'shift-element-B': '#f2f2f2', 'shift-element-C': '#f2f2f2', 'shift-element-D': '#f2f2f2', 'shift-element-E': '#f2f2f2' },
     focus: ['transmission'],
     requires: ['car'],
   },

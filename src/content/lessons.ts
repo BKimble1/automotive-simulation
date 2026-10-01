@@ -204,7 +204,7 @@ const torqueBeats: Beat[] = [
     duration: 5,
     view: 'gear-elements',
     timeScale: 0.1,
-    readouts: ['gear', 'rpm', 'elements'],
+    readouts: ['gearKey', 'gear', 'ratio', 'elements'],
   },
   {
     id: 'upshift',
@@ -213,7 +213,7 @@ const torqueBeats: Beat[] = [
     duration: 7,
     view: 'gear-elements',
     timeScale: 0.1,
-    readouts: ['gear', 'rpm', 'elements'],
+    readouts: ['gearKey', 'gear', 'slip', 'elements'],
   },
   {
     id: 'differential',

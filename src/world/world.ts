@@ -242,6 +242,7 @@ export class World {
     for (const p of this.car.body.panels) {
       mats.add(p.mats.paintGhost);
       mats.add(p.mats.glassGhost);
+      for (const e of p.extras) mats.add(e.ghost);
     }
     await this.stage.compileMaterials([...mats]);
     await nextFrame();

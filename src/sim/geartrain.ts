@@ -217,3 +217,18 @@ export function appliedElements(gear: number, gearTarget: number, shift: number,
 }
 
 export const SHAFT_INDEX = IDX;
+
+/**
+ * How the gearbox view names and colours the eight shafts (Okabe–Ito colours, each also named,
+ * so colour is never the only key). Members on one shaft turn together and share its colour.
+ */
+export const SHAFT_KEY: { shaft: Shaft; label: string; color: string; parts: string[]; held?: Element }[] = [
+  { shaft: 'input', label: 'Input · carrier 2', color: '#E69F00', parts: ['input-shaft', 'gearset-2-carrier'] },
+  { shaft: 'sun12', label: 'Common sun 1·2', color: '#009E73', parts: ['gearset-1-sun'], held: 'A' },
+  { shaft: 'ring1', label: 'Ring 1', color: '#F0E442', parts: ['gearset-1-ring'], held: 'B' },
+  { shaft: 'carrier1', label: 'Carrier 1 = ring 4', color: '#0072B2', parts: ['gearset-1-carrier', 'gearset-4-ring'] },
+  { shaft: 'ring2', label: 'Ring 2 = sun 3', color: '#D55E00', parts: ['gearset-2-ring', 'gearset-3-sun'] },
+  { shaft: 'ring3', label: 'Ring 3 = sun 4', color: '#CC79A7', parts: ['gearset-3-ring', 'gearset-4-sun'] },
+  { shaft: 'carrier3', label: 'Carrier 3', color: '#C9CED6', parts: ['gearset-3-carrier'] },
+  { shaft: 'output', label: 'Output · carrier 4', color: '#56B4E9', parts: ['output-shaft', 'gearset-4-carrier'] },
+];

@@ -12,7 +12,7 @@
  */
 import { BufferGeometry, Group, Object3D, Quaternion, Vector3 } from 'three';
 import { BODY, GEARBOX, WHEEL_Y } from '../../spec/vehicle';
-import { PLANETARY } from '../../sim/drivetrain';
+import { GEARSETS as SETS } from '../../sim/geartrain';
 import { alongAxis, bevelGear, extrudeX, gear, lathe, merge, rbox, rod } from '../geo/shapes';
 import { CRANK_Y, FLEX_X } from './engineGeo';
 import type { PartNode, Rig } from './rig';
@@ -25,20 +25,29 @@ export const TRANS = {
   tailEnd: 0.43,
   axisY: CRANK_Y,
 };
-/** Gearset positions along x and their ring outer radii. */
+/**
+ * The geartrain as drawn: the four gearsets of sim/geartrain.ts at their places along the axis
+ * (their ring gears' outer radii), with the tooth counts of the model, so each mesh is the one the
+ * model turns. The five shift elements sit where they act: the brakes at the front, against the
+ * case; clutch E between sets 2 and 3, C and D between sets 3 and 4.
+ *
+ * Drawn simplification (stated in docs/ENGINEERING.md): the drums and shafts that join members
+ * of different gearsets (carrier 1 to ring 4, ring 2 to sun 3, ring 3 to sun 4…) are not drawn;
+ * members that are joined turn together and share a colour in the gearbox view.
+ */
 export const GEARSETS = [
-  { x: 0.905, r: 0.082 },
-  { x: 0.84, r: 0.082 },
-  { x: 0.74, r: 0.078 },
-  { x: 0.645, r: 0.074 },
+  { x: 0.885, r: 0.082 },
+  { x: 0.83, r: 0.082 },
+  { x: 0.735, r: 0.08 },
+  { x: 0.632, r: 0.082 },
 ];
 /** Shift element positions: A and B are brakes (held to the case), C, D, E clutches. */
 export const ELEMENT_POS: Record<'A' | 'B' | 'C' | 'D' | 'E', { x: number; rIn: number; rOut: number }> = {
-  A: { x: 0.94, rIn: 0.085, rOut: 0.11 },
-  B: { x: 0.925, rIn: 0.085, rOut: 0.11 },
-  E: { x: 0.79, rIn: 0.05, rOut: 0.072 },
-  C: { x: 0.695, rIn: 0.05, rOut: 0.07 },
-  D: { x: 0.575, rIn: 0.045, rOut: 0.066 },
+  A: { x: 0.936, rIn: 0.04, rOut: 0.064 },
+  B: { x: 0.92, rIn: 0.086, rOut: 0.112 },
+  E: { x: 0.783, rIn: 0.05, rOut: 0.07 },
+  C: { x: 0.69, rIn: 0.024, rOut: 0.04 },
+  D: { x: 0.676, rIn: 0.052, rOut: 0.074 },
 };
 export const DIFF_C = new Vector3(BODY.xRear, WHEEL_Y + 0.012, 0);
 export const RING_R = 0.105;
@@ -54,6 +63,7 @@ export interface DrivetrainParts {
   stator: PartNode;
   lockup: PartNode;
   inputShaft: PartNode;
+  /** Each gearset's members (set 1 and 2 share one sun: set 2's sun node is set 1's). */
   gearsets: { sun: PartNode; carrier: PartNode; ring: PartNode; planets: PartNode[]; planetPos: Vector3[]; x: number }[];
   elements: Record<'A' | 'B' | 'C' | 'D' | 'E', PartNode>;
   output: PartNode[];
@@ -231,38 +241,69 @@ export function buildDrivetrain(rig: Rig, parent: Object3D): DrivetrainParts {
   }
 
   // ───────────────────────── input shaft, gearsets, shift elements, output ─────────────────────────
-  const inputShaft = rig.part(root, 'input-shaft', 'transmission-input-shaft', T, [['machined', at(alongAxis(lathe([[0, 0], [0.015, 0], [0.015, cx - 0.02 - 0.6], [0, cx - 0.02 - 0.6]], 'y', 20), 'x'), 0.6, TRANS.axisY, 0)]], { pivot: ax.clone() });
+  // the input shaft: from the turbine through the common sun and sun 3 to clutch C (carrier 2 and
+  // clutch C's inner plates are on it); the output shaft starts behind set 4's carrier
+  const inputEnd = ELEMENT_POS.C.x - 0.014;
+  const inputShaft = rig.part(root, 'input-shaft', 'transmission-input-shaft', T, [['machined', at(alongAxis(lathe([[0, 0], [0.014, 0], [0.014, cx - 0.02 - inputEnd], [0, cx - 0.02 - inputEnd]], 'y', 20), 'x'), inputEnd, TRANS.axisY, 0)]], { pivot: ax.clone() });
   const gearsets: DrivetrainParts['gearsets'] = [];
+  // tooth phase of a gear at a direction θ (shape plane): 0 at a tooth's centre, 0.5 at a gap's
+  // (shapes.ts gear(): tooth j is centred at 2π(j + 0.4375)/teeth before the offset δ)
+  const phase = (theta: number, teeth: number, delta: number) => {
+    const u = ((theta - delta) * teeth) / (2 * Math.PI) - 0.4375;
+    return u - Math.floor(u);
+  };
+  const offsetFor = (theta: number, teeth: number, want: number) => theta - (2 * Math.PI * (want + 0.4375)) / teeth;
+  let commonSun: PartNode | null = null;
   GEARSETS.forEach((gs, k) => {
-    const S = PLANETARY.sun;
-    const P = PLANETARY.planet;
-    const R = PLANETARY.ring;
-    const mod = (gs.r - 0.012) * 2 / (R + 2);
+    const def = SETS[k];
+    const S = def.S;
+    const P = def.P;
+    const R = def.R;
+    const N = def.planets;
+    const mod = ((gs.r - 0.012) * 2) / (R + 2);
     const rs = (S * mod) / 2;
     const rp = (P * mod) / 2;
     const rr = (R * mod) / 2;
-    const w = 0.028;
-    const sun = gear(S, rs, mod * 1.2, w, { bore: 0.017 });
-    sun.rotateY(Math.PI / 2);
-    sun.translate(gs.x, TRANS.axisY, 0);
+    const w = 0.026;
+    const pr = rs + rp;
+    // planets at shape angles ψ; the sun's teeth set the planets' phases, and the ring is phased
+    // to the first planet (the assembly condition (S + R)/N whole makes every planet fit)
+    const psi = (p: number) => Math.PI / 2 - (p / N) * Math.PI * 2;
+    const dSun = 0;
+    const dPlanet = (p: number) => offsetFor(psi(p) + Math.PI, P, (0.5 - phase(psi(p), S, dSun) + 1) % 1);
+    const dRing = offsetFor(psi(0), R, (0.5 - phase(psi(0), P, dPlanet(0)) + 1) % 1);
     const ring = gear(R, rr, mod * 1.2, w, { internal: true, rOuter: gs.r });
+    ring.rotateZ(dRing);
     ring.rotateY(Math.PI / 2);
     ring.translate(gs.x, TRANS.axisY, 0);
     const ringNode = rig.part(root, `gearset-${k + 1}-ring`, 'planetary-gearset', T, [['machined', ring]], { pivot: ax.clone() });
-    const sunNode = rig.part(root, `gearset-${k + 1}-sun`, 'planetary-gearset', T, [['steel', sun]], { pivot: ax.clone() });
-    const pr = rs + rp;
-    const plates = merge([
-      at(alongAxis(lathe([[0.018, -0.002], [pr + rp * 0.7, -0.002], [pr + rp * 0.7, 0.002], [0.018, 0.002]], 'y', 40), 'x'), gs.x - w / 2 - 0.004, TRANS.axisY, 0),
-      at(alongAxis(lathe([[0.018, -0.002], [pr + rp * 0.7, -0.002], [pr + rp * 0.7, 0.002], [0.018, 0.002]], 'y', 40), 'x'), gs.x + w / 2 + 0.004, TRANS.axisY, 0),
-    ]);
-    const carrierNode = rig.part(root, `gearset-${k + 1}-carrier`, 'planetary-gearset', T, [['castAl', plates]], { pivot: ax.clone() });
+    // sets 1 and 2 share one sun (sim/geartrain.ts): one long gear through both sets
+    let sunNode: PartNode;
+    if (k === 1 && commonSun) sunNode = commonSun;
+    else {
+      const len = k === 0 ? GEARSETS[0].x - GEARSETS[1].x + w : w;
+      const sun = gear(S, rs, mod * 1.2, len, { bore: Math.min(rs * 0.55, 0.016) });
+      sun.rotateZ(dSun);
+      sun.rotateY(Math.PI / 2);
+      sun.translate(k === 0 ? (GEARSETS[0].x + GEARSETS[1].x) / 2 : gs.x, TRANS.axisY, 0);
+      sunNode = rig.part(root, `gearset-${k + 1}-sun`, 'planetary-gearset', T, [['steel', sun]], { pivot: ax.clone() });
+      if (k === 0) commonSun = sunNode;
+    }
+    const plate = (x: number) => at(alongAxis(lathe([[Math.min(0.018, rs * 0.8), -0.002], [pr + rp * 0.7, -0.002], [pr + rp * 0.7, 0.002], [Math.min(0.018, rs * 0.8), 0.002]], 'y', 40), 'x'), x, TRANS.axisY, 0);
+    const pins: BufferGeometry[] = [];
+    for (let p = 0; p < N; p++) {
+      const a = (p / N) * Math.PI * 2;
+      pins.push(rod(new Vector3(gs.x - w / 2 - 0.004, TRANS.axisY + Math.cos(a) * pr, -Math.sin(a) * pr), new Vector3(gs.x + w / 2 + 0.004, TRANS.axisY + Math.cos(a) * pr, -Math.sin(a) * pr), Math.min(0.006, rp * 0.3), 10));
+    }
+    const carrierNode = rig.part(root, `gearset-${k + 1}-carrier`, 'planetary-gearset', T, [['castAl', merge([plate(gs.x - w / 2 - 0.004), plate(gs.x + w / 2 + 0.004)])], ['machined', merge(pins)]], { pivot: ax.clone() });
     const planets: PartNode[] = [];
     const planetPos: Vector3[] = [];
-    for (let p = 0; p < 4; p++) {
-      const a = (p / 4) * Math.PI * 2;
+    for (let p = 0; p < N; p++) {
+      const a = (p / N) * Math.PI * 2;
       const c = new Vector3(gs.x, TRANS.axisY + Math.cos(a) * pr, -Math.sin(a) * pr);
       // a planet is a child of its carrier: its geometry in the carrier's frame (origin on the axis)
-      const pg = gear(P, rp, mod * 1.2, w * 0.92, { bore: 0.006 });
+      const pg = gear(P, rp, mod * 1.2, w * 0.92, { bore: Math.min(0.006, rp * 0.3) });
+      pg.rotateZ(dPlanet(p));
       pg.rotateY(Math.PI / 2);
       pg.translate(c.x - ax.x, c.y - ax.y, c.z - ax.z);
       planets.push(rig.part(carrierNode.object, `gearset-${k + 1}-planet-${p + 1}`, 'planetary-gearset', T, [['machined', pg]], { pivot: c.clone().sub(ax) }));
@@ -290,7 +331,7 @@ export function buildDrivetrain(rig: Rig, parent: Object3D): DrivetrainParts {
       'transmission-output-shaft',
       T,
       [
-        ['machined', at(alongAxis(lathe([[0, 0], [0.02, 0], [0.02, 0.6 - TRANS.tailEnd + 0.02], [0, 0.6 - TRANS.tailEnd + 0.02]], 'y', 20), 'x'), TRANS.tailEnd - 0.02, TRANS.axisY, 0)],
+        ['machined', at(alongAxis(lathe([[0, 0], [0.02, 0], [0.02, GEARSETS[3].x - 0.018 - TRANS.tailEnd + 0.02], [0, GEARSETS[3].x - 0.018 - TRANS.tailEnd + 0.02]], 'y', 20), 'x'), TRANS.tailEnd - 0.02, TRANS.axisY, 0)],
         ['steel', at(alongAxis(lathe([[0.0, 0], [0.055, 0], [0.055, 0.012], [0.025, 0.02], [0.0, 0.02]], 'y', 32), 'x'), TRANS.tailEnd - 0.035, TRANS.axisY, 0)],
       ],
       { pivot: ax.clone() },

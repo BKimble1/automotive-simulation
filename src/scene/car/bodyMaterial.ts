@@ -1,5 +1,5 @@
 /**
- * The body's materials: graphite metallic paint with a clear coat, gloss-black trim, tinted
+ * The body's materials: cool silver metallic paint with a clear coat, gloss-black trim, tinted
  * glass, lamps, grille and plate, all drawn on the one baked skin. Each panel mesh draws only
  * its own panel (other fragments are discarded), so a door can swing away or a hood can lift
  * with clean edges, and shut lines are real 3 mm gaps found per pixel.
@@ -45,10 +45,32 @@ uniform float uBodyDim;
 ${BODY_REGIONS_GLSL}
 
 // regions: 0 paint, 1 glass, 2 gloss black trim, 3 headlamp lens, 4 tail lamp lens, 5 grille,
-// 6 satin black (cladding, diffuser), 7 plate, 8 headlamp chrome, 9 DRL, 10 light bar
+// 6 satin black (cladding, diffuser, arch liners), 7 plate, 8 headlamp chrome, 9 DRL,
+// 10 light bar, 11 door handle (satin aluminium), 12 handle recess
+float bRoundRect(vec2 p, vec2 c, vec2 h, float r) {
+  vec2 q = abs(p - c) - h + r;
+  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+}
 int bRegion(vec3 p, vec3 n, out float aux) {
   aux = 0.0;
   float x = p.x; float y = p.y; float az = abs(p.z);
+  // wheel-arch liners: the inside of each arch, facing the wheel, in satin black
+  for (int i = 0; i < 2; i++) {
+    float ax = i == 0 ? 1.425 : -1.425;
+    vec2 d = vec2(x - ax, y - 0.318);
+    float r = length(d);
+    if (r < 0.366 && az < 0.93 && dot(n.xy, -d / max(r, 1e-4)) > 0.5) return 6;
+  }
+  // door handles: flush bars on the front and rear doors, a dark recess under each
+  if (az > 0.6 && abs(n.z) > 0.55 && y > 0.84 && y < 0.9) {
+    float fx = bDoorFront(y) - 0.2;
+    float rx = bBLine(y) - 0.2;
+    float hf = bRoundRect(vec2(x, y), vec2(fx, 0.873), vec2(0.075, 0.0105), 0.0105);
+    float hr = bRoundRect(vec2(x, y), vec2(rx, 0.873), vec2(0.075, 0.0105), 0.0105);
+    float h = min(hf, hr);
+    if (h < 0.0) return 11;
+    if (h < 0.0045 && y < 0.873) return 12;
+  }
   // side glass, the B-pillar and the quarter-glass divider
   if (az > 0.5 && abs(n.z) > 0.38 && y > bBelt(x) - 0.004) {
     float dl = bDlo(vec2(x, y));
@@ -81,26 +103,37 @@ int bRegion(vec3 p, vec3 n, out float aux) {
     if (u > 0.455 && u < 1.04 && y > bot && y < top) {
       aux = k;
       if (y > top - 0.0135 && y < top - 0.0065 && u > 0.49 && u < 1.0) return 9;
-      // inside the lens: a chrome reflector band and the dark lens
-      if (y < bot + 0.018 && u > 0.5 && u < 0.95) return 8;
+      // two projector modules under the light guide: a chrome ring round a dark lens each
+      float cy = (top - 0.016 + bot) * 0.5;
+      float e1 = length(vec2(u - 0.6, y - cy));
+      float e2 = length(vec2(u - 0.735, y - cy));
+      float e = min(e1, e2);
+      float rr = min(0.021, (top - 0.016 - bot) * 0.45);
+      if (e < rr) { aux = e < rr * 0.62 ? 3.0 : 2.0; return e < rr * 0.62 ? 3 : 8; }
+      // the lens body: a darker housing below, chrome reflector band at the bottom
+      if (y < bot + 0.012 && u > 0.5 && u < 0.95) return 8;
       return 3;
     }
     // grille and lower intake
     if (x > 2.0 && n.x > 0.3) {
       vec2 g = vec2(az, y);
-      // upper grille: a slim trapezoid between the lamps
-      float hw = 0.3 + (0.6 - y) * 0.35;
-      vec2 q = abs(g - vec2(0.0, 0.555)) - vec2(hw, 0.05);
-      float gr = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 0.025;
-      if (gr < 0.0) { aux = 1.0; return gr > -0.01 ? 2 : 5; }
-      // lower intake: one wide opening with the radiator behind it
-      float lw = 0.56 - (0.38 - y) * 0.6;
-      vec2 q2 = abs(g - vec2(0.0, 0.33)) - vec2(lw, 0.055);
+      // upper grille: a slim, wide opening between the lamps (the S-1's "brow")
+      float hw = 0.38 + (0.6 - y) * 0.5;
+      vec2 q = abs(g - vec2(0.0, 0.6)) - vec2(hw, 0.028);
+      float gr = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - 0.018;
+      if (gr < 0.0) { aux = 1.0; return gr > -0.007 ? 2 : 5; }
+      // lower intake: one wide opening with the radiator behind it, split by a body-colour bar
+      float lw = 0.6 - (0.38 - y) * 0.6;
+      vec2 q2 = abs(g - vec2(0.0, 0.34)) - vec2(lw, 0.062);
       float lo = length(max(q2, 0.0)) + min(max(q2.x, q2.y), 0.0) - 0.03;
-      if (lo < 0.0) { aux = 0.0; return lo > -0.01 ? 2 : 5; }
-      // corner air curtains
-      vec2 q3 = abs(g - vec2(0.76, 0.36)) - vec2(0.03, 0.07);
-      float sv = length(max(q3, 0.0)) + min(max(q3.x, q3.y), 0.0) - 0.012;
+      if (lo < 0.0) {
+        if (abs(y - 0.34) < 0.009 && az < lw - 0.04) return 0;
+        aux = 0.0;
+        return lo > -0.008 ? 2 : 5;
+      }
+      // corner air curtains: slim vertical slots
+      vec2 q3 = abs(g - vec2(0.79, 0.37)) - vec2(0.012, 0.075);
+      float sv = length(max(q3, 0.0)) + min(max(q3.x, q3.y), 0.0) - 0.008;
       if (sv < 0.0) return 6;
     }
   }
@@ -184,6 +217,8 @@ function patch(m: MeshPhysicalMaterial, u: BodyUniforms, kind: 'paint' | 'glass'
           else if (bReg == 8) diffuseColor.rgb = vec3(0.55, 0.57, 0.6);
           else if (bReg == 9) diffuseColor.rgb = vec3(0.9);
           else if (bReg == 10) diffuseColor.rgb = vec3(0.14, 0.01, 0.012);
+          else if (bReg == 11) diffuseColor.rgb = vec3(0.62, 0.64, 0.67);
+          else if (bReg == 12) diffuseColor.rgb = vec3(0.01);
           diffuseColor.rgb *= 1.0 - 0.92 * bGapAmt;
           if (!gl_FrontFacing) diffuseColor.rgb = vec3(0.01, 0.011, 0.012);
           `,
@@ -191,15 +226,17 @@ function patch(m: MeshPhysicalMaterial, u: BodyUniforms, kind: 'paint' | 'glass'
         .replace(
           '#include <roughnessmap_fragment>',
           `#include <roughnessmap_fragment>
-          if (bReg == 2 || bReg == 3 || bReg == 4 || bReg == 8 || bReg == 10) roughnessFactor = 0.06;
-          else if (bReg == 5 || bReg == 6) roughnessFactor = 0.62;
+          if (bReg == 3 || bReg == 4 || bReg == 8 || bReg == 10) roughnessFactor = 0.06;
+          else if (bReg == 2) roughnessFactor = 0.14;
+          else if (bReg == 11) roughnessFactor = 0.3;
+          else if (bReg == 5 || bReg == 6 || bReg == 12) roughnessFactor = 0.62;
           else if (bReg == 7) roughnessFactor = 0.45;
           if (!gl_FrontFacing) roughnessFactor = 0.9;`,
         )
         .replace(
           '#include <metalnessmap_fragment>',
           `#include <metalnessmap_fragment>
-          if (bReg == 8) metalnessFactor = 1.0;
+          if (bReg == 8 || bReg == 11) metalnessFactor = 1.0;
           else if (bReg != 0) metalnessFactor = 0.0;
           if (!gl_FrontFacing) metalnessFactor = 0.0;`,
         )
@@ -218,7 +255,7 @@ function patch(m: MeshPhysicalMaterial, u: BodyUniforms, kind: 'paint' | 'glass'
         '#include <lights_physical_fragment>',
         ShaderChunk.lights_physical_fragment.replace(
           'material.clearcoat = clearcoat;',
-          'material.clearcoat = (bReg == 5 || bReg == 6 || bReg == 7 || !gl_FrontFacing) ? 0.0 : clearcoat;',
+          'material.clearcoat = (bReg == 5 || bReg == 6 || bReg == 7 || bReg == 11 || bReg == 12 || !gl_FrontFacing) ? 0.0 : clearcoat;',
         ),
       );
     }
@@ -256,7 +293,8 @@ export interface BodyMaterialSet {
   glassGhost: MeshPhysicalMaterial;
 }
 
-export const PAINT_COLOR = new Color('#2c3038');
+/** The S-1's paint: a cool silver metallic (a mid tone reads the surfaces in a dark studio). */
+export const PAINT_COLOR = new Color('#7f8893');
 
 export function bodyMaterials(panel: number): BodyMaterialSet {
   const u: BodyUniforms = {
@@ -272,10 +310,11 @@ export function bodyMaterials(panel: number): BodyMaterialSet {
   };
   const paintParams = {
     color: PAINT_COLOR,
-    metalness: 0.62,
-    roughness: 0.34,
+    metalness: 0.6,
+    roughness: 0.36,
     clearcoat: 1,
-    clearcoatRoughness: 0.035,
+    // a clear coat polished but not a mirror: the studio's lights read as soft lines, not stars
+    clearcoatRoughness: 0.075,
     envMapIntensity: 1,
   };
   const paint = new MeshPhysicalMaterial({ ...paintParams, side: DoubleSide });
@@ -283,13 +322,14 @@ export function bodyMaterials(panel: number): BodyMaterialSet {
   const paintGhost = new MeshPhysicalMaterial({ ...paintParams, side: FrontSide, transparent: true, depthWrite: false });
   patch(paintGhost, u, 'paint', true);
   const glassParams = {
-    color: new Color('#05070a'),
+    // tinted glass: the cabin reads through it dimly; the studio's softboxes reflect in it
+    color: new Color('#080b0f'),
     metalness: 0.0,
-    roughness: 0.04,
+    roughness: 0.03,
     transparent: true,
-    opacity: 0.62,
+    opacity: 0.84,
     depthWrite: false,
-    envMapIntensity: 1.4,
+    envMapIntensity: 2.1,
     clearcoat: 1,
     clearcoatRoughness: 0.02,
   };

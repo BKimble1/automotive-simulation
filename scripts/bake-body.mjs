@@ -187,7 +187,7 @@ const SIDE_CAB = smoothPoly([
   [-1.72, 1.075],
   [-1.82, 1.02],
   [-1.8, 0.9],
-], 10);
+], 44);
 
 // Glasshouse plan: narrower than the body, drawn in at the A-pillars and the C-pillars.
 const PLAN_CAB = smoothPoly(
@@ -202,7 +202,7 @@ const PLAN_CAB = smoothPoly(
     [-1.86, 0.55],
     [-1.88, 0.0],
   ]),
-  8,
+  36,
 );
 
 // Glasshouse section (z, y): tumblehome from the beltline to a crowned roof.
@@ -217,7 +217,7 @@ const FRONT_CAB = smoothPoly(
     [0.6, 0.84],
     [0.0, 0.84],
   ]),
-  8,
+  36,
 );
 
 const sideCab = polySDF(SIDE_CAB);
@@ -405,7 +405,8 @@ export function body(x, y, z) {
     const cyl = Math.hypot(dx, dy) - ARCH_R;
     const cap = 0.52 - az;
     const arch = Math.max(cyl, cap);
-    d = smax(d, -arch, 0.014);
+    // a rolled lip: a rounder blend than the grid's spacing, so the arch edge is clean
+    d = smax(d, -arch, 0.05);
   }
   // underbody: the transmission and driveshaft tunnel, the rear subframe bay
   d = smax(d, -box(x, y, z, -0.1, 0.2, 0, 1.25, 0.17, 0.165), 0.03);

@@ -162,7 +162,7 @@ function tyreMaterial(src: MeshPhysicalMaterial, u: TyreU, ghost: boolean) {
 }
 
 /** The rim: barrel, five double spokes, lug nuts and the centre cap. */
-function rimGeometry(): { metal: BufferGeometry; dark: BufferGeometry } {
+function rimGeometry(): { metal: BufferGeometry; back: BufferGeometry; dark: BufferGeometry } {
   const w = RIM_W;
   const barrel = lathe(
     [
@@ -228,7 +228,8 @@ function rimGeometry(): { metal: BufferGeometry; dark: BufferGeometry } {
   }
   const cap = alongAxis(lathe([[0, 0], [0.03, 0], [0.03, 0.006], [0.026, 0.01], [0, 0.011]], 'y', 32), 'z');
   cap.translate(0, 0, faceZ - 0.04);
-  return { metal: merge([barrel, ...spokes, hub]), dark: merge([...nuts, cap]) };
+  // two-tone: machined spoke faces over a graphite barrel and hub
+  return { metal: merge(spokes), back: merge([barrel, hub]), dark: merge([...nuts, cap]) };
 }
 
 export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): ChassisParts {
@@ -258,7 +259,7 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
     const spinNode = rig.adopt(spin, `wheel-spin-${c.id}`, 'wheel', W, [], []);
     void spinNode;
     // wheel (rim) and tyre
-    const wheelNode = rig.part(spin, `wheel-${c.id}`, 'wheel', W, [['aluminium', rim.metal.clone(), '#8e939a'], ['polymerGloss', rim.dark.clone()]], { local: true });
+    const wheelNode = rig.part(spin, `wheel-${c.id}`, 'wheel', W, [['machined', rim.metal.clone(), '#c3c8ce'], ['aluminium', rim.back.clone(), '#3c4047'], ['polymerGloss', rim.dark.clone()]], { local: true });
     const plain = rig.mat(W, 'tyre');
     const tu: TyreU = { uSpin: { value: 0 }, uFlat: { value: 0.012 }, uRadius: { value: TIRE.radius }, uBlur: { value: 0 } };
     const tm = tyreMaterial(plain.opaque, tu, false);

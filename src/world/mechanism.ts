@@ -18,7 +18,7 @@
 import { Quaternion, Vector3 } from 'three';
 import { STEERING, TIRE } from '../spec/vehicle';
 import { CYCLE, pistonDrop, phaseDeg, intakeLift, exhaustLift, CRANK_R, ROD_L } from '../sim/engine';
-import { PLANETARY } from '../sim/drivetrain';
+import { GEARSETS, SHAFT_INDEX } from '../sim/geartrain';
 import type { CarState } from '../sim/car';
 import { CORNERS, type Link } from '../scene/car/chassisGeo';
 import { MAX_LIFT_EX, MAX_LIFT_IN, placeChain } from '../scene/car/engineGeo';
@@ -35,6 +35,9 @@ export interface MechView {
   crank: number;
   turbine: number;
   stator: number;
+  /** The geartrain's eight shaft angles and each set's planet spin (sim/geartrain.ts). */
+  gt: number[];
+  gtPlanet: number[];
   driveshaft: number;
   carrier: number;
   spider: number;
@@ -57,7 +60,7 @@ export interface MechView {
 }
 
 export function emptyView(): MechView {
-  return { crank: 0, turbine: 0, stator: 0, driveshaft: 0, carrier: 0, spider: 0, wheel: [0, 0, 0, 0], wheelZ: [0, 0, 0, 0], steer: [0, 0, 0, 0], steerWheel: 0, heave: 0, pitch: 0, roll: 0, fan: 0, fz: [4000, 4000, 3700, 3700], brakeN: 0, throttle: 0, cranking: false, lockup: 0, start: false, ignition: false };
+  return { crank: 0, turbine: 0, stator: 0, gt: [0, 0, 0, 0, 0, 0, 0, 0], gtPlanet: [0, 0, 0, 0], driveshaft: 0, carrier: 0, spider: 0, wheel: [0, 0, 0, 0], wheelZ: [0, 0, 0, 0], steer: [0, 0, 0, 0], steerWheel: 0, heave: 0, pitch: 0, roll: 0, fan: 0, fz: [4000, 4000, 3700, 3700], brakeN: 0, throttle: 0, cranking: false, lockup: 0, start: false, ignition: false };
 }
 
 /** Unwrapped interpolation of an angle that may have wrapped by `period` between steps. */
@@ -73,6 +76,8 @@ export function interpolate(prev: CarState, cur: CarState, t: number, out: MechV
   out.crank = lerpAngle(prev.crank, cur.crank, t, CYCLE);
   out.turbine = lerpAngle(prev.turbineAngle, cur.turbineAngle, t, Math.PI * 2);
   out.stator = lerpAngle(prev.statorAngle, cur.statorAngle, t, Math.PI * 2);
+  for (let i = 0; i < 8; i++) out.gt[i] = lerpAngle(prev.gt[i], cur.gt[i], t, Math.PI * 2);
+  for (let i = 0; i < 4; i++) out.gtPlanet[i] = lerpAngle(prev.gtPlanet[i], cur.gtPlanet[i], t, Math.PI * 2);
   out.driveshaft = lerpAngle(prev.driveshaftAngle, cur.driveshaftAngle, t, Math.PI * 2);
   out.carrier = lerpAngle(prev.carrierAngle, cur.carrierAngle, t, Math.PI * 2);
   out.spider = lerpAngle(prev.spiderAngle, cur.spiderAngle, t, Math.PI * 2);
@@ -175,21 +180,14 @@ export class Mechanism {
     D.lockup.mp.set(0.003 * v.lockup, 0, 0);
     D.inputShaft.mq.copy(_q);
     D.stator.mq.setFromAxisAngle(X, -v.stator);
-    // gearsets: ring = input, carrier between input and output (set k nearer the output for
-    // later sets), sun and planets from Willis' equation, so every mesh is consistent
-    const S = PLANETARY.sun;
-    const R = PLANETARY.ring;
-    const P = PLANETARY.planet;
+    // the geartrain: every member at its own shaft's angle from the model, which solves them
+    // all from the applied elements (sim/geartrain.ts), so each drawn mesh is the model's
     D.gearsets.forEach((gs, k) => {
-      const ring = v.turbine;
-      const f = (k + 1) / 5;
-      const carrier = ring + (v.driveshaft - ring) * f;
-      const sun = ((S + R) * carrier - R * ring) / S;
-      gs.ring.mq.setFromAxisAngle(X, -ring);
-      gs.carrier.mq.setFromAxisAngle(X, -carrier);
-      gs.sun.mq.setFromAxisAngle(X, -sun);
-      const planet = ((ring - carrier) * R) / P;
-      for (const pl of gs.planets) pl.mq.setFromAxisAngle(X, -planet);
+      const def = GEARSETS[k];
+      gs.ring.mq.setFromAxisAngle(X, -v.gt[SHAFT_INDEX[def.ring]]);
+      gs.carrier.mq.setFromAxisAngle(X, -v.gt[SHAFT_INDEX[def.carrier]]);
+      gs.sun.mq.setFromAxisAngle(X, -v.gt[SHAFT_INDEX[def.sun]]);
+      for (const pl of gs.planets) pl.mq.setFromAxisAngle(X, -v.gtPlanet[k]);
     });
     _q.setFromAxisAngle(X, -v.driveshaft);
     for (const n of D.output) n.mq.copy(_q);
