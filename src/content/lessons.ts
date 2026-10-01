@@ -54,7 +54,7 @@ const startBeats: Beat[] = [
   {
     id: 'battery',
     title: 'The battery feeds the starter',
-    text: 'The 12-volt battery sends about 200 amps to the starter motor. Its voltage dips while the starter works.',
+    text: 'The 12-volt battery sends about 170 amps to the starter motor. Its voltage dips while the starter works.',
     duration: 5,
     view: 'battery-starter',
     timeScale: 0.05,
@@ -236,7 +236,7 @@ const torqueBeats: Beat[] = [
   {
     id: 'away',
     title: 'Motion',
-    text: 'The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.',
+    text: 'The fuel’s chemical energy has become forward motion: 1,560 kilograms, already past 60 km/h and still gaining speed.',
     duration: 5,
     view: 'drive-away',
     timeScale: 1,
@@ -329,7 +329,7 @@ const suspensionBeats: Beat[] = [
 ];
 
 // ───────────────────────────── 7. braking: without and with ABS ─────────────────────────────
-const WET = { mu: 0.55 };
+const WET = { mu: TIRE.muWet };
 const brakeBeats: Beat[] = [
   {
     id: 'brake-system',

@@ -13,7 +13,7 @@ import type { World } from '../../world/world';
 import { SheetHandle, useSheet } from '../Sheet';
 import { viewFor } from '../../world/partViews';
 import { VIEWS } from '../../world/views';
-import { READOUTS } from '../Readouts';
+import { READOUTS, RunPace } from '../Readouts';
 import { runScenario } from './run';
 
 const LAMPS: { key: 'engine' | 'oil' | 'battery' | 'temp' | 'abs' | 'brake'; label: string; red?: boolean }[] = [
@@ -261,6 +261,7 @@ export function SimulatePanel({ world }: { world: World }) {
             <span className="eng-kicker">{sc ? 'Drive' : 'Diagnose'}</span>
           </div>
           <h2>{sc?.title ?? fault!.title}</h2>
+          <RunPace />
           {sc ? (
             <>
               <p className="ex-fn">{sc.summary}</p>

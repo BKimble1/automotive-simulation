@@ -1,6 +1,6 @@
 {
- "version": "film-2",
- "generatedAt": "2026-10-01T07:13:09Z",
+ "version": "film-3",
+ "generatedAt": "2026-10-01T19:19:21Z",
  "voice": "bm_george",
  "speed": 1.0,
  "fingerprint": {
@@ -36,17 +36,17 @@
  "summary": {
   "segments": 34,
   "cues": 57,
-  "audioSeconds": 372.66,
-  "modelAudioSeconds": 374.75,
-  "synthSeconds": 93.35,
-  "rtf": 0.249,
-  "cacheHits": 57,
+  "audioSeconds": 373.98,
+  "modelAudioSeconds": 376.07,
+  "synthSeconds": 91.17,
+  "rtf": 0.242,
+  "cacheHits": 55,
   "medianPhonemesPerS": 10.19,
   "medianSpeechWpm": 168.9,
   "flags": 4,
   "hardFlags": 0,
-  "bytes": 3003648,
-  "asrWer": 0.023
+  "bytes": 3014400,
+  "asrWer": 0.024
  },
  "segments": [
   {
@@ -515,99 +515,99 @@
   {
    "id": "battery",
    "file": "battery.mp3",
-   "durationMs": 8780,
+   "durationMs": 9630,
    "loudness": {
     "inputLufs": -21.7,
-    "inputTruePeakDb": -5.7,
+    "inputTruePeakDb": -5.3,
     "gainDb": 3.7,
     "outputLufs": -18.0,
-    "outputTruePeakDb": -2.0
+    "outputTruePeakDb": -1.6
    },
    "encoded": {
-    "bytes": 70848,
-    "decodedSamples": 210720,
-    "sourceSamples": 210720,
-    "durationMs": 8780,
+    "bytes": 77760,
+    "decodedSamples": 231120,
+    "sourceSamples": 231120,
+    "durationMs": 9630,
     "lagSamples": 0,
     "lengthMatches": true,
     "gapless": {
      "xingTag": true,
      "tag": "Info",
-     "frames": 368,
-     "bytes": 70848,
+     "frames": 404,
+     "bytes": 77760,
      "encoder": "Lavf lame",
      "encoderDelaySamples": 576,
-     "paddingSamples": 672
+     "paddingSamples": 1008
     },
-    "decodedPeakDbfs": -2.45
+    "decodedPeakDbfs": -2.01
    },
-   "decodedPeakDbfs": -2.45,
+   "decodedPeakDbfs": -2.01,
    "flags": [],
    "cues": [
     {
      "id": "battery-1",
-     "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+     "text": "The 12-volt battery sends about 170 amps to the starter motor.",
      "startMs": 300,
-     "endMs": 5000,
-     "audioText": "The twelve-volt battery sends about two hundred amps to the starter motor.",
-     "phonemes": "ðə twˌɛlvvˈQlt bˈatəɹi sˈɛndz əbˈWt tˈuː hˈʌndɹəd ˈamps tə ðə stˈɑːtə mˈQtə.",
+     "endMs": 5850,
+     "audioText": "The twelve-volt battery sends about one hundred and seventy amps to the starter motor.",
+     "phonemes": "ðə twˌɛlvvˈQlt bˈatəɹi sˈɛndz əbˈWt wˈʌn hˈʌndɹəd and sˈɛvnti ˈamps tə ðə stˈɑːtə mˈQtə.",
      "dictionary": [
       "12-volt"
      ],
      "espeakWords": [],
      "g2pWarnings": [],
-     "tokens": 76,
+     "tokens": 88,
      "chunks": 1,
-     "synthS": 1.227,
-     "cached": true,
+     "synthS": 1.403,
+     "cached": false,
      "modelLeadS": 0.27,
      "modelTailS": 0.525,
      "pauses": [],
      "unpunctuatedGaps": [
       [
-       1.545,
+       1.57,
        0.15
       ]
      ],
      "qa": {
-      "durationS": 4.7,
-      "peakDbfs": -2.06,
+      "durationS": 5.55,
+      "peakDbfs": -1.6,
       "clippedSamples": 0,
-      "dcOffset": -0.0003,
+      "dcOffset": -0.00031,
       "leadingSilenceS": 0.05,
-      "trailingSilenceS": 0.09,
-      "longestInternalSilenceS": 0.25,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.31,
       "pauses": [
        [
-        1.36,
-        0.25
+        1.37,
+        0.26
        ],
        [
-        3.3,
-        0.2
+        3.99,
+        0.31
        ]
       ],
-      "speechSpanS": 4.56,
-      "f0MedianHz": 141.6,
-      "f0RangeSemitones": 9.9,
+      "speechSpanS": 5.4,
+      "f0MedianHz": 141.7,
+      "f0RangeSemitones": 8.5,
       "pitchJumpsPerMin": 0.0,
-      "voicedShare": 0.373,
-      "burstDb": 6.0,
+      "voicedShare": 0.35,
+      "burstDb": 5.7,
       "burstAtS": 0.25,
-      "onsetBurstDb": 6.0,
+      "onsetBurstDb": 5.7,
       "spikes": 0,
-      "hfShareDb": -28.2,
-      "words": 12,
-      "wpm": 153.2,
-      "speechWpm": 157.9,
-      "rawPeakDbfs": -5.76,
-      "phonemesPerS": 11.4
+      "hfShareDb": -27.9,
+      "words": 14,
+      "wpm": 151.4,
+      "speechWpm": 155.6,
+      "rawPeakDbfs": -5.3,
+      "phonemesPerS": 11.48
      },
      "asr": {
-      "hypothesis": "The twelve volt battery sends about 200 amps to the starter motor.",
-      "reference": "the twelve volt battery sends about two hundred amps to the starter motor",
+      "hypothesis": "The 12-volt battery sends about 170 amps to the starter motor.",
+      "reference": "the twelve volt battery sends about one hundred seventy amps to the starter motor",
       "errors": 0,
-      "refWords": 13,
+      "refWords": 14,
       "wer": 0.0,
       "diffs": []
      },
@@ -616,8 +616,8 @@
     {
      "id": "battery-2",
      "text": "Its voltage dips while the starter works.",
-     "startMs": 5350,
-     "endMs": 8280,
+     "startMs": 6200,
+     "endMs": 9130,
      "audioText": "Its voltage dips while the starter works.",
      "phonemes": "ˌɪts vˈQltɪʤ dˈɪps wˌIl ðə stˈɑːtə wˈɜːks.",
      "dictionary": [],
@@ -2651,115 +2651,122 @@
   {
    "id": "away",
    "file": "away.mp3",
-   "durationMs": 11390,
+   "durationMs": 11860,
    "loudness": {
-    "inputLufs": -21.7,
-    "inputTruePeakDb": -6.1,
-    "gainDb": 3.7,
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -5.9,
+    "gainDb": 3.8,
     "outputLufs": -18.0,
-    "outputTruePeakDb": -2.4
+    "outputTruePeakDb": -2.1
    },
    "encoded": {
-    "bytes": 91776,
-    "decodedSamples": 273360,
-    "sourceSamples": 273360,
-    "durationMs": 11390,
+    "bytes": 95616,
+    "decodedSamples": 284640,
+    "sourceSamples": 284640,
+    "durationMs": 11860,
     "lagSamples": 0,
     "lengthMatches": true,
     "gapless": {
      "xingTag": true,
      "tag": "Info",
-     "frames": 477,
-     "bytes": 91776,
+     "frames": 497,
+     "bytes": 95616,
      "encoder": "Lavf lame",
      "encoderDelaySamples": 576,
-     "paddingSamples": 816
+     "paddingSamples": 1056
     },
-    "decodedPeakDbfs": -2.86
+    "decodedPeakDbfs": -2.53
    },
-   "decodedPeakDbfs": -2.86,
+   "decodedPeakDbfs": -2.53,
    "flags": [],
    "cues": [
     {
      "id": "away-1",
-     "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+     "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms, already past 60 km/h and still gaining speed.",
      "startMs": 300,
-     "endMs": 10890,
-     "audioText": "The fuel’s chemical energy has become forward motion: one thousand five hundred and sixty kilograms gaining about twelve kilometres an hour every second.",
-     "phonemes": "ðə fjˈuːəlz kˈɛmɪkᵊl ˈɛnəʤi haz bɪkˈʌm fˈɔːwəd mˈQʃᵊn: wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd and sˈɪksti kˈɪləɡɹamz ɡˈAnɪŋ əbˈWt twˈɛlv kˈɪləmˌiːtəz ɐn ˈWə ˈɛvəɹi sˈɛkᵊnd.",
+     "endMs": 11360,
+     "audioText": "The fuel’s chemical energy has become forward motion: one thousand five hundred and sixty kilograms, already past sixty kilometres an hour and still gaining speed.",
+     "phonemes": "ðə fjˈuːəlz kˈɛmɪkᵊl ˈɛnəʤi haz bɪkˈʌm fˈɔːwəd mˈQʃᵊn: wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd and sˈɪksti kˈɪləɡɹamz, ɔːlɹˈɛdi pˈɑːst sˈɪksti kˈɪləmˌiːtəz ɐn ˈWə and stˈɪl ɡˈAnɪŋ spˈiːd.",
      "dictionary": [
       "km/h"
      ],
      "espeakWords": [],
      "g2pWarnings": [],
-     "tokens": 160,
+     "tokens": 174,
      "chunks": 1,
-     "synthS": 4.96,
-     "cached": true,
-     "modelLeadS": 0.27,
-     "modelTailS": 0.535,
+     "synthS": 2.609,
+     "cached": false,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.53,
      "pauses": [
       {
        "mark": ":",
        "pauseS": 0.125,
-       "depthDb": -68.5,
-       "t": 3.795
+       "depthDb": -69.0,
+       "t": 3.685
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -66.5,
+       "t": 6.535
       }
      ],
      "unpunctuatedGaps": [],
      "qa": {
-      "durationS": 10.59,
-      "peakDbfs": -2.41,
+      "durationS": 11.06,
+      "peakDbfs": -2.11,
       "clippedSamples": 0,
-      "dcOffset": -0.00022,
-      "leadingSilenceS": 0.05,
-      "trailingSilenceS": 0.1,
-      "longestInternalSilenceS": 0.46,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.45,
       "pauses": [
        [
-        1.61,
-        0.25
+        1.59,
+        0.24
        ],
        [
-        3.42,
-        0.46
+        3.32,
+        0.45
        ],
        [
-        5.21,
-        0.17
+        6.24,
+        0.38
        ],
        [
-        6.76,
-        0.21
-       ],
-       [
-        8.69,
-        0.33
+        9.1,
+        0.34
        ]
       ],
-      "speechSpanS": 10.44,
-      "f0MedianHz": 138.4,
-      "f0RangeSemitones": 7.6,
+      "speechSpanS": 10.91,
+      "f0MedianHz": 139.2,
+      "f0RangeSemitones": 6.9,
       "pitchJumpsPerMin": 0.0,
-      "voicedShare": 0.389,
-      "burstDb": 5.9,
-      "burstAtS": 0.25,
-      "onsetBurstDb": 5.9,
+      "voicedShare": 0.377,
+      "burstDb": 6.1,
+      "burstAtS": 2.2,
+      "onsetBurstDb": 5.4,
       "spikes": 0,
-      "hfShareDb": -27.9,
-      "words": 23,
-      "wpm": 130.3,
-      "speechWpm": 132.2,
-      "rawPeakDbfs": -6.11,
-      "phonemesPerS": 10.82
+      "hfShareDb": -27.4,
+      "words": 25,
+      "wpm": 135.6,
+      "speechWpm": 137.5,
+      "rawPeakDbfs": -5.91,
+      "phonemesPerS": 11.0
      },
      "asr": {
-      "hypothesis": "The fuel's chemical energy has become forward motion, one thousand five hundred and sixty kilograms gaining about twelve kilometres an hour every second.",
-      "reference": "the fuels chemical energy has become forward motion one thousand five hundred sixty kilograms gaining about twelve kilometers an hour every second",
-      "errors": 0,
-      "refWords": 22,
-      "wer": 0.0,
-      "diffs": []
+      "hypothesis": "The fuel's chemical energy has become forward motion, one thousand five hundred and sixty kilograms already passed sixty kilometres an hour and still gaining speed.",
+      "reference": "the fuels chemical energy has become forward motion one thousand five hundred sixty kilograms already past sixty kilometers an hour still gaining speed",
+      "errors": 1,
+      "refWords": 23,
+      "wer": 0.043,
+      "diffs": [
+       [
+        "past",
+        "passed"
+       ]
+      ]
      },
      "flags": []
     }

@@ -176,11 +176,11 @@ export function buildCar(bodyGeo: BufferGeometry): Car {
   eng('oil-pan', V(0, -0.24, 0), 0.2);
   eng('oil-pump', V(0, -0.16, 0), 0.2);
   eng('oil-pickup', V(0, -0.2, 0), 0.2);
-  eng('timing-cover', V(0.22, 0, 0), 0.05);
+  eng('timing-cover', V(0.22, 0, 0), 0.08);
   eng('timing-chain', V(0.12, 0.0, 0), 0.25);
   eng('chain-guides', V(0.12, 0.0, 0), 0.25);
   eng('chain-tensioner', V(0.12, 0.0, 0), 0.25);
-  eng('harmonic-balancer', V(0.3, 0, 0), 0.1);
+  eng('harmonic-balancer', V(0.3, 0, 0), 0.02);
   for (const n of ['accessory-belt', 'pulley-alternator', 'pulley-tensioner', 'pulley-idler', 'pulley-waterpump', 'pulley-compressor']) eng(n, V(0.36, 0, 0), 0.0);
   for (let i = 0; i < 4; i++) {
     eng(`piston-${i + 1}`, V(0, 0.16, 0), 0.32);

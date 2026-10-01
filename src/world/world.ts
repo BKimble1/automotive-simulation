@@ -46,7 +46,7 @@ import { Clocks } from './clocks';
 import { AnimationDirector } from './director';
 import { Looks } from './looks';
 import { Mechanism, emptyView, interpolate } from './mechanism';
-import { SequencePlayer, type Sequence } from './sequence';
+import { scaleAt, SequencePlayer, type Sequence } from './sequence';
 import { SeekCache } from './seekCache';
 import { SimJobs } from './jobs';
 import { KEEP_OUT, VIEWS, type View } from './views';
@@ -484,6 +484,7 @@ export class World {
       status: !l ? 'none' : this.paused ? 'paused' : this.liveEnded ? 'ended' : l.drive ? 'scripted' : 'manual',
       t: elapsed,
       duration: l?.duration ?? null,
+      scale: l?.timeScale ?? 1,
     });
   }
 
@@ -591,6 +592,8 @@ export class World {
   }
 
   private _o = new Vector3();
+  private lastVizT = 0;
+  private blurAmt = [0, 0, 0, 0];
   private _dir = new Vector3();
   private _up = new Vector3(0, 1, 0);
   private _x = new Vector3(1, 0, 0);
@@ -660,6 +663,27 @@ export class World {
       sparkWindowDeg: 10,
     });
 
+    // the wheels' spin blur: how far each wheel turned since the last drawn frame (simulated
+    // time advanced × its speed). Five double spokes repeat every 72°: past about 15° a frame
+    // they start to strobe and past 36° they seem to turn backwards, so the blur fades in from
+    // 12° to 30° a frame. In slow motion each frame's turn is small and the spokes stay sharp.
+    {
+      const dtm = Math.max(0, s.t - this.lastVizT);
+      this.lastVizT = s.t;
+      const wheelGhost = Math.max(ch.get('ghost:wheels'), ch.get('hide:wheels'));
+      const corners = this.car.chassis.corners;
+      for (let i = 0; i < 4; i++) {
+        const step = (Math.abs(s.wheelOmega[i]) * dtm * 180) / Math.PI;
+        const b = Math.min(1, Math.max(0, (step - 12) / 18));
+        const k = this.blurAmt[i] + (b - this.blurAmt[i]) * (1 - Math.exp(-this.clocks.realDt * 14));
+        this.blurAmt[i] = k;
+        const blur = corners[i].blur;
+        blur.material.opacity = 0.88 * k * (1 - wheelGhost);
+        blur.visible = blur.material.opacity > 0.01;
+        corners[i].tyreMat.userData.u.uBlur.value = k;
+      }
+    }
+
     // tyre force arrows at the contact patches (no allocation per frame)
     const at = ch.get('arrow:tyre');
     if (at > 0) {
@@ -695,7 +719,7 @@ export class World {
       selectorWanted: this.model.inputs.selector,
       throttle: this.model.inputs.throttle,
       brakeBar: s.linePa / 1e5,
-      torque: s.engineTorque,
+      torque: s.engineTorqueMean,
       wheelTorque: s.wheelTorque,
       coolantC: s.coolantC,
       oilBar: s.oilBar,
@@ -748,7 +772,11 @@ export class World {
     });
     if (this.player.seq) {
       const p = this.player;
-      usePlayer.setState({ t: p.t, playing: p.playing, holding: p.hold || !!this.seekPending, beat: p.index, caption: p.caption(), ended: p.ended });
+      const bi = p.beats[p.index];
+      const sc = bi ? scaleAt(bi.beat.timeScale, p.t - bi.start) : 1;
+      // three significant figures: a ramp shows as it changes without re-rendering every frame
+      const scale = +sc.toPrecision(3);
+      usePlayer.setState({ t: p.t, playing: p.playing, holding: p.hold || !!this.seekPending, beat: p.index, caption: p.caption(), ended: p.ended, scale });
     }
     if (this.live) this.publishRun();
     useApp.setState({ director: this.director.state });

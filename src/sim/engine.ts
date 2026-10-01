@@ -213,15 +213,17 @@ export function frictionTorque(rpm: number, oilTempC = 90): number {
 
 /**
  * Manifold absolute pressure from throttle (0 … 1) and speed: a throttled engine draws the
- * manifold down; wide open it is near atmospheric. Pa.
+ * manifold down; wide open it is near atmospheric at every speed (the full-load curve already
+ * contains the engine's breathing, so wide open must not take it off a second time). Pa.
  */
 export function manifoldPressure(throttle: number, rpm: number): number {
   const t = Math.max(0, Math.min(1, throttle));
-  // effective throttle area against the engine's pumping demand
+  // effective throttle area against the engine's pumping demand, relative to wide open
   const area = 0.012 + 0.988 * Math.pow(t, 1.5);
   const demand = Math.max(0.2, rpm / 3000);
-  const ratio = area / Math.sqrt(area * area + 0.06 * demand * demand);
-  return 1.013e5 * Math.max(0.25, Math.min(0.99, ratio));
+  const flow = (a: number) => a / Math.sqrt(a * a + 0.06 * demand * demand);
+  // wide open: 0.99 bar, the full-load point of indicatedTorque
+  return Math.max(0.25 * 1.013e5, (0.99e5 * flow(area)) / flow(1));
 }
 
 /** Indicated (gross) torque from manifold pressure, N·m: full-load torque scaled by charge density. */

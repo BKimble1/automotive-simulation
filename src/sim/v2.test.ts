@@ -3,7 +3,8 @@
  * nothing, read-only sampling, and static loads from the configured mass.
  */
 import { describe, expect, test } from 'vitest';
-import { BODY, G, GEARBOX, MASS, TIRE } from '../spec/vehicle';
+import { BODY, ENGINE, G, GEARBOX, MASS, TIRE } from '../spec/vehicle';
+import { fullLoadTorque } from './engine';
 import { Car, configOf, defaultParams, presetCruise, presetIdle, STEP, type CarState } from './car';
 import { DERIVED_RATIOS, ELEMENT_DEFS, GEARSETS, SHAFTS, SHAFT_INDEX, SHIFT_TABLE, appliedElements, elementsRatio, geartrainSpeeds } from './geartrain';
 import { initRun, simulate, type RunSpec } from './run';
@@ -240,4 +241,39 @@ describe('the selector', () => {
   void TIRE;
   void SHAFTS;
   void ({} as CarState);
+});
+
+describe('the engine and its lab agree with the stated engine', () => {
+  test('wide open, the torque lab reproduces the full-load curve and its peaks', () => {
+    const lab = LABS.find((l) => l.id === 'engine')!;
+    const sm = simulateLab(lab, defaults(lab));
+    // past the first second (the sweep settling), every sample within 3 % of the stated curve
+    for (const x of sm.filter((x) => (x.t as number) > 1)) expect(Math.abs((x.torque as number) / fullLoadTorque(x.rpm as number) - 1)).toBeLessThan(0.03);
+    const tq = sm.reduce((a, b) => (b.torque > a.torque ? b : a));
+    const pk = sm.reduce((a, b) => (b.power > a.power ? b : a));
+    expect(Math.abs((tq.rpm as number) - ENGINE.peakTorqueRpm)).toBeLessThan(250);
+    expect(Math.abs((tq.torque as number) / ENGINE.peakTorque - 1)).toBeLessThan(0.03);
+    expect(Math.abs((pk.power as number) / ENGINE.peakPowerKw - 1)).toBeLessThan(0.03);
+    // power is torque times speed
+    for (const x of sm) expect((x.power as number) * 1000).toBeCloseTo(((x.torque as number) * (x.rpm as number) * Math.PI) / 30, 3);
+  });
+
+  test('the instruments read the cycle-mean torque, not the firing pulses', () => {
+    const car = new Car();
+    initRun(car, { id: 'idle', start: presetIdle, drive: (_t, inp) => { inp.ignition = true; inp.selector = 'P'; } });
+    car.runTo(car.s.t + 2);
+    let lo = Infinity;
+    let hi = -Infinity;
+    let pulseLo = Infinity;
+    let pulseHi = -Infinity;
+    for (let k = 0; k < 400; k++) {
+      car.runTo(car.s.t + 0.005);
+      lo = Math.min(lo, car.s.engineTorqueMean);
+      hi = Math.max(hi, car.s.engineTorqueMean);
+      pulseLo = Math.min(pulseLo, car.s.engineTorque);
+      pulseHi = Math.max(pulseHi, car.s.engineTorque);
+    }
+    expect(pulseHi - pulseLo).toBeGreaterThan(50); // the crank feels each firing
+    expect(hi - lo).toBeLessThan((pulseHi - pulseLo) / 5); // the gauge does not
+  });
 });

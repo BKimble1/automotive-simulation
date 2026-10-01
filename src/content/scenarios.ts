@@ -136,7 +136,7 @@ export const SCENARIOS: Scenario[] = [
     title: 'Emergency stop in the wet',
     summary: 'From 80 km/h on a wet road, the pedal stamped down. ABS works.',
     view: 'braking-side',
-    program: { start: () => presetCruise(80), drive: brakeAt(80, 2, 520), road: { mu: 0.55 }, loop: 10 },
+    program: { start: () => presetCruise(80), drive: brakeAt(80, 2, 520), road: { mu: TIRE.muWet }, loop: 10 },
     gauges: ['kmh', 'brakeBar', 'stopDistance', 'abs'],
     watch: 'The pressure pulses as ABS releases and re-applies each wheel; the car stops in about 46 m.',
   },

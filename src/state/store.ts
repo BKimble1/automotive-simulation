@@ -241,9 +241,12 @@ export interface PlayerState {
   beats: { title: string; text: string; start: number; chapter?: string; readouts?: string[]; timeScale: number; pace?: number }[];
   caption: string;
   ended: boolean;
+  /** The playback scale now: model seconds per second of film (a narrated beat stretched to its
+   * narration plays slower than its authored pace; this is what the picture actually does). */
+  scale: number;
 }
 
-export const usePlayer = create<PlayerState>(() => ({ id: null, title: '', t: 0, duration: 0, playing: false, holding: false, beat: -1, beats: [], caption: '', ended: false }));
+export const usePlayer = create<PlayerState>(() => ({ id: null, title: '', t: 0, duration: 0, playing: false, holding: false, beat: -1, beats: [], caption: '', ended: false, scale: 1 }));
 
 /** The live run (a lab, a scenario, a fault case, the workbench): what it is and what it is doing. */
 export interface RunState {
@@ -253,6 +256,8 @@ export interface RunState {
   /** Simulated seconds since the run started, and its length (null: open-ended). */
   t: number;
   duration: number | null;
+  /** Model seconds per second shown (above 1: sped up, as the thermal cases are; below 1: slow motion). */
+  scale: number;
 }
 
-export const useRun = create<RunState>(() => ({ id: null, status: 'none', t: 0, duration: null }));
+export const useRun = create<RunState>(() => ({ id: null, status: 'none', t: 0, duration: null, scale: 1 }));

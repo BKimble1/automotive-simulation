@@ -16,6 +16,7 @@ import type { World } from '../../world/world';
 import { SheetHandle, useSheet } from '../Sheet';
 import { IDLE_RUN } from '../../world/controller';
 import { Chart, type ChartRun } from '../Chart';
+import { paceLabel } from '../Readouts';
 import { BackIcon, PauseIcon, PlayIcon, ReplayIcon } from '../icons';
 
 function Control({ c, value, onChange }: { c: Lab['controls'][number]; value: LabValues[string]; onChange: (v: LabValues[string]) => void }) {
@@ -131,7 +132,7 @@ export function EngineerPanel({ world }: { world: World }) {
         ? 'Paused'
         : run.status === 'ended'
           ? 'Run complete'
-          : `Playing · ${run.t.toFixed(1)} of ${(run.duration ?? 0).toFixed(1)} s`
+          : `Playing · ${run.t.toFixed(1)} of ${(run.duration ?? 0).toFixed(1)} s${paceLabel(run.scale) ? ` · ${paceLabel(run.scale)!.toLowerCase()}` : ''}`
       : '';
 
   return (

@@ -11,7 +11,7 @@
  * stays where the road is. Links (arms, tie rods, dampers, springs, half shafts) are posed every
  * frame between their body-side and wheel-side points.
  */
-import { BufferGeometry, Group, Mesh, MeshPhysicalMaterial, Object3D, Quaternion, Vector3 } from 'three';
+import { BufferGeometry, CircleGeometry, DataTexture, Group, LinearFilter, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Quaternion, RGBAFormat, SRGBColorSpace, Vector3, type Texture } from 'three';
 import { BODY, BRAKES, TIRE, WHEEL_Y } from '../../spec/vehicle';
 import { alongAxis, at, extrude, lathe, merge, rbox, rod, spring, tube } from '../geo/shapes';
 import { DIFF_C } from './drivetrainGeo';
@@ -55,6 +55,8 @@ export interface CornerParts {
   pads: PartNode[];
   /** Wheel-side link points in the corner's frame (origin at the wheel centre). */
   local: Record<string, Vector3>;
+  /** The spin blur over the spokes (opacity from how far the wheel turns per drawn frame). */
+  blur: Mesh<CircleGeometry, MeshStandardMaterial>;
 }
 
 export interface ChassisParts {
@@ -159,6 +161,46 @@ function tyreMaterial(src: MeshPhysicalMaterial, u: TyreU, ghost: boolean) {
   m.customProgramCacheKey = () => (ghost ? 'tyre-g' : 'tyre');
   m.userData = { ...src.userData, u };
   return m as MeshPhysicalMaterial & { userData: { u: typeof u } };
+}
+
+let blurTex: Texture | null = null;
+/** The spinning wheel as the eye sees it: spoke metal smeared into rings, the hub dark. Built
+ * from numbers (no canvas), so the scene also builds where there is no document. */
+function spinBlurTexture(): Texture {
+  if (blurTex) return blurTex;
+  const N = 128;
+  // radius (0 centre … 1 rim) → grey level and opacity, linear between the stops
+  const STOPS: [number, number, number][] = [
+    [0.0, 20, 1],
+    [0.24, 26, 1],
+    [0.3, 120, 0.9],
+    [0.7, 150, 0.8],
+    [0.9, 110, 0.85],
+    [1.0, 70, 0.9],
+  ];
+  const data = new Uint8Array(N * N * 4);
+  for (let y = 0; y < N; y++)
+    for (let x = 0; x < N; x++) {
+      const r = Math.min(1, Math.hypot(x + 0.5 - N / 2, y + 0.5 - N / 2) / (N / 2));
+      let k = 1;
+      while (k < STOPS.length - 1 && STOPS[k][0] < r) k++;
+      const [r0, g0, a0] = STOPS[k - 1];
+      const [r1, g1, a1] = STOPS[k];
+      const f = Math.min(1, Math.max(0, (r - r0) / (r1 - r0)));
+      const g = g0 + (g1 - g0) * f;
+      const i = (y * N + x) * 4;
+      data[i] = g;
+      data[i + 1] = g + 4;
+      data[i + 2] = g + 9;
+      data[i + 3] = (a0 + (a1 - a0) * f) * 255;
+    }
+  const t = new DataTexture(data, N, N, RGBAFormat);
+  t.colorSpace = SRGBColorSpace;
+  t.magFilter = LinearFilter;
+  t.minFilter = LinearFilter;
+  t.needsUpdate = true;
+  blurTex = t;
+  return t;
 }
 
 /** The rim: barrel, five double spokes, lug nuts and the centre cap. */
@@ -273,6 +315,15 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
     tyreHolder.name = `tyre-${c.id}`;
     if (sd < 0) tyreHolder.rotation.y = Math.PI;
     tyreHolder.add(tyre);
+    // the spin blur: a disc over the spokes that fades in when the wheel turns too far between
+    // two drawn frames for its spokes to be read (they would strobe, or seem to turn backwards)
+    const blurMat = new MeshStandardMaterial({ map: spinBlurTexture(), transparent: true, opacity: 0, depthWrite: false, metalness: 0.7, roughness: 0.38 });
+    const blur = new Mesh(new CircleGeometry(RIM_R - 0.004, 48), blurMat);
+    blur.position.z = RIM_W / 2 - 0.002;
+    blur.name = `wheel-blur-${c.id}`;
+    blur.visible = false;
+    blur.renderOrder = 3;
+    tyreHolder.add(blur);
     group.add(tyreHolder);
     rig.adopt(tyreHolder, `tyre-${c.id}`, 'tyre', W, [tyre], [tyrePair]);
     // brake disc (vented), on the spinning hub, inboard of the wheel
@@ -371,7 +422,7 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
       const outer = new Vector3(c.x, WHEEL_Y, c.z - sd * 0.12);
       links.push(halfShaft(rig, root, c.id, inner, outer, ci));
     }
-    corners.push({ group, spin, tyre, tyreMat: tm as CornerParts['tyreMat'], rotorNode, wheelNode, calipers, pads, local });
+    corners.push({ group, spin, tyre, tyreMat: tm as CornerParts['tyreMat'], rotorNode, wheelNode, calipers, pads, local, blur });
   });
 
   // ───────────────────────── anti-roll bars, subframes ─────────────────────────

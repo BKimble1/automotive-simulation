@@ -1,5 +1,5 @@
 {
-  "version": "film-2",
+  "version": "film-3",
   "voice": "bm_george",
   "speed": 1.0,
   "model": {
@@ -11,7 +11,7 @@
     "engine": "float-conv",
     "engineSha256": "2e83328bed32c73a02614d7405cc78a8f9e5ad9588c5f179e34569c99cdc949d"
   },
-  "generatedAt": "2026-10-01T07:13:09Z",
+  "generatedAt": "2026-10-01T19:19:21Z",
   "audio": {
     "codec": "mp3",
     "sampleRate": 24000,
@@ -83,21 +83,21 @@
     {
       "id": "battery",
       "file": "battery.mp3",
-      "bytes": 70848,
-      "sha256": "bfe0008df697c7b54eda0aa67f02a31570ea693d2e676cbc63dc8b34f9587cfb",
-      "durationMs": 8780,
+      "bytes": 77760,
+      "sha256": "a00f53cd7d44289c558758be232539ebc0af75f3eee5bc5e63f938b7ac2aa0d0",
+      "durationMs": 9630,
       "cues": [
         {
           "id": "battery-1",
-          "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+          "text": "The 12-volt battery sends about 170 amps to the starter motor.",
           "startMs": 300,
-          "endMs": 5000
+          "endMs": 5850
         },
         {
           "id": "battery-2",
           "text": "Its voltage dips while the starter works.",
-          "startMs": 5350,
-          "endMs": 8280
+          "startMs": 6200,
+          "endMs": 9130
         }
       ]
     },
@@ -347,15 +347,15 @@
     {
       "id": "away",
       "file": "away.mp3",
-      "bytes": 91776,
-      "sha256": "f71905e308f913c8f829223507a24cfe602f2920eec8fc61cdbc5aeb308d70db",
-      "durationMs": 11390,
+      "bytes": 95616,
+      "sha256": "0ae005a604098dc50cce70ccbafc00e35cf0b0e153b2c7d87207f4f4930de535",
+      "durationMs": 11860,
       "cues": [
         {
           "id": "away-1",
-          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms, already past 60 km/h and still gaining speed.",
           "startMs": 300,
-          "endMs": 10890
+          "endMs": 11360
         }
       ]
     },

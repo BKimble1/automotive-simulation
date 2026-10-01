@@ -1,5 +1,5 @@
 {
-  "version": "film-2",
+  "version": "film-3",
   "voice": "bm_george",
   "speed": 1,
   "segments": [
@@ -55,7 +55,7 @@
       "cues": [
         {
           "id": "battery-1",
-          "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+          "text": "The 12-volt battery sends about 170 amps to the starter motor.",
           "pauseAfter": 0.35
         },
         {
@@ -268,7 +268,7 @@
       "cues": [
         {
           "id": "away-1",
-          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms, already past 60 km/h and still gaining speed.",
           "pauseAfter": 0.35
         }
       ],

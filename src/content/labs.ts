@@ -56,7 +56,7 @@ const GRIP = [
   { value: 'wet', label: 'Wet' },
   { value: 'snow', label: 'Packed snow' },
 ];
-const MU: Record<string, number> = { dry: TIRE.muDry, wet: 0.55, snow: 0.25 };
+const MU: Record<string, number> = { dry: TIRE.muDry, wet: TIRE.muWet, snow: TIRE.muSnow };
 
 /** Full-throttle standing start (brake released at once), lane kept. */
 const launch =
@@ -131,7 +131,8 @@ export const LABS: Lab[] = [
       until: (s) => rpm(s) > 6400,
       timeScale: 1,
     }),
-    sample: (s, t) => ({ t, rpm: rpm(s), torque: s.engineTorque, power: (s.engineTorque * s.omegaE) / 1000 }),
+    // the cycle-mean (brake) torque, as a dynamometer reads it; the crank's firing pulses are not a curve
+    sample: (s, t) => ({ t, rpm: rpm(s), torque: s.engineTorqueMean, power: (s.engineTorqueMean * s.omegaE) / 1000 }),
     every: 0.02,
     chart: { x: 'rpm', xLabel: 'Engine speed, rpm', yLabel: 'Torque N·m · Power kW', series: [{ key: 'torque', label: 'Torque', color: '#E69F00' }, { key: 'power', label: 'Power', color: '#56B4E9' }], reference: fullLoadTorque, referenceLabel: 'Full-load torque', xMax: 6500 },
     results: (sm) => {
@@ -236,11 +237,16 @@ export const LABS: Lab[] = [
     every: 0.02,
     chart: { x: 't', xLabel: 'Time, s', yLabel: 'Axle load, kN', series: [{ key: 'front', label: 'Front axle', color: '#E69F00' }, { key: 'rear', label: 'Rear axle', color: '#56B4E9' }] },
     results: (sm, v) => {
-      const peakFront = max(sm, 'front');
       const total = ((v.m as number) * 9.81) / 1000;
+      // the steady share while the car decelerates (the middle of the stop), and the brief
+      // overshoot as the body pitches onto its front springs
+      const end = sm[sm.length - 1].t as number;
+      const mid = sm.filter((x) => (x.t as number) > 0.5 + 0.4 * (end - 0.5) && (x.t as number) < 0.5 + 0.7 * (end - 0.5)).map((x) => x.front as number);
+      const steady = mid.length ? mid.sort((a, b) => a - b)[Math.floor(mid.length / 2)] : NaN;
       return [
-        { label: 'Front axle at rest', value: `${f1(sm[0].front)} kN` },
-        { label: 'Front axle braking', value: `${f1(peakFront)} kN (${f0((peakFront / total) * 100)} %)` },
+        { label: 'Front axle at rest', value: `${f1(sm[0].front)} kN (${f0((sm[0].front / total) * 100)} %)` },
+        { label: 'Front axle braking', value: Number.isFinite(steady) ? `${f1(steady)} kN (${f0((steady / total) * 100)} %)` : 'not reached in this run' },
+        { label: 'Brief peak as the nose dips', value: `${f1(max(sm, 'front'))} kN` },
         { label: 'Nose-down pitch', value: `${Math.abs(min(sm, 'pitch')).toFixed(2)}°` },
       ];
     },

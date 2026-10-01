@@ -3,7 +3,7 @@
  * (engine speed while it starts, line pressure while it brakes). Values come from the model,
  * ten times a second; each chip has a plain label and its unit.
  */
-import { useReadouts, type Readouts as R } from '../state/store';
+import { useReadouts, useRun, type Readouts as R } from '../state/store';
 import { SHAFT_KEY } from '../sim/geartrain';
 
 const n0 = (v: number) => Math.round(v).toLocaleString('en-GB');
@@ -71,9 +71,28 @@ export function GearKey() {
   );
 }
 
+/** How a playback scale reads: slow motion as a fraction, sped-up time as a multiple, real time as nothing. */
+export function paceLabel(timeScale: number): string | null {
+  return timeScale < 0.9 ? `Slow motion ×${timeScale < 0.1 ? `1/${Math.round(1 / timeScale)}` : timeScale.toFixed(2)}` : timeScale > 1.1 ? `Sped up ×${n0(timeScale)}` : null;
+}
+
+/** The live run's time scale, when it is not real time (a thermal case runs sped up). */
+export function RunPace() {
+  const run = useRun();
+  const pace = run.status !== 'none' ? paceLabel(run.scale) : null;
+  if (!pace) return null;
+  return (
+    <p className="run-pace">
+      <span className="chip chip--pace" title={run.scale > 1 ? 'Model time runs faster than real time here, so slow changes such as warming up can be seen' : 'Model time runs slower than real time here, so fast motion can be followed'}>
+        {pace}
+      </span>
+    </p>
+  );
+}
+
 export function ReadoutChips({ ids, timeScale }: { ids: string[]; timeScale: number }) {
   const r = useReadouts();
-  const pace = timeScale < 0.9 ? `Slow motion ×${timeScale < 0.1 ? `1/${Math.round(1 / timeScale)}` : timeScale.toFixed(2)}` : timeScale > 1.1 ? `Sped up ×${n0(timeScale)}` : null;
+  const pace = paceLabel(timeScale);
   if (!ids.length && !pace) return null;
   return (
     <div className="readouts" role="group" aria-label="Live values">

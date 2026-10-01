@@ -89,6 +89,15 @@ html.virt *::after {
   transition: none !important;
   animation: none !important;
 }
+/* reduced motion: panels and controls change at once (fades stay short); nothing slides */
+html.reduced *,
+html.reduced *::before,
+html.reduced *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
 
 /* ───────────────────────── stage ───────────────────────── */
 .app {
@@ -2054,4 +2063,9 @@ kbd {
   .panel--sheet.panel--dragging {
     transition: none;
   }
+}
+
+/* a live run's time scale, under its title */
+.run-pace {
+  margin: -2px 0 8px;
 }

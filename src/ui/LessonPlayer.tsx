@@ -85,7 +85,7 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
         )}
         {/* the film's captions follow the narration; a lesson shows the step's whole text */}
         {!(p.id === 'film' && captions) && <p className="lesson__text">{step?.text}</p>}
-        {step && <ReadoutChips ids={step.readouts ?? []} timeScale={step.pace ?? step.timeScale} />}
+        {step && <ReadoutChips ids={step.readouts ?? []} timeScale={p.scale} />}
         <div className="lesson__controls">
           <button className="pbtn" onClick={() => seek(p.beats[Math.max(0, p.beat - 1)]?.start ?? 0)} aria-label="Previous step">
             <PrevIcon />

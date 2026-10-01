@@ -76,8 +76,10 @@ export const TIRE = {
   rollingResistance: 0.011,
   /** Peak friction coefficient on dry asphalt (typical summer tyre). */
   muDry: 1.05,
-  muWet: 0.7,
-  muSnow: 0.3,
+  /** Wet asphalt with standing water films and packed snow (typical; used by every lab, lesson,
+   * scenario and the workbench, so the same road means the same grip everywhere). */
+  muWet: 0.55,
+  muSnow: 0.25,
   muIce: 0.1,
   /** Longitudinal slip at peak friction (typical). */
   peakSlip: 0.12,

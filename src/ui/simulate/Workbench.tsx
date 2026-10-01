@@ -21,8 +21,8 @@ import { BackIcon } from '../icons';
 
 const SURFACES = [
   { id: 'dry', label: 'Dry', mu: TIRE.muDry },
-  { id: 'wet', label: 'Wet', mu: 0.55 },
-  { id: 'snow', label: 'Snow', mu: 0.25 },
+  { id: 'wet', label: 'Wet', mu: TIRE.muWet },
+  { id: 'snow', label: 'Snow', mu: TIRE.muSnow },
 ] as const;
 
 const VIEWS = [

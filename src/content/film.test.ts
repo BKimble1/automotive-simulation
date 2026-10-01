@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { FILM, FILM_BEATS, NARRATION, narrationScript, sentences, stretch } from './film';
-import { scaledTime } from '../world/sequence';
+import { FILM, FILM_BEATS, NARRATION, foldSpan, narrationScript, sentences, stretch } from './film';
+import { scaledTime, SequencePlayer, type Sequence } from '../world/sequence';
+import { Car } from '../sim/car';
+import { LESSONS } from './lessons';
 import { VIEWS } from '../world/views';
 
 const SCRIPT = new URL('./narration.json', import.meta.url);
@@ -19,6 +21,32 @@ describe('the film', () => {
       const k = 1.7;
       expect(scaledTime(stretch(ts, k), D * k)).toBeCloseTo(scaledTime(ts, D), 9);
     }
+  });
+
+  it('a step that absorbs a skipped span plays both spans, starting faster and ending at its pace', () => {
+    const ts = foldSpan(0.1, 7, 0.5);
+    expect(scaledTime(ts, 7)).toBeCloseTo(0.1 * 7 + 0.5, 9);
+    expect(typeof ts === 'object' && ts.to).toBe(0.1);
+  });
+
+  it('shows the upshift during its step, in the lesson and in the film, at the same mechanical moment', () => {
+    const at = (seq: Sequence) => {
+      const pl = new SequencePlayer(new Car());
+      pl.load(seq);
+      const b = pl.beats.find((x) => x.beat.id === 'upshift')!;
+      const next = pl.beats[b.index + 1];
+      // the shift begins between a fifth and a half of the way through the step
+      const car = new Car();
+      pl.sample(b.start + 0.2 * b.beat.duration, car);
+      expect(car.s.gearTarget, `${seq.id}: still in first a fifth of the way in`).toBe(1);
+      pl.sample(b.start + 0.5 * b.beat.duration, car);
+      expect(car.s.gearTarget, `${seq.id}: changing up by half way`).toBe(2);
+      return { kmh: car.s.u, mechNext: next.mechStart };
+    };
+    const lesson = at(LESSONS['torque-path']);
+    const film = at(FILM);
+    // the next step starts from the same mechanical moment in both
+    expect(film.mechNext).toBeCloseTo(lesson.mechNext, 6);
   });
 
   it('splits captions into sentences', () => {

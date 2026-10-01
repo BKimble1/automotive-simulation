@@ -115,6 +115,11 @@ function App() {
   const progress = useApp((s) => s.progress);
   const [world, setWorld] = useState<World | null>(null);
   const [gl] = useState(webglAvailable);
+  const reduced = useApp((s) => s.reducedMotion);
+  // reduced motion (the system setting or the switch in Info) also quiets the interface
+  useEffect(() => {
+    document.documentElement.classList.toggle('reduced', reduced);
+  }, [reduced]);
   useFreeArea(world);
   useNarration(world);
   if (!gl) return <NoWebGL />;

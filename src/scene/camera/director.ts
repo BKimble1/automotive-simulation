@@ -302,7 +302,7 @@ export class Director {
     const dT = dest.distanceTo(this.from.target);
     const travel = dm * (dAz * Math.cos((shot.el + this.from.el) / 2) + dEl) + Math.abs(d1 - this.from.dist) + dT;
     const auto = Math.max(0.8 + 0.25 * dAz + 0.4 * dEl, Math.sqrt((5.8 * travel) / A_MAX));
-    this.dur = opts.instant ? 0 : (opts.duration ?? shot.duration ?? Math.min(2.4, Math.max(0.8, auto)));
+    this.dur = opts.instant ? 0 : (opts.duration ?? shot.duration ?? Math.min(2.1, Math.max(0.8, auto)));
     if (this.reducedMotion && !opts.instant) this.dur = Math.min(this.dur, 0.5);
     // bound the carried velocity so it cannot throw the path wide
     const T = Math.max(0.05, this.dur);
@@ -384,7 +384,7 @@ export class Director {
       }
     }
     this.plan = best ?? { k: 1.4, ke: 0.4 };
-    if (best) this.dur = Math.min(3.4, this.dur * (1 + 0.25 * best.k));
+    if (best) this.dur = Math.min(2.8, this.dur * (1 + 0.2 * best.k));
   }
 
   private snapToShot() {
@@ -486,9 +486,11 @@ export class Director {
       // holding: follow the target, drift slowly
       this.cur.target.copy(this.follow);
       this.driftPhase += dt;
-      if (s.drift) this.cur.az = wrap(this.cur.az + s.drift * dt);
+      // (reduced motion: the camera holds still; no decorative drift or sway)
+      const drift = this.reducedMotion ? 0 : s.drift;
+      if (drift) this.cur.az = wrap(this.cur.az + drift * dt);
       else this.cur.az = s.az + wrap(this.cur.az - s.az) * Math.exp(-dt * 2);
-      const sway = s.sway ? s.sway * Math.sin(this.driftPhase * 0.21) * Math.min(1, this.driftPhase / 4) : 0;
+      const sway = s.sway && !this.reducedMotion ? s.sway * Math.sin(this.driftPhase * 0.21) * Math.min(1, this.driftPhase / 4) : 0;
       const k3 = 1 - Math.exp(-dt * 3);
       this.cur.el += (s.el + sway - this.cur.el) * k3;
       this.cur.fov += ((s.fov ?? 30) - this.cur.fov) * k3;
@@ -790,7 +792,7 @@ export class Director {
 }
 
 /** The acceleration a planned camera move is sized for, m/s². */
-const A_MAX = 8;
+const A_MAX = 11;
 
 const _e = new Vector3();
 const _p = new Vector3();

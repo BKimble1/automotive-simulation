@@ -341,7 +341,11 @@ export interface CarState {
    */
   phase: { air: number; fuel: number; exhaust: number; oil: number; coolant: number; bypass: number; power: number; signal: number; brake: number; heater: number; converter: number; radiatorAir: number; torque: number; refrigerant: number; cabinAir: number };
   // derived readouts
+  /** Crankshaft torque now, N·m: below 2,500 rpm it carries each firing's pulse (what turns the crank). */
   engineTorque: number;
+  /** The same averaged over the engine cycle (the brake torque a dynamometer reads): what the
+   * instruments and the torque lab show. */
+  engineTorqueMean: number;
   wheelTorque: number;
   fuelGs: number;
   airGs: number;
@@ -444,6 +448,7 @@ export function initialState(): CarState {
     ecuPowered: false,
     phase: { air: 0, fuel: 0, exhaust: 0, oil: 0, coolant: 0, bypass: 0, power: 0, signal: 0, brake: 0, heater: 0, converter: 0, radiatorAir: 0, torque: 0, refrigerant: 0, cabinAir: 0 },
     engineTorque: 0,
+    engineTorqueMean: 0,
     wheelTorque: 0,
     fuelGs: 0,
     airGs: 0,
@@ -825,6 +830,7 @@ export class Car {
     // engine shaft
     const loadE = (inGear ? tp + lockTorque : tp * 0.05) + alt;
     s.engineTorque = gas - friction;
+    s.engineTorqueMean = meanIndicated - friction;
     if (s.engine === 'off') {
       // spinning down on friction alone
       s.omegaE -= Math.sign(s.omegaE) * Math.min(Math.abs(s.omegaE), (ENGINE_OFF_DECAY + friction / ENGINE.inertia) * h);

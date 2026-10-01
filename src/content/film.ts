@@ -9,7 +9,7 @@
  * The narration is bundled audio (public/narration/<version>/), generated offline with the
  * Kokoro pipeline in tools/narration; nothing is synthesised at run time.
  */
-import type { Beat, Cue, Sequence, TimeScale } from '../world/sequence';
+import { scaledTime, type Beat, type Cue, type Sequence, type TimeScale } from '../world/sequence';
 import { HERO_ORDER, LESSONS } from './lessons';
 import manifest from './narration-manifest.json';
 import { presetIdle, type Inputs } from '../sim/car';
@@ -51,23 +51,43 @@ const INTRO: Beat[] = [
  * in about six and a half minutes; Explore's lessons go deeper.
  */
 const FILM_SKIP = new Set(['idle', 'four-cylinders', 'crank-throws', 'first-gear', 'susp-settle', 'brake-heat', 'abs-close', 'warm-up', 'load', 'assembled']);
+/**
+ * Skipped steps whose mechanical time the film still plays, quickly, at the start of the next
+ * step: what that step shows depends on it (the upshift happens 0.2 s after first gear's span,
+ * so without it the film's upshift step would end before its gear change began). The other
+ * skipped steps either end their chain or show periodic motion whose phase does not matter.
+ */
+const FILM_FOLD = new Set(['first-gear']);
+
+/** A time scale that plays `extra` more mechanical seconds in the same length: it starts faster
+ * and slows to the authored pace (∫ = s·D + extra), so the motion never jumps. */
+export function foldSpan(ts: TimeScale | undefined, duration: number, extra: number): TimeScale {
+  const s = typeof ts === 'number' ? ts : (ts?.to ?? 1);
+  if (typeof ts === 'object') throw new Error('foldSpan: a ramped step cannot absorb a skipped span');
+  const ramp = Math.min(0.45 * duration, 2.5);
+  return { from: s + (2 * extra) / ramp, to: s, ramp };
+}
 
 /** A lesson's beats without the skipped ones; a skipped chain head hands its program on. */
 function filmBeats(beats: Beat[]): Beat[] {
   const out: Beat[] = [];
   let carry: Beat['program'];
   let chapter: string | undefined;
+  let fold = 0;
   for (const b of beats) {
     if (FILM_SKIP.has(b.id)) {
       if (b.program) carry = b.program;
       chapter ??= b.chapter;
+      if (FILM_FOLD.has(b.id)) fold += scaledTime(b.timeScale, b.duration);
       continue;
     }
     const kept: Beat = { ...b };
     if (!kept.program && carry) kept.program = carry;
     if (!kept.chapter && chapter) kept.chapter = chapter;
+    if (fold > 0 && !b.program) kept.timeScale = foldSpan(b.timeScale, b.duration, fold);
     carry = undefined;
     chapter = undefined;
+    fold = 0;
     out.push(kept);
   }
   return out;
