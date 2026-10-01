@@ -49,6 +49,8 @@ export interface LiveProgram {
   drive?: (t: number, inp: Car['inputs'], s: CarState) => void;
   setup?: (car: Car) => void;
   timeScale?: number;
+  /** Start the program again after this many simulated seconds. */
+  loop?: number;
 }
 
 export class World {
@@ -267,6 +269,7 @@ export class World {
     this.model.program = p.drive ? (t, inp, s) => p.drive!(t, inp, s) : null;
     this.model.programT0 = this.model.s.t;
     p.setup?.(this.model);
+    this.roadOpts = roadOptsOf(this.model.road);
     this.clocks.timeScale = p.timeScale ?? 1;
   }
 
@@ -320,6 +323,7 @@ export class World {
       void b;
     } else {
       c.guided = false;
+      if (this.live?.loop && this.model.s.t - this.model.programT0 > this.live.loop) this.setLive(this.live);
       alpha = this.model.advance(c.mechanicalDt);
     }
     const s = this.model.s;

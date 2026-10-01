@@ -3,6 +3,8 @@ import { useApp } from '../state/store';
 import type { World } from '../world/world';
 import { LessonPlayer } from './LessonPlayer';
 import { ExplorePanel } from './explore/ExplorePanel';
+import { EngineerPanel } from './engineer/EngineerPanel';
+import { SimulatePanel } from './simulate/SimulatePanel';
 
 export function Modes({ world }: { world: World }) {
   const mode = useApp((s) => s.mode);
@@ -14,5 +16,7 @@ export function Modes({ world }: { world: World }) {
     if (lesson) return <LessonPlayer world={world} onExit={() => set({ lesson: null })} exitLabel="Back to the system" />;
     return <ExplorePanel world={world} />;
   }
+  if (mode === 'engineer') return <EngineerPanel world={world} />;
+  if (mode === 'simulate') return <SimulatePanel world={world} />;
   return null;
 }

@@ -10,6 +10,9 @@ import { presetIdle } from '../sim/car';
 import { SYSTEM_VIEWS } from './views';
 import { viewFor } from './partViews';
 import { BY_ID } from '../content/registry';
+import { LAB_BY_ID } from '../content/labs';
+import { FAULT_BY_ID, SCENARIO_BY_ID } from '../content/scenarios';
+import { runScenario } from '../ui/simulate/run';
 import type { World } from './world';
 
 /** The car idling in Park: the opening and Explore. */
@@ -67,6 +70,28 @@ export function attachController(world: World): () => void {
           const pv = s.part && world.car ? viewFor(s.part, world.car) : null;
           if (pv) world.request(pv, { instant: first, returning });
           else world.request((s.system && SYSTEM_VIEWS[s.system]) || 'xray', { instant: first, returning });
+        }
+        break;
+      }
+      case 'engineer': {
+        if (modeChanged) {
+          world.stopSequence();
+          world.setLive(IDLE_PROGRAM as never);
+        }
+        if (modeChanged || s.lab !== prev?.lab) {
+          const lab = s.lab ? LAB_BY_ID[s.lab] : null;
+          if (lab && !modeChanged) world.setLive(IDLE_PROGRAM as never);
+          world.request(lab ? lab.view : 'overview', { instant: first, returning: !!prev?.lab && !s.lab });
+        }
+        break;
+      }
+      case 'simulate': {
+        if (modeChanged) world.stopSequence();
+        if (modeChanged || s.scenario !== prev?.scenario) {
+          const sc = s.scenario ? (SCENARIO_BY_ID[s.scenario] ?? FAULT_BY_ID[s.scenario]) : null;
+          if (sc) runScenario(world, sc.program);
+          else world.setLive(IDLE_PROGRAM as never);
+          world.request(sc ? sc.view : 'overview', { instant: first, returning: !!prev?.scenario && !s.scenario });
         }
         break;
       }

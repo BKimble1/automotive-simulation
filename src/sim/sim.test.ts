@@ -300,14 +300,23 @@ describe('engine start, cooling and electrical faults', () => {
     expect(car.rpm).toBeLessThan(1300);
     expect(car.s.volts).toBeGreaterThan(13.5);
   });
-  test('a weak battery cranks slowly and does not start', () => {
-    const car = new Car(presetCold());
-    car.faults.weakBattery = true;
-    car.inputs.ignition = true;
-    car.inputs.start = true;
-    car.runTo(3);
-    expect(car.s.engine).not.toBe('running');
-    expect(car.s.volts).toBeLessThan(9.5);
+  test('a weak battery cranks slowly and starts late', () => {
+    const start = (weak: boolean) => {
+      const car = new Car(presetCold());
+      car.faults.weakBattery = weak;
+      car.inputs.ignition = true;
+      car.inputs.start = true;
+      car.runTo(0.4);
+      const cranking = { rpm: units.radToRpm(car.s.omegaE), volts: car.s.volts };
+      let t = 0.4;
+      while (car.s.engine !== 'running' && t < 6) car.runTo((t += 0.01));
+      return { ...cranking, t };
+    };
+    const ok = start(false);
+    const weak = start(true);
+    expect(weak.rpm).toBeLessThan(ok.rpm * 0.8);
+    expect(weak.volts).toBeLessThan(9.5);
+    expect(weak.t).toBeGreaterThan(ok.t);
   });
   test('a failed alternator: the battery discharges instead of charging', () => {
     const ok = new Car(presetIdle());

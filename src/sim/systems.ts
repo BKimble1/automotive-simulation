@@ -227,7 +227,7 @@ export class Electrical {
     if (weak) this.soc = Math.min(this.soc, 0.32);
   }
   internal(faults: ElectricalFaults): number {
-    return ELECTRICAL.internalOhm * (faults.weakBattery ? 2.3 : 1);
+    return ELECTRICAL.internalOhm * (faults.weakBattery ? 1.5 : 1);
   }
   ocv(): number {
     return ELECTRICAL.ocvEmpty + (ELECTRICAL.ocvFull - ELECTRICAL.ocvEmpty) * Math.max(0, Math.min(1, this.soc));

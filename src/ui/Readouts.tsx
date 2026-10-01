@@ -39,6 +39,7 @@ export const READOUTS: Record<string, { label: string; value: (r: R) => string; 
   fan: { label: 'Fans', value: (r) => (r.fanOn ? 'on' : 'off') },
   oilBar: { label: 'Oil pressure', value: (r) => n1(r.oilBar), unit: 'bar' },
   oilC: { label: 'Oil', value: (r) => n0(r.oilC), unit: '°C' },
+  misfires: { label: 'Misfires counted', value: (r) => n0(r.misfireCount) },
 };
 
 export function ReadoutChips({ ids, timeScale }: { ids: string[]; timeScale: number }) {
