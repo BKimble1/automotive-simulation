@@ -26,7 +26,7 @@ export interface BodyUniforms {
 }
 
 /** Shared lamp state: every panel's lamps read the same values. */
-export const LAMPS = { uBrake: { value: 0 }, uDrl: { value: 1 }, uReverse: { value: 0 }, uBodyDebug: { value: 0 } };
+export const LAMPS = { uBrake: { value: 0 }, uDrl: { value: 1 }, uReverse: { value: 0 }, uBodyDebug: { value: 0 }, uBodyDim: { value: 0 } };
 
 const COMMON = /* glsl */ `
 varying vec3 vObj;
@@ -41,6 +41,7 @@ uniform float uDrl;
 uniform float uReverse;
 uniform vec3 uOffset;
 uniform float uBodyDebug;
+uniform float uBodyDim;
 ${BODY_REGIONS_GLSL}
 
 // regions: 0 paint, 1 glass, 2 gloss black trim, 3 headlamp lens, 4 tail lamp lens, 5 grille,
@@ -229,6 +230,7 @@ function patch(m: MeshPhysicalMaterial, u: BodyUniforms, kind: 'paint' | 'glass'
         vec3 V = normalize(vViewPosition);
         float fres = pow(1.0 - clamp(abs(dot(normalize(vNormal), V)), 0.0, 1.0), 2.2);
         gl_FragColor.rgb += uHighlightColor * uHighlight * fres * 0.35;
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.18 + vec3(0.012, 0.013, 0.016), uBodyDim * 0.82);
         if (uBodyDebug > 0.5) {
           float id = float(bPanelOf(vObj));
           gl_FragColor.rgb = 0.5 + 0.5 * cos(6.2831 * (id * 0.137 + vec3(0.0, 0.33, 0.67)));

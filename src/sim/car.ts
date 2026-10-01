@@ -162,6 +162,8 @@ export interface CarState {
   /** Turbine speed (rad/s) and angles of the converter's members, the driveshaft and the diff. */
   omegaT: number;
   turbineAngle: number;
+  /** The stator: held by its one-way clutch while the converter multiplies torque, freewheeling above. */
+  statorAngle: number;
   driveshaftAngle: number;
   carrierAngle: number;
   spiderAngle: number;
@@ -210,6 +212,9 @@ export interface CarState {
   coolantC: number;
   thermostat: number;
   fanOn: boolean;
+  /** The electric fans' speed (rad/s, spinning up and down) and angle. */
+  fanSpeed: number;
+  fanAngle: number;
   radiatorFlow: number;
   bypassFlow: number;
   oilC: number;
@@ -264,6 +269,7 @@ export function initialState(): CarState {
     lockup: 0,
     omegaT: 0,
     turbineAngle: 0,
+    statorAngle: 0,
     driveshaftAngle: 0,
     carrierAngle: 0,
     spiderAngle: 0,
@@ -303,6 +309,8 @@ export function initialState(): CarState {
     coolantC: 25,
     thermostat: 0,
     fanOn: false,
+    fanSpeed: 0,
+    fanAngle: 0,
     radiatorFlow: 0,
     bypassFlow: 0,
     oilC: 25,
@@ -349,6 +357,12 @@ export class Car {
   faults: Faults = { ...NO_FAULTS };
   road: Road = { mu: TIRE.muDry };
   params: Params = defaultParams();
+  /**
+   * A scripted driver: called before every fixed step with the time since the script started
+   * (s of simulated time), so the same script gives the same motion however time is stepped.
+   */
+  program: ((t: number, inputs: Inputs, s: CarState) => void) | null = null;
+  programT0 = 0;
   /** Accumulated simulated time not yet stepped. */
   private acc = 0;
   private cooling = new Cooling();
@@ -415,6 +429,22 @@ export class Car {
     return Math.min(1, this.acc / STEP);
   }
 
+  /**
+   * Step until simulated time reaches `t` (absolute), keeping the last two states for drawing.
+   * Returns the interpolation factor (0 … 1) for the remainder.
+   */
+  advanceTo(t: number): number {
+    let n = 0;
+    while (this.s.t + STEP <= t + 1e-9) {
+      this.copyPrev();
+      this.step();
+      // a seek is done with runTo; per frame the gap is small, but never stall the page
+      if (++n > 20000) break;
+    }
+    this.acc = 0;
+    return Math.max(0, Math.min(1, (t - this.s.t) / STEP));
+  }
+
   /** Run until simulated time reaches `t` (from the current state). */
   runTo(t: number) {
     while (this.s.t < t - 1e-9) {
@@ -431,6 +461,8 @@ export class Car {
     p.t = s.t;
     p.crank = s.crank;
     p.turbineAngle = s.turbineAngle;
+    p.statorAngle = s.statorAngle;
+    p.fanAngle = s.fanAngle;
     p.driveshaftAngle = s.driveshaftAngle;
     p.carrierAngle = s.carrierAngle;
     p.spiderAngle = s.spiderAngle;
@@ -454,6 +486,7 @@ export class Car {
   step() {
     const s = this.s;
     const h = STEP;
+    if (this.program) this.program(s.t - this.programT0, this.inputs, s);
     const inp = this.inputs;
     const f = this.faults;
     const P = this.params;
@@ -494,9 +527,9 @@ export class Car {
     s.throttleEff += (throttle - s.throttleEff) * Math.min(1, h * 25);
     s.map = manifoldPressure(s.throttleEff, Math.max(150, rpm));
 
-    // fuel and spark: the ECU fires a cylinder when it is powered, synchronised (after 1.5
-    // revolutions of cranking), not over the rev limit
-    const fuelling = (s.engine === 'running' || (s.engine === 'cranking' && s.crankRevs > 1.5 && s.ecuPowered && rpm > 120)) && s.ecuPowered;
+    // fuel and spark: the ECU fires a cylinder when it is powered and has found from the crank
+    // and cam sensors where each piston is (about two revolutions of cranking), below the limiter
+    const fuelling = (s.engine === 'running' || (s.engine === 'cranking' && s.crankRevs > 2 && s.ecuPowered && rpm > 120)) && s.ecuPowered;
     if (rpm > ENGINE.limiterRpm) s.limiter = true;
     else if (rpm < ENGINE.limiterRpm - 150) s.limiter = false;
     let share = 0;
@@ -755,6 +788,12 @@ export class Car {
     }
     const wcNow = (s.wheelOmega[2] + s.wheelOmega[3]) / 2;
     s.turbineAngle += (inGear ? wcNow * fd * s.ratio : s.omegaT) * h;
+    {
+      const imp = s.omegaE;
+      const held = imp > 1 && statorHeld(Math.max(0, s.omegaT) / imp) && s.lockup < 0.5;
+      s.statorAngle += (held ? 0 : s.omegaT * 0.92) * h;
+      if (Math.abs(s.statorAngle) > 1e4) s.statorAngle %= 2 * Math.PI;
+    }
     s.driveshaftAngle += wcNow * fd * h;
     s.carrierAngle += wcNow * h;
     const dsp = ((s.wheelOmega[2] - s.wheelOmega[3]) / 2) * (DIFF.sideTeeth / DIFF.spiderTeeth);
@@ -816,6 +855,8 @@ export class Car {
     s.coolantC = this.cooling.coolantC;
     s.thermostat = this.cooling.thermostat;
     s.fanOn = this.cooling.fanOn;
+    s.fanSpeed += ((s.fanOn ? 220 : 0) - s.fanSpeed) * Math.min(1, h * (s.fanOn ? 1.5 : 0.6));
+    s.fanAngle = (s.fanAngle + s.fanSpeed * h) % (2 * Math.PI);
     s.radiatorFlow = this.cooling.radiatorFlow;
     s.bypassFlow = this.cooling.bypassFlow;
     this.oil.step(h, rpm, s.coolantC, ax / G + 0.6 * (azl / G), { lowLevel: f.lowOil, wornBearings: f.wornBearings }, s.t);
