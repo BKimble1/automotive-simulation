@@ -42,10 +42,11 @@ export function Header() {
   const set = useApp((s) => s.set);
   return (
     <header className="top">
+      {/* the page's heading stays outside the button, which a phone's header hides */}
+      <h1 className="sr-only">AUTOMOTIVE / ONE</h1>
       <div className="top__left">
         <Wordmark />
         <button className="top__sim pe" onClick={() => go({ mode: 'intro' })} aria-label="AUTOMOTIVE / ONE: back to the start">
-          <h1 className="sr-only">AUTOMOTIVE / ONE</h1>
           <b aria-hidden>
             AUTOMOTIVE<span className="slash">/</span>ONE
           </b>

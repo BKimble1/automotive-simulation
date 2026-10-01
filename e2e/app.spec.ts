@@ -3,7 +3,7 @@ import { app, frames, go, open } from './helpers';
 
 test('opens on the car, with the four ways in and no errors', async ({ page }) => {
   const errors = await open(page);
-  await expect(page.getByRole('heading', { name: 'AUTOMOTIVE / ONE' }).first()).toBeAttached();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('AUTOMOTIVE / ONE');
   for (const m of ['Watch', 'Explore', 'Engineer', 'Simulate']) await expect(page.locator('.card', { hasText: m }).first()).toBeVisible();
   await frames(page, 30);
   expect(await page.evaluate(() => window.__fab.stage.stats.calls)).toBeGreaterThan(10);
