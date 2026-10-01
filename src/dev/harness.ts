@@ -37,7 +37,7 @@ export async function startHarness(canvas: HTMLCanvasElement) {
   window.addEventListener('resize', resize);
   const step = (dt: number) => {
     const a = model.advance(dt * timeScale);
-    interpolate(model.prev, model.s, a, view, { brakeN: model.inputs.brakeN, throttle: model.inputs.throttle, cranking: model.inputs.start && model.s.engine !== 'running' });
+    interpolate(model.prev, model.s, a, view, { brakeN: model.inputs.brakeN, throttle: model.inputs.throttle, cranking: model.inputs.start && model.s.engine !== 'running', start: model.inputs.start, ignition: model.inputs.ignition });
     car.rig.resetMechanism();
     mech.pose(view);
     car.rig.apply((gname) => explode[gname] ?? 0);

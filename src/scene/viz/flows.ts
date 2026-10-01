@@ -74,6 +74,8 @@ export class Flow {
   mesh: InstancedMesh;
   mat: MeshBasicMaterial;
   length: number;
+  /** The middle of the path's bounds (for sizing by viewing distance). */
+  centre = new Vector3();
   count: number;
   pace: number;
   private pts: Float32Array;
@@ -91,6 +93,8 @@ export class Flow {
     this.closed = def.closed ?? false;
     const curve = new CatmullRomCurve3(def.points, this.closed, 'centripetal', 0.5);
     this.length = curve.getLength();
+    for (const p of def.points) this.centre.add(p);
+    this.centre.divideScalar(Math.max(1, def.points.length));
     this.pace = def.pace ?? 1;
     this.spread = def.spread ?? 0;
     this.count = Math.max(4, Math.round(this.length * lang.density * density));
@@ -125,13 +129,15 @@ export class Flow {
    * Place the particles: `phase` is the integral of the flow rate (from the model); `opacity`
    * comes from the flow's channel. A flow at rest stays where it stopped.
    */
-  update(phase: number, opacity: number) {
+  update(phase: number, opacity: number, eye?: Vector3) {
     this.opacity = opacity;
     this.mesh.visible = opacity > 0.003;
     if (!this.mesh.visible) return;
     this.mat.opacity = opacity;
     const travel = (phase * this.pace) / Math.max(0.01, this.length);
     const style = LANGUAGE[this.kind].style;
+    // seen from further away the particles grow (up to a limit), so a wide shot still reads
+    const grow = eye ? Math.min(3.2, Math.max(0.85, eye.distanceTo(this.centre) / 1.6)) : 1;
     for (let k = 0; k < this.count; k++) {
       let u = this.offsets[k * 3] + travel;
       u -= Math.floor(u);
@@ -150,8 +156,8 @@ export class Flow {
         _p.addScaledVector(_s, this.offsets[k * 3 + 2] * this.spread);
       }
       // fade in at the start and out at the end of an open path
-      let sc = 1;
-      if (!this.closed) sc = Math.min(1, u * 12, (1 - u) * 12);
+      let sc = grow;
+      if (!this.closed) sc *= Math.min(1, u * 12, (1 - u) * 12);
       if (style === 'puff') sc *= 0.7 + 0.6 * u;
       _q.setFromUnitVectors(UP, _t);
       _m.compose(_p, _q, _s.set(sc, sc, sc));

@@ -46,6 +46,7 @@ export class Stage {
       depth: true,
     });
     this.renderer.outputColorSpace = SRGBColorSpace;
+    this.renderer.localClippingEnabled = true;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = PCFSoftShadowMap;
     this.renderer.info.autoReset = false;

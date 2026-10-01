@@ -59,14 +59,19 @@ export class Rig {
   allMats: MatPair[] = [];
   /** Section planes by assembly (assemblies that can be cut away). */
   clips = new Map<string, Plane>();
-  /** Which material group cuts with which plane (the group's assembly, or a named one). */
-  clipOf: (group: string) => string | null = () => null;
+  /** Which section plane cuts a material group (its assembly, or a named group), or none; the
+   * part's name lets moving parts stay whole inside a cut housing. */
+  clipOf: (group: string, part?: string) => string | null = () => null;
 
-  mat(assembly: string, kind: MatKind, color?: string): MatPair {
+  /**
+   * A material pair. Shared (cached by group, kind and colour) unless `part` is given: every
+   * part has its own pair, so its ghosting, highlight, heat and fading are its own.
+   */
+  mat(assembly: string, kind: MatKind, color?: string, part?: string): MatPair {
     const key = `${assembly}|${kind}|${color ?? ''}`;
-    let m = this.matCache.get(key);
+    let m = part ? undefined : this.matCache.get(key);
     if (!m) {
-      const cut = this.clipOf(assembly);
+      const cut = this.clipOf(assembly, part);
       let plane: Plane | undefined;
       if (cut) {
         plane = this.clips.get(cut);
@@ -76,7 +81,7 @@ export class Rig {
         }
       }
       m = makePair(kind, { color, clip: plane });
-      this.matCache.set(key, m);
+      if (!part) this.matCache.set(key, m);
       this.allMats.push(m);
     }
     return m;
@@ -119,11 +124,12 @@ export class Rig {
       if (!opts.local) geo.translate(-pivot.x, -pivot.y, -pivot.z);
       geo.computeBoundingBox();
       geo.computeBoundingSphere();
-      const pair = this.mat(group ?? assembly, kind, color);
+      const pair = this.mat(group ?? assembly, kind, color, name);
       const m = new Mesh(geo, pair.opaque);
       m.name = `${name}:${kind}`;
       // only parts large enough to darken the floor cast shadows (a cheaper shadow pass)
       m.castShadow = opts.shadow ?? (geo.boundingSphere?.radius ?? 0) > 0.14;
+      m.userData.casts = m.castShadow;
       m.receiveShadow = opts.receive ?? true;
       if (opts.renderOrder !== undefined) m.renderOrder = opts.renderOrder;
       m.userData.part = name;
@@ -214,15 +220,17 @@ export class Rig {
     for (const n of this.byAssembly.get(assembly) ?? []) this.setPartGhost(n, g);
   }
 
-  setPartGhost(n: PartNode, g: number) {
+  setPartGhost(n: PartNode, g: number, hide = 0) {
     for (const m of n.meshes) {
       const pair = m.userData.pair as MatPair | undefined;
       if (!pair) continue;
       pair.u.uGhost.value = g;
-      m.material = g > 0.001 ? pair.ghost : pair.opaque;
-      m.castShadow = g < 0.5;
+      pair.u.uHide.value = hide;
+      m.material = g > 0.001 || hide > 0.001 ? pair.ghost : pair.opaque;
+      m.castShadow = g < 0.5 && hide < 0.5 && m.userData.casts === true;
     }
   }
+
 
   /** World bounds of a set of parts (as currently placed). */
   bounds(nodes: PartNode[], out = new Box3()): Box3 {

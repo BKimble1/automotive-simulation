@@ -549,6 +549,35 @@ html.virt *::after {
   color: var(--accent);
 }
 
+@media (max-width: 1180px) {
+  .top__model {
+    display: none;
+  }
+  .tab {
+    padding: 8px 12px;
+    letter-spacing: 0.1em;
+  }
+}
+@media (max-width: 1020px) {
+  .top__left {
+    gap: 10px;
+  }
+  .top__sim {
+    padding-left: 10px;
+  }
+  .top__sim b {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .wordmark {
+    font-size: 15px;
+  }
+  .tab {
+    padding: 7px 10px;
+    font-size: 10.5px;
+  }
+}
+
 @media (max-width: 760px) {
   :root {
     --header-h: 50px;

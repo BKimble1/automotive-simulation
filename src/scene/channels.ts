@@ -2,10 +2,18 @@
  * Scene channels: every animated property of the scene that is not the camera or the car's
  * mechanism is a named number (how ghosted the hood is, how far the engine is taken apart,
  * where the cutaway's plane is, how strong the coolant flow overlay is…). A view is a set of
- * channel targets; `to(targets)` plans the move from the current values:
+ * channel targets; `to(targets)` plans the move from the current values in four phases:
  *
- *   - channels that close (go down) move first, latest stage first;
- *   - channels that open (go up) follow, earliest stage first;
+ *   1. overlays that are leaving (flows, arrows, highlights, labels, heat) fade out;
+ *   2. reveals open — bodywork turns to glass, panels open, parts ghost or fade, assemblies
+ *      come apart, section planes slide in — earliest stage first;
+ *   3. covers close — whatever the new view no longer needs revealed comes back, latest stage
+ *      first (a cut closes before its parts reassemble, before the bodywork turns solid);
+ *   4. the new view's overlays fade in.
+ *
+ *   So solid bodywork never fills the picture halfway through a move between two x-ray views:
+ *   the next view's reveal happens before the last view's cover. The room light and the
+ *   isolation dimming (studio, dim) move from the start, alongside;
  *   - each stage starts when the previous one is mostly done (they overlap a little);
  *   - every channel starts from its current value and speed, so asking for a new view halfway
  *     through a move reverses or redirects it smoothly, whatever the order of requests;
@@ -35,12 +43,14 @@ export const KINDS: Record<string, KindSpec> = {
   open: { stage: 1, duration: 1.4 },
   /** Assemblies or parts ghosting. */
   ghost: { stage: 1, duration: 0.8 },
+  /** Parts fading out of the way completely. */
+  hide: { stage: 1, duration: 0.7 },
   /** Lesson-only parts fading in (structure, deployed airbags, the rolling road). */
   show: { stage: 2, duration: 0.9 },
   /** Taking apart: the whole car, the engine, the converter, a brake. */
   explode: { stage: 2, duration: 2.2 },
   /** Section planes sliding through an assembly. */
-  cut: { stage: 3, duration: 1.4 },
+  cut: { stage: 3, duration: 1.2 },
   /** Thermal tint. */
   heat: { stage: 3, duration: 1.0 },
   /** Flows, force arrows and the network overlay. */
@@ -53,6 +63,21 @@ export const KINDS: Record<string, KindSpec> = {
 };
 
 const DEFAULT: KindSpec = { stage: 2, duration: 0.9 };
+
+/** Kinds drawn over the scene: they leave first and arrive last. */
+const OVERLAY = new Set(['flow', 'arrow', 'hl', 'label', 'heat']);
+/** Kinds that move from the start of a transition whatever their direction. */
+const AMBIENT = new Set(['studio', 'dim']);
+
+export type Phase = 'ambient' | 'overlay-out' | 'reveal' | 'cover' | 'overlay-in';
+
+/** Which phase of a transition a channel's move belongs to. */
+export function phaseOf(id: string, from: number, to: number): Phase {
+  const k = id.split(':')[0];
+  if (AMBIENT.has(k)) return 'ambient';
+  if (OVERLAY.has(k)) return to < from ? 'overlay-out' : 'overlay-in';
+  return to < from ? 'cover' : 'reveal';
+}
 
 export function kindOf(id: string): KindSpec {
   const k = id.split(':')[0];
@@ -118,17 +143,16 @@ export class Channels {
     const keep = (k: string) => opts.keep?.some((p) => k === p || k.startsWith(p + ':')) ?? false;
     for (const k of new Set([...this.values.keys(), ...this.tweens.keys()])) if (!keep(k)) full[k] = 0;
     for (const [k, v] of Object.entries(targets)) full[k] = v;
-    this.plan(full, opts.overlap ?? 0.72);
+    this.plan(full, opts.overlap ?? 0.6);
   }
 
   /** Move only the channels named; `pace` scales durations. */
-  toSome(targets: Record<string, number>, overlap = 0.72, pace = 1) {
+  toSome(targets: Record<string, number>, overlap = 0.6, pace = 1) {
     this.plan(targets, overlap, pace);
   }
 
   private plan(full: Record<string, number>, overlap: number, pace = 1) {
-    const closing: string[] = [];
-    const opening: string[] = [];
+    const groups: Record<Phase, string[]> = { ambient: [], 'overlay-out': [], reveal: [], cover: [], 'overlay-in': [] };
     for (const k of Object.keys(full)) {
       const cur = this.get(k);
       const want = full[k];
@@ -141,25 +165,37 @@ export class Channels {
       }
       const tw = this.tweens.get(k);
       if (tw && Math.abs(tw.to - want) < 1e-4) continue;
-      (want < cur ? closing : opening).push(k);
+      groups[phaseOf(k, cur, want)].push(k);
     }
-    let t = 0;
-    const run = (ids: string[], order: 1 | -1) => {
+    const durOf = (k: string) => Math.max(0.25, kindOf(k).duration * Math.sqrt(Math.abs(full[k] - this.get(k)))) * this.speed * pace;
+    const start = (k: string, delay: number) => {
+      const dur = durOf(k);
+      this.tweens.set(k, { from: this.get(k), v0: this.rates.get(k) ?? 0, to: full[k], delay, dur, t: 0 });
+      return dur;
+    };
+    for (const k of groups.ambient) start(k, 0);
+    // a phase's stages, from `t0`: each starts when the one before is `overlap` done; returns
+    // when the phase's last channel arrives
+    const run = (ids: string[], order: 1 | -1, t0: number): number => {
       const stages = [...new Set(ids.map((k) => kindOf(k).stage))].sort((a, b) => (a - b) * order);
+      let t = t0;
+      let end = t0;
       for (const st of stages) {
         let longest = 0;
-        for (const k of ids.filter((i) => kindOf(i).stage === st)) {
-          const want = full[k];
-          const d = Math.abs(want - this.get(k));
-          const dur = Math.max(0.25, kindOf(k).duration * Math.sqrt(d)) * this.speed * pace;
-          this.tweens.set(k, { from: this.get(k), v0: this.rates.get(k) ?? 0, to: want, delay: t, dur, t: 0 });
-          longest = Math.max(longest, dur);
-        }
+        for (const k of ids.filter((i) => kindOf(i).stage === st)) longest = Math.max(longest, start(k, t));
+        end = Math.max(end, t + longest);
         t += longest * overlap;
       }
+      return end;
     };
-    run(closing, -1);
-    run(opening, 1);
+    const outEnd = run(groups['overlay-out'], -1, 0);
+    const tOut = groups['overlay-out'].length ? outEnd * 0.6 : 0;
+    const revealEnd = run(groups.reveal, 1, tOut);
+    // covering starts once the reveal is half done: the next subject is already showing
+    const coverStart = groups.reveal.length ? tOut + (revealEnd - tOut) * 0.5 : tOut;
+    const coverEnd = run(groups.cover, -1, coverStart);
+    const inStart = Math.max(tOut, Math.max(revealEnd, coverStart + (coverEnd - coverStart) * 0.5) - 0.15);
+    run(groups['overlay-in'], 1, inStart);
   }
 
   /** Set a channel immediately (no animation): only for the first frame of a visit. */

@@ -60,5 +60,20 @@ export function FLOW_DEFS(car: Car): FlowDef[] {
       pace: 0.8,
     });
   }
+  // the torque converter's fluid, in its section: flung outward by the impeller (rear), across
+  // into the turbine (front), inward through it and back through the stator to the impeller;
+  // drawn just in front of the cut face, above and below the axis
+  const cx = TRANS.convX;
+  for (const s of [1, -1]) {
+    const y = (r: number) => TRANS.axisY + s * r;
+    defs.push({
+      id: s > 0 ? 'convUpper' : 'convLower',
+      kind: 'hydraulic',
+      points: [V(cx - 0.02, y(0.066), -0.012), V(cx - 0.022, y(0.092), -0.012), V(cx - 0.016, y(0.116), -0.012), V(cx + 0.002, y(0.124), -0.012), V(cx + 0.018, y(0.114), -0.012), V(cx + 0.02, y(0.09), -0.012), V(cx + 0.014, y(0.064), -0.012), V(cx - 0.002, y(0.054), -0.012)],
+      closed: true,
+      pace: 1,
+      scale: 0.7,
+    });
+  }
   return defs;
 }

@@ -92,8 +92,9 @@ export class World {
     this.player = new SequencePlayer(this.model);
     this.director = new AnimationDirector(this.camera, this.channels, {
       ready: (groups) => groups.every((g) => this.readyGroups.has(g)),
-      focus: (a) => {
+      focus: (a, tint) => {
         this.looks.focus = new Set(a);
+        this.looks.setTint(tint);
       },
       adjust: (c) => c,
     });
@@ -318,7 +319,7 @@ export class World {
     }
     const s = this.model.s;
     const inp = this.model.inputs;
-    interpolate(this.model.prev, s, alpha, this.view, { brakeN: inp.brakeN, throttle: inp.throttle, cranking: inp.start && s.engine !== 'running' });
+    interpolate(this.model.prev, s, alpha, this.view, { brakeN: inp.brakeN, throttle: inp.throttle, cranking: inp.start && s.engine !== 'running', start: inp.start, ignition: inp.ignition });
 
     // ── channels (stop with a pause), mechanism, looks, rig
     this.channels.update(c.presentationDt);
@@ -354,15 +355,20 @@ export class World {
     }
   }
 
+  /** The converter fluid's travel (integrated), and the model time it was last advanced to. */
+  private convPhase = 0;
+  private convT = 0;
+
   private updateViz(s: CarState) {
     const ch = this.channels;
     const ph = s.phase;
     const running = s.engine === 'running' || s.engine === 'cranking';
     const rateOk = (v: number) => (v > 0 ? 1 : 0.35);
     const fl = this.flows;
+    const eye = this.stage.camera.position;
     const set = (id: string, phase: number, rate: number) => {
       const f = fl.get(id);
-      if (f) f.update(phase, ch.get(`flow:${id}`) * rateOk(rate));
+      if (f) f.update(phase, ch.get(`flow:${id}`) * rateOk(rate), eye);
     };
     set('air', ph.air, s.airGs);
     set('fuel', ph.fuel, s.fuelGs);
@@ -385,10 +391,15 @@ export class World {
     set('brakeMaster', ph.brake, s.linePa);
     set('refrigerant', s.t * 0.25, running ? 1 : 0);
     set('cabinAir', s.t * 0.5, 1);
+    // the converter's fluid circulates as fast as the impeller outruns the turbine
+    const dtm = s.t - this.convT;
+    this.convT = s.t;
+    if (dtm > 0 && dtm < 0.5) this.convPhase += dtm * Math.min(3, 0.15 + Math.abs(s.omegaE - s.omegaT) / 60);
+    for (const id of ['convUpper', 'convLower']) fl.get(id)?.update(this.convPhase * 0.25, ch.get('flow:converter'), eye);
     const torqueOn = Math.abs(s.wheelTorque) > 5 || (running && Math.abs(s.engineTorque) > 5) ? 1 : 0;
     for (const id of ['torque', 'torqueL', 'torqueR']) {
       const f = fl.get(id);
-      if (f) f.update(s.t * 0.8, ch.get('flow:torque') * rateOk(torqueOn));
+      if (f) f.update(s.t * 0.8, ch.get('flow:torque') * rateOk(torqueOn), eye);
     }
 
     // the cylinders

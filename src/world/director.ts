@@ -44,7 +44,7 @@ export interface DirectorHooks {
   /** Whether asset groups are ready (built and their shaders compiled). */
   ready: (groups: ('car' | 'detail')[]) => boolean;
   /** The focus changed (the looks dim the rest). */
-  focus: (assemblies: string[]) => void;
+  focus: (assemblies: string[], tint: Record<string, string>) => void;
   /** Extra channel targets a view always gets on this device (reduced motion, quality). */
   adjust?: (channels: Record<string, number>) => Record<string, number>;
 }
@@ -101,7 +101,7 @@ export class AnimationDirector {
     const targets = this.hooks.adjust ? this.hooks.adjust({ ...view.channels }) : view.channels;
     this.channels.to(targets, { keep: opts.keep });
     this.camera.go(view.shot, { instant: opts.instant, duration: opts.duration });
-    this.hooks.focus(view.focus ?? []);
+    this.hooks.focus(view.focus ?? [], view.tint ?? {});
     if (opts.instant) {
       // the first picture of a visit: everything at its target now
       for (const [k, v] of Object.entries(targets)) this.channels.set(k, v);

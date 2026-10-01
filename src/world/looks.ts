@@ -15,7 +15,7 @@
  *   flow:<id>          a flow's visibility (its motion comes from the model)
  *   studio             the room's light (1 normal … 0 a darker room around the subject)
  */
-import { Vector3, Matrix4 } from 'three';
+import { Color, Vector3, Matrix4 } from 'three';
 import type { Channels } from '../scene/channels';
 import type { Car } from '../scene/car/build';
 import { setGhost } from '../scene/car/body';
@@ -55,9 +55,12 @@ export const ASSEMBLIES = [
   'structure',
 ] as const;
 
+const HIGHLIGHT = new Color('#b9b2ff');
+
 export class Looks {
   /** Assemblies kept bright while the rest is dimmed (set by the director from the view). */
   focus = new Set<string>();
+  private tint = new Map<string, Color>();
   private dimNow = new Map<string, number>();
   private structureParts: string[] = ['structure-mild', 'structure-high', 'structure-ultra', 'structure-crash'];
 
@@ -66,6 +69,23 @@ export class Looks {
     private channels: Channels,
     private studio: Studio,
   ) {}
+
+  /** Colour-code parts (a view's tint); the others return to the usual highlight colour. */
+  setTint(tint: Record<string, string>) {
+    const before = [...this.tint.keys()];
+    this.tint = new Map(Object.entries(tint).map(([k, c]) => [k, new Color(c)]));
+    for (const name of new Set([...before, ...this.tint.keys()])) {
+      const n = this.car.rig.parts.get(name);
+      if (!n) continue;
+      const c = this.tint.get(name);
+      for (const m of n.meshes) {
+        const u = m.userData.pair?.u;
+        if (!u) continue;
+        u.uHighlightColor.value.copy(c ?? HIGHLIGHT);
+        u.uHighlightFill.value = c ? 0.5 : 0.06;
+      }
+    }
+  }
 
   apply(state: CarState, dt: number) {
     const ch = this.channels;
@@ -83,27 +103,23 @@ export class Looks {
     for (const id of ch.active()) {
       if (id.startsWith('ghost:')) ghostOf.set(id.slice(6), ch.get(id));
     }
+    const hideOf = new Map<string, number>();
+    for (const id of ch.active()) if (id.startsWith('hide:')) hideOf.set(id.slice(5), ch.get(id));
     for (const a of ASSEMBLIES) {
       if (a === 'body') continue;
       const g = ghostOf.get(a) ?? 0;
       const nodes = rig.byAssembly.get(a) ?? [];
       for (const n of nodes) {
-        const own = ghostOf.get(n.name) ?? 0;
-        const gg = Math.max(g, own);
-        const cur = n.meshes[0]?.userData.ghostNow ?? 0;
-        if (gg !== cur) {
-          rig.setPartGhost(n, gg);
-          for (const m of n.meshes) m.userData.ghostNow = gg;
+        const gg = Math.max(g, ghostOf.get(n.name) ?? 0);
+        // hide: a part fades out of the picture, then is not drawn at all
+        const hh = Math.max(hideOf.get(n.name) ?? 0, hideOf.get(a) ?? 0);
+        const ud = n.object.userData;
+        if (gg !== (ud.ghostNow ?? 0) || hh !== (ud.hideNow ?? 0)) {
+          rig.setPartGhost(n, gg, hh);
+          ud.ghostNow = gg;
+          ud.hideNow = hh;
+          n.object.visible = hh < 0.995;
         }
-      }
-    }
-    // hide: a part fades to nothing (via its ghost, then not drawn)
-    for (const n of rig.parts.values()) {
-      const h = ch.get(`hide:${n.name}`);
-      const wasHidden = n.object.userData.hidden as number | undefined;
-      if (h > 0 || wasHidden) {
-        n.object.visible = h < 0.995;
-        n.object.userData.hidden = h;
       }
     }
 

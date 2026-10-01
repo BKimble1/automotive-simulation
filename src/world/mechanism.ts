@@ -51,10 +51,13 @@ export interface MechView {
   throttle: number;
   cranking: boolean;
   lockup: number;
+  /** The start button held, the ignition on. */
+  start: boolean;
+  ignition: boolean;
 }
 
 export function emptyView(): MechView {
-  return { crank: 0, turbine: 0, stator: 0, driveshaft: 0, carrier: 0, spider: 0, wheel: [0, 0, 0, 0], wheelZ: [0, 0, 0, 0], steer: [0, 0, 0, 0], steerWheel: 0, heave: 0, pitch: 0, roll: 0, fan: 0, fz: [4000, 4000, 3700, 3700], brakeN: 0, throttle: 0, cranking: false, lockup: 0 };
+  return { crank: 0, turbine: 0, stator: 0, driveshaft: 0, carrier: 0, spider: 0, wheel: [0, 0, 0, 0], wheelZ: [0, 0, 0, 0], steer: [0, 0, 0, 0], steerWheel: 0, heave: 0, pitch: 0, roll: 0, fan: 0, fz: [4000, 4000, 3700, 3700], brakeN: 0, throttle: 0, cranking: false, lockup: 0, start: false, ignition: false };
 }
 
 /** Unwrapped interpolation of an angle that may have wrapped by `period` between steps. */
@@ -65,7 +68,7 @@ function lerpAngle(a: number, b: number, t: number, period: number): number {
   return a + d * t;
 }
 
-export function interpolate(prev: CarState, cur: CarState, t: number, out: MechView, extra: { brakeN: number; throttle: number; cranking: boolean }): MechView {
+export function interpolate(prev: CarState, cur: CarState, t: number, out: MechView, extra: { brakeN: number; throttle: number; cranking: boolean; start: boolean; ignition: boolean }): MechView {
   const L = (a: number, b: number) => a + (b - a) * t;
   out.crank = lerpAngle(prev.crank, cur.crank, t, CYCLE);
   out.turbine = lerpAngle(prev.turbineAngle, cur.turbineAngle, t, Math.PI * 2);
@@ -87,6 +90,8 @@ export function interpolate(prev: CarState, cur: CarState, t: number, out: MechV
   out.brakeN = extra.brakeN;
   out.throttle = extra.throttle;
   out.cranking = extra.cranking;
+  out.start = extra.start;
+  out.ignition = extra.ignition;
   out.lockup = cur.lockup;
   return out;
 }
@@ -234,6 +239,17 @@ export class Mechanism {
     car.systems.pedal.mq.setFromAxisAngle(Z, Math.min(0.32, v.brakeN / 1600));
     car.systems.throttlePedal.mq.setFromAxisAngle(Z, v.throttle * 0.22);
     for (const f of car.systems.fans) f.node.mq.setFromAxisAngle(X, -v.fan);
+
+    // ── the start button: pressed in while held, its symbol lit while the ignition is on
+    const btn = car.cabin.startButton;
+    btn.mp.set(v.start ? 0.0035 : 0, 0, 0);
+    for (const m of btn.meshes) {
+      const pair = m.userData.pair;
+      if (pair?.kind !== 'led') continue;
+      const e = v.start ? 2.4 : v.ignition ? 1.4 : 0.08;
+      pair.opaque.emissiveIntensity = e;
+      pair.ghost.emissiveIntensity = e;
+    }
   }
 
   private poseLink(l: Link, v: MechView) {

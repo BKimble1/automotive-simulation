@@ -68,9 +68,15 @@ const CUT_GROUPS: Record<string, string> = {
   driveline: 'diff',
 };
 
+/**
+ * Parts drawn whole inside a cutaway, as on a sectioned display engine: the plane cuts the
+ * housings (block, head, covers, cases, carrier), and the moving parts inside stay whole.
+ */
+const WHOLE = /^(piston-|rod-|valve-|spark-plugs|fuel-injectors|ignition-coils|gearset-\d+-(sun|planet)|input-shaft|output-shaft|ring-gear|pinion|spider-gear|side-gear|half-shaft|driveshaft|center-bearing|diff-mounts)/;
+
 export function buildCar(bodyGeo: BufferGeometry): Car {
   const rig = new Rig();
-  rig.clipOf = (group) => CUT_GROUPS[group] ?? (group.startsWith('element-') ? 'transmission' : null);
+  rig.clipOf = (group, part) => (part && WHOLE.test(part) ? null : (CUT_GROUPS[group] ?? (group.startsWith('element-') ? 'transmission' : null)));
   const root = new Group();
   root.name = 'car';
   const sprung = new Group();

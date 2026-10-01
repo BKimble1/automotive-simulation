@@ -112,12 +112,12 @@ function tyreGeometry(): BufferGeometry {
 }
 
 /** The tyre material: the wheel's spin, the contact patch and a tread pattern, in the shader. */
-function tyreMaterial(pair: MatPair) {
-  const m = pair.opaque.clone() as MeshPhysicalMaterial;
-  const u = { uSpin: { value: 0 }, uFlat: { value: 0.012 }, uRadius: { value: TIRE.radius }, uBlur: { value: 0 } };
-  const base = pair.opaque.onBeforeCompile;
+type TyreU = { uSpin: { value: number }; uFlat: { value: number }; uRadius: { value: number }; uBlur: { value: number } };
+function tyreMaterial(src: MeshPhysicalMaterial, u: TyreU, ghost: boolean) {
+  const m = src.clone() as MeshPhysicalMaterial;
+  const base = src.onBeforeCompile;
   m.onBeforeCompile = (shader, r) => {
-    base.call(pair.opaque, shader, r);
+    base.call(src, shader, r);
     Object.assign(shader.uniforms, u);
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nuniform float uSpin; uniform float uFlat; uniform float uRadius;\nvarying vec3 vTyre;')
@@ -156,8 +156,8 @@ function tyreMaterial(pair: MatPair) {
         }`,
       );
   };
-  m.customProgramCacheKey = () => 'tyre';
-  m.userData = { ...pair.opaque.userData, u };
+  m.customProgramCacheKey = () => (ghost ? 'tyre-g' : 'tyre');
+  m.userData = { ...src.userData, u };
   return m as MeshPhysicalMaterial & { userData: { u: typeof u } };
 }
 
@@ -259,8 +259,11 @@ export function buildChassis(rig: Rig, parent: Object3D, sprung: Object3D): Chas
     void spinNode;
     // wheel (rim) and tyre
     const wheelNode = rig.part(spin, `wheel-${c.id}`, 'wheel', W, [['aluminium', rim.metal.clone(), '#8e939a'], ['polymerGloss', rim.dark.clone()]], { local: true });
-    const tyrePair = rig.mat(W, 'tyre');
-    const tm = tyreMaterial(tyrePair);
+    const plain = rig.mat(W, 'tyre');
+    const tu: TyreU = { uSpin: { value: 0 }, uFlat: { value: 0.012 }, uRadius: { value: TIRE.radius }, uBlur: { value: 0 } };
+    const tm = tyreMaterial(plain.opaque, tu, false);
+    // its own pair, so a ghosted tyre still turns and flattens
+    const tyrePair: MatPair = { kind: 'tyre', u: plain.u, opaque: tm as unknown as MatPair['opaque'], ghost: tyreMaterial(plain.ghost, tu, true) as unknown as MatPair['ghost'] };
     const tyre = new Mesh(tyreGeo.clone(), tm);
     tyre.name = `tyre-${c.id}:tyre`;
     tyre.castShadow = true;

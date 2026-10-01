@@ -35,6 +35,7 @@ export type MatKind =
   | 'pad'
   | 'glassInt'
   | 'screen'
+  | 'led'
   | 'section'
   | 'chrome'
   | 'paintBlack'
@@ -71,8 +72,8 @@ export const KINDS: Record<MatKind, KindSpec> = {
   iron: { color: '#3d3f43', metalness: 0.75, roughness: 0.62, noise: 0.18, noiseScale: 140 },
   steel: { color: '#8a8e95', metalness: 0.92, roughness: 0.34, noise: 0.08, noiseScale: 220 },
   machined: { color: '#b9bdc3', metalness: 1.0, roughness: 0.2, noise: 0.05, noiseScale: 400 },
-  aluminium: { color: '#c3c7cd', metalness: 0.95, roughness: 0.36, noise: 0.06, noiseScale: 260 },
-  castAl: { color: '#9da2a8', metalness: 0.85, roughness: 0.55, noise: 0.16, noiseScale: 160 },
+  aluminium: { color: '#aeb3b9', metalness: 0.92, roughness: 0.38, noise: 0.06, noiseScale: 260 },
+  castAl: { color: '#7d8288', metalness: 0.78, roughness: 0.6, noise: 0.16, noiseScale: 160 },
   polymer: { color: '#17181b', metalness: 0.0, roughness: 0.62, noise: 0.06, noiseScale: 300 },
   polymerGloss: { color: '#111214', metalness: 0.0, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2 },
   rubber: { color: '#121314', metalness: 0.0, roughness: 0.86 },
@@ -88,6 +89,7 @@ export const KINDS: Record<MatKind, KindSpec> = {
   pad: { color: '#3a3532', metalness: 0.1, roughness: 0.9 },
   glassInt: { color: '#0a0c10', metalness: 0.0, roughness: 0.05 },
   screen: { color: '#06070a', metalness: 0.0, roughness: 0.12, emissive: '#2a3448', emissiveIntensity: 0.6 },
+  led: { color: '#101114', metalness: 0.0, roughness: 0.3, emissive: '#ffd9a0', emissiveIntensity: 0 },
   section: { color: '#cdbfae', metalness: 0.0, roughness: 0.7 },
   chrome: { color: '#d8dce2', metalness: 1.0, roughness: 0.08 },
   paintBlack: { color: '#0d0e10', metalness: 0.3, roughness: 0.35, clearcoat: 0.8, clearcoatRoughness: 0.1 },
@@ -109,8 +111,12 @@ export const KINDS: Record<MatKind, KindSpec> = {
 export interface PartUniforms {
   uHighlight: { value: number };
   uHighlightColor: { value: Color };
+  /** How much of the highlight fills the face (not only its rim): a colour-coded part fills more. */
+  uHighlightFill: { value: number };
   uGhost: { value: number };
   uGhostTint: { value: Color };
+  /** Fading out of the picture altogether (a hidden part), 0 … 1. */
+  uHide: { value: number };
   uDim: { value: number };
   uHeat: { value: number };
   uNoise: { value: number };
@@ -148,7 +154,7 @@ function patch(m: MeshPhysicalMaterial, u: PartUniforms, ghost: boolean, _kind: 
         '#include <common>',
         `#include <common>
         varying vec3 vPmObj;
-        uniform float uHighlight; uniform vec3 uHighlightColor; uniform float uGhost; uniform vec3 uGhostTint;
+        uniform float uHighlight; uniform vec3 uHighlightColor; uniform float uHighlightFill; uniform float uGhost; uniform vec3 uGhostTint; uniform float uHide;
         uniform float uDim; uniform float uHeat; uniform float uNoise; uniform float uNoiseScale; uniform float uSection;
         ${NOISE}`,
       )
@@ -183,19 +189,19 @@ function patch(m: MeshPhysicalMaterial, u: PartUniforms, ghost: boolean, _kind: 
         {
           vec3 V = normalize(vViewPosition);
           float fres = pow(1.0 - clamp(abs(dot(normalize(vNormal), V)), 0.0, 1.0), 2.4);
-          gl_FragColor.rgb += uHighlightColor * uHighlight * (0.06 + 0.5 * fres);
+          gl_FragColor.rgb += uHighlightColor * uHighlight * (uHighlightFill + 0.5 * fres);
           if (pmSection) {
             // a cut face: warm light grey with 45° hatching, evenly lit, like a drawing
             vec2 hp = gl_FragCoord.xy;
-            float hh = abs(fract((hp.x + hp.y) * 0.11) - 0.5);
-            gl_FragColor.rgb = vec3(0.62, 0.57, 0.5) * mix(0.72, 1.0, smoothstep(0.1, 0.2, hh));
+            float hh = abs(fract((hp.x + hp.y) * 0.09) - 0.5);
+            gl_FragColor.rgb = vec3(0.6, 0.555, 0.49) * mix(0.84, 1.0, smoothstep(0.08, 0.16, hh));
           }
           // isolation: the rest of the car recedes toward the studio's darkness
           gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.18 + vec3(0.012, 0.013, 0.016), uDim * 0.82);
           ${
             ghost
               ? `gl_FragColor.rgb = mix(gl_FragColor.rgb, gl_FragColor.rgb * 0.2 + uGhostTint * (0.04 + 0.5 * fres), uGhost);
-                 gl_FragColor.a *= mix(1.0, 0.03 + 0.28 * fres, uGhost);`
+                 gl_FragColor.a *= mix(1.0, 0.03 + 0.28 * fres, uGhost) * (1.0 - uHide);`
               : ''
           }
         }`,
@@ -217,8 +223,10 @@ export function makePair(kind: MatKind, opts: { color?: string; side?: Side; cli
   const u: PartUniforms = {
     uHighlight: { value: 0 },
     uHighlightColor: { value: new Color('#b9b2ff') },
+    uHighlightFill: { value: 0.06 },
     uGhost: { value: 0 },
     uGhostTint: { value: new Color('#9fb2d6') },
+    uHide: { value: 0 },
     uDim: { value: 0 },
     uHeat: { value: 0 },
     uNoise: { value: k.noise ?? 0.04 },

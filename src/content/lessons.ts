@@ -10,7 +10,8 @@ import type { Beat, Sequence } from '../world/sequence';
 /** Hold the start button from `press` until the engine runs (the car's start-stop logic). */
 function startScript(press: number) {
   return (t: number, inp: Inputs, s: CarState) => {
-    inp.ignition = true;
+    // the press wakes the car and starts the engine in one go
+    inp.ignition = t >= press || s.engine === 'running';
     inp.selector = 'P';
     inp.start = t >= press && s.engine !== 'running' && t < press + 4;
   };
@@ -31,10 +32,12 @@ const startBeats: Beat[] = [
     id: 'press',
     title: 'Press START',
     text: 'With the brake pedal held, the start button asks the body control module to wake the car and the engine control module to start the engine.',
-    duration: 4.2,
+    duration: 5.5,
     view: 'start-button',
     program: { start: presetCold, drive: startScript(3.9) },
-    timeScale: 1,
+    // real time until just before the press, then slowing: the button goes in and lights, and the
+    // starter's first moments are already in slow motion
+    timeScale: { from: 1, to: 0.05, ramp: 0.6, delay: 3.6 },
     chapter: 'Starting',
   },
   {
@@ -136,7 +139,7 @@ const driveBeats: Beat[] = [
   {
     id: 'converter',
     title: 'The torque converter',
-    text: 'Fluid flung by the engine-driven impeller drives the turbine. While the car is slow, the stator redirects that fluid back to the impeller and multiplies the torque.',
+    text: 'The engine spins the impeller (blue), which flings fluid into the turbine (amber) that drives the gearbox. While the car is slow, the stator between them turns the fluid back to help the impeller, multiplying the torque.',
     duration: 6,
     view: 'converter',
     timeScale: 0.25,
