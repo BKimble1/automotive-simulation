@@ -47,6 +47,9 @@ export interface Beat {
   focusCyl?: number;
   /** Extra channel targets for this beat on top of its view's. */
   channels?: Record<string, number>;
+  /** The pace shown to the visitor when it differs from the time scale (the film stretches a
+   * beat to its narration; its authored pace is what the picture means). */
+  pace?: number;
   /** Live readouts shown with the caption (ids from ui/readouts.ts). */
   readouts?: string[];
 }

@@ -7,7 +7,7 @@ export function Intro() {
   const base = import.meta.env.BASE_URL;
   return (
     <>
-      <section className="intro" aria-labelledby="intro-title">
+      <section className="intro" aria-labelledby="intro-title" data-occludes="left">
         <div className="intro__eyebrow">
           <img src={`${base}brand/kimble-mark-light.svg`} alt="" />
           <span>KIMBLE · A FAB / ONE simulation</span>

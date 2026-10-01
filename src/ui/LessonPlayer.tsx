@@ -46,12 +46,12 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
   if (!p.id) return null;
   return (
     <>
-      {captions && p.caption && (
-        <div className="captions" aria-live="polite">
-          {p.caption}
-        </div>
-      )}
       <section className="lesson pe" data-occludes="bottom" aria-label={p.title}>
+        {captions && p.caption && (
+          <div className="captions" aria-live="polite">
+            {p.caption}
+          </div>
+        )}
         <div className="lesson__head">
           {chapters.length > 1 ? (
             <button className="lesson__chapter" aria-expanded={menu} aria-haspopup="true" onClick={() => setMenu(!menu)}>
@@ -84,7 +84,7 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
         )}
         {/* the film's captions follow the narration; a lesson shows the step's whole text */}
         {!(p.id === 'film' && captions) && <p className="lesson__text">{step?.text}</p>}
-        {step && <ReadoutChips ids={step.readouts ?? []} timeScale={step.timeScale} />}
+        {step && <ReadoutChips ids={step.readouts ?? []} timeScale={step.pace ?? step.timeScale} />}
         <div className="lesson__controls">
           <button className="pbtn" onClick={() => seek(p.beats[Math.max(0, p.beat - 1)]?.start ?? 0)} aria-label="Previous step">
             <PrevIcon />

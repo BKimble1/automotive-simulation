@@ -294,7 +294,7 @@ export class World {
       duration: p.duration,
       playing: p.playing,
       beat: p.index,
-      beats: p.beats.map((b) => ({ title: b.beat.title, text: b.beat.text, start: b.start, chapter: b.beat.chapter, readouts: b.beat.readouts, timeScale: typeof b.beat.timeScale === 'number' ? b.beat.timeScale : (b.beat.timeScale?.to ?? 1) })),
+      beats: p.beats.map((b) => ({ title: b.beat.title, text: b.beat.text, start: b.start, chapter: b.beat.chapter, readouts: b.beat.readouts, timeScale: typeof b.beat.timeScale === 'number' ? b.beat.timeScale : (b.beat.timeScale?.to ?? 1), pace: b.beat.pace })),
       caption: p.caption(),
       ended: p.ended,
     });

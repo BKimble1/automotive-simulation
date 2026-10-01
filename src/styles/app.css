@@ -486,7 +486,8 @@ html.virt *::after {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--bar-h) + 36px + var(--safe-b));
+  bottom: calc(100% + 10px);
+  width: max-content;
   max-width: min(720px, calc(100vw - 32px));
   background: rgba(8, 9, 11, 0.78);
   color: var(--ink);

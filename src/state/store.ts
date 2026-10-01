@@ -214,7 +214,7 @@ export interface PlayerState {
   duration: number;
   playing: boolean;
   beat: number;
-  beats: { title: string; text: string; start: number; chapter?: string; readouts?: string[]; timeScale: number }[];
+  beats: { title: string; text: string; start: number; chapter?: string; readouts?: string[]; timeScale: number; pace?: number }[];
   caption: string;
   ended: boolean;
 }

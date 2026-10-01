@@ -224,7 +224,11 @@ export class Channels {
         const v0T = waited ? 0 : tw.v0 * tw.dur;
         const u = Math.min(1, (tw.t - tw.delay) / tw.dur);
         v = hermite5(start, v0T, tw.to, u);
-        if (u >= 1) this.tweens.delete(k);
+        // arrive exactly (the final state is deterministic, not a rounding of it)
+        if (u >= 1) {
+          v = tw.to;
+          this.tweens.delete(k);
+        }
       }
       v = Math.min(1, Math.max(0, v));
       this.values.set(k, v);

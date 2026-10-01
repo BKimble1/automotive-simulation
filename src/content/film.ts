@@ -105,7 +105,8 @@ export function timedFilm(beats: Beat[], narration: NarrationManifest): Beat[] {
     const next = beats[i + 1];
     const endsChain = !next || !!next.program;
     const keepScale = endsChain && (b.timeScale === undefined || b.timeScale === 1);
-    return { ...b, duration, timeScale: keepScale ? b.timeScale : stretch(b.timeScale, k), narration: b.id, cues };
+    const authored = typeof b.timeScale === 'number' ? b.timeScale : (b.timeScale?.to ?? 1);
+    return { ...b, duration, timeScale: keepScale ? b.timeScale : stretch(b.timeScale, k), pace: authored, narration: b.id, cues };
   });
 }
 
