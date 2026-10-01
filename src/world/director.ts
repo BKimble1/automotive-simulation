@@ -10,8 +10,11 @@
  *                   holds (no camera move, nothing fades) until they are, then it transitions
  *   transitioning   the camera and the channels are moving to the requested view
  *   demonstrating   a lesson or the film is running (its beats request views)
- *   paused          the presentation is paused (camera moves, channels and the mechanism stop;
- *                   the visitor may still look around)
+ *   paused          the presentation is paused (camera holds, channels and the mechanism stop;
+ *                   the visitor may still look around). The pause belongs to the world (one
+ *                   owner); a view requested while paused is a paused navigation: the camera
+ *                   and the channels move there, the mechanism, the model and the narration stay
+ *                   frozen, and the state returns to paused on arrival. Nothing here resumes.
  *   returning       going back up (part → assembly → car), the same machinery in reverse
  *   free-explore    arrived at an explorable view: the visitor's orbit is enabled
  *
@@ -50,7 +53,12 @@ export interface DirectorHooks {
 }
 
 export class AnimationDirector {
-  state: DirectorState = 'idle';
+  /** What the director is doing, before the pause is taken into account. */
+  private phase: DirectorState = 'idle';
+  /** The state shown: 'paused' while the presentation is paused (unless a paused navigation is moving). */
+  get state(): DirectorState {
+    return this.holding && !this.pausedNavigation ? 'paused' : this.phase;
+  }
   /** The view the scene is at or moving to. */
   view: View | null = null;
   /** A view waiting for its assets. */
@@ -58,7 +66,10 @@ export class AnimationDirector {
   /** Counts transitions started (tests and telemetry). */
   transitions = 0;
   private opts: RequestOptions = {};
-  private wasPaused: DirectorState = 'idle';
+  /** The presentation is paused (set by the world only). */
+  private holding = false;
+  /** A transition requested while paused is running (it moves on the navigation clock). */
+  pausedNavigation = false;
   /** Time spent in the current transition, s (presentation clock). */
   transitionTime = 0;
   /** Last transition's measured length, s. */
@@ -72,24 +83,33 @@ export class AnimationDirector {
 
   /** Ask for a view. Returns true if a transition started (or is waiting for its assets). */
   request(view: View, opts: RequestOptions = {}): boolean {
-    if (this.state === 'paused') this.resume();
     // the first picture of a visit is placed, not flown to
     if (this.view === null && !this.pending) opts = { ...opts, instant: true };
     // the view already shown or being approached: carry on
     if (!opts.instant && this.view?.id === view.id && !this.pending) {
       this.opts = { ...this.opts, ...opts };
-      if (opts.demonstrating && this.state !== 'transitioning') this.state = 'demonstrating';
+      if (opts.demonstrating && this.phase !== 'transitioning' && this.phase !== 'returning') this.phase = 'demonstrating';
       return false;
     }
     if (this.pending?.view.id === view.id) return true;
     if (view.requires?.length && !this.hooks.ready(view.requires)) {
       // hold the picture until the destination is ready
       this.pending = { view, opts };
-      this.state = 'preparing';
+      this.phase = 'preparing';
       return true;
     }
     this.begin(view, opts);
     return true;
+  }
+
+  /** The state to settle in when nothing is moving. */
+  private restState(): DirectorState {
+    return this.opts.demonstrating ? 'demonstrating' : this.view?.free ? 'free-explore' : 'idle';
+  }
+
+  /** A transition or a wait for assets is in progress. */
+  get busy(): boolean {
+    return this.phase === 'transitioning' || this.phase === 'returning' || this.phase === 'preparing';
   }
 
   private begin(view: View, opts: RequestOptions) {
@@ -107,22 +127,18 @@ export class AnimationDirector {
       for (const [k, v] of Object.entries(targets)) this.channels.set(k, v);
       for (const k of this.channels.active()) if (!(k in targets) && !opts.keep?.some((p) => k.startsWith(p))) this.channels.set(k, 0);
     }
-    this.state = opts.returning ? 'returning' : 'transitioning';
+    this.phase = opts.returning ? 'returning' : 'transitioning';
+    this.pausedNavigation = this.holding && !opts.instant;
+    if (opts.instant) this.phase = this.restState();
   }
 
-  pause() {
-    if (this.state === 'paused') return;
-    this.wasPaused = this.state;
-    this.state = 'paused';
-  }
-
-  resume() {
-    if (this.state !== 'paused') return;
-    this.state = this.wasPaused;
+  /** The world pauses or resumes the presentation (the only owner of the pause). */
+  setPaused(paused: boolean) {
+    this.holding = paused;
   }
 
   get paused(): boolean {
-    return this.state === 'paused';
+    return this.holding;
   }
 
   /** Has the current transition finished (camera arrived, channels settled)? */
@@ -130,24 +146,26 @@ export class AnimationDirector {
     return !this.camera.moving && !this.channels.busy;
   }
 
-  /** Sample: called every frame with the presentation step (0 while paused). */
+  /** Sample: called every frame with the transition clock's step (0 while paused, unless a
+   * paused navigation is moving). */
   update(dt: number) {
-    if (this.state === 'paused') return;
-    if (this.state === 'preparing' && this.pending && this.hooks.ready(this.pending.view.requires ?? [])) {
+    if (this.phase === 'preparing' && this.pending && this.hooks.ready(this.pending.view.requires ?? [])) {
       const p = this.pending;
       this.begin(p.view, p.opts);
     }
-    if (this.state === 'transitioning' || this.state === 'returning') {
+    if (this.phase === 'transitioning' || this.phase === 'returning') {
       this.transitionTime += dt;
       if (this.settled) {
         this.lastTransition = this.transitionTime;
-        this.state = this.opts.demonstrating ? 'demonstrating' : this.view?.free ? 'free-explore' : 'idle';
+        this.pausedNavigation = false;
+        this.phase = this.restState();
       }
     }
   }
 
-  /** The visitor may orbit now (the shot allows it and nothing authored is moving the camera). */
+  /** Who owns the camera: the visitor may orbit only when no authored move is running and the
+   * shot allows it (the camera director's input handlers ask this, through the world). */
   get canOrbit(): boolean {
-    return (this.state === 'free-explore' || this.state === 'idle' || this.state === 'demonstrating' || this.state === 'paused') && this.camera.canOrbit();
+    return !this.busy && this.camera.shotAllowsOrbit();
   }
 }

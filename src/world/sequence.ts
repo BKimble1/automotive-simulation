@@ -9,8 +9,8 @@
  * time (each beat's time scale is constant or a linear ramp, integrated in closed form), so
  * playing to a moment and seeking to it give the same state, bit for bit (tested).
  */
-import { Car, cloneState, type CarState, type Faults, type Inputs, type Params, type Road, NO_FAULTS, defaultInputs, defaultParams } from '../sim/car';
-import { TIRE } from '../spec/vehicle';
+import { Car, cloneState, type CarSnapshot, type CarState, type Faults, type Inputs, type Params, type RoadSpec } from '../sim/car';
+import { initRun } from '../sim/run';
 import type { View } from './views';
 
 export interface Cue {
@@ -19,12 +19,13 @@ export interface Cue {
   text: string;
 }
 
+/** A chain's run (see sim/run.ts: everything not given takes its baseline value). */
 export interface Program {
   start: () => CarState;
   /** The driver: sets the inputs from the time since the program started (simulated s). */
   drive?: (t: number, inp: Inputs, s: CarState) => void;
   faults?: Partial<Faults>;
-  road?: Road;
+  road?: RoadSpec;
   params?: Partial<Params>;
 }
 
@@ -99,6 +100,8 @@ export class SequencePlayer {
   t = 0;
   index = -1;
   playing = false;
+  /** Waiting for the beat's subject: time does not advance (set by the world each frame). */
+  hold = false;
   ended = false;
   /** Called when a beat starts (the world requests its view). */
   onBeat?: (b: BeatInfo, viaSeek: boolean) => void;
@@ -140,18 +143,28 @@ export class SequencePlayer {
     return b.mechStart + scaledTime(b.beat.timeScale, Math.max(0, t - b.start));
   }
 
-  /** Install a chain's program on the car and reset it to the program's starting state. */
-  private startChain(chainIndex: number) {
+  /** Install a chain's program on a car and reset it to the program's starting state. */
+  startChain(chainIndex: number, car: Car = this.car) {
     const p = this.beats[chainIndex].beat.program;
     if (!p) return;
-    this.car.restore(p.start());
-    this.car.faults = { ...NO_FAULTS, ...(p.faults ?? {}) };
-    this.car.road = p.road ?? { mu: TIRE.muDry };
-    this.car.params = { ...defaultParams(), ...(p.params ?? {}) };
-    this.car.inputs = { ...defaultInputs(), ignition: this.car.s.engine === 'running' };
-    const drive = p.drive;
-    this.car.program = drive ? (tt, inp, s) => drive(tt, inp, s) : null;
-    this.car.programT0 = this.car.s.t;
+    initRun(car, { id: `${this.seq?.id ?? 'seq'}:${chainIndex}`, ...p });
+  }
+
+  /** Reattach a chain's driver script to a car whose run was loaded from a snapshot. */
+  attachProgram(chainIndex: number, car: Car = this.car) {
+    const p = this.beats[chainIndex].beat.program;
+    const drive = p?.drive;
+    car.program = drive ? (tt, inp, s) => drive(tt, inp, s) : null;
+    car.programId = `${this.seq?.id ?? 'seq'}:${chainIndex}`;
+  }
+
+  /** The car's run at sequence time t, computed on a separate car (the live one is untouched). */
+  sample(t: number, car: Car = new Car()): CarSnapshot {
+    const tt = Math.max(0, Math.min(this.duration, t));
+    const b = this.beatAt(tt);
+    this.startChain(b.chain, car);
+    car.runTo(car.programT0 + this.mechTime(tt));
+    return car.save();
   }
 
   play() {
@@ -163,17 +176,24 @@ export class SequencePlayer {
 
   /**
    * Seek: the beat at t is entered (its view requested from what is displayed) and the car is
-   * re-simulated from its chain's starting state to exactly the mechanical time at t.
+   * re-simulated from its chain's starting state to exactly the mechanical time at t, here and
+   * now. (The world seeks with seekTo and resolves the car's state off the page: jobs.ts.)
    */
   seek(t: number) {
+    const b = this.seekTo(t);
+    this.startChain(b.chain);
+    this.car.runTo(this.car.programT0 + this.mechTime(this.t));
+  }
+
+  /** Move presentation time only: the beat at t is entered and its view requested; the car's
+   * state is the caller's to resolve (it must become the chain's run at mechTime(t)). */
+  seekTo(t: number): BeatInfo {
     this.t = Math.max(0, Math.min(this.duration, t));
     this.ended = false;
     const b = this.beatAt(this.t);
-    this.startChain(b.chain);
-    const target = this.car.programT0 + this.mechTime(this.t);
-    this.car.runTo(target);
     this.index = b.index;
     this.onBeat?.(b, true);
+    return b;
   }
 
   /**
@@ -220,21 +240,9 @@ export class SequencePlayer {
     return text;
   }
 
-  /** A snapshot of the car at a time, without disturbing playback (tests). */
+  /** The car's state at a time, read on a separate car: playback, the live car and its settings are untouched. */
   stateAt(t: number): CarState {
-    const keepT = this.t;
-    const keepI = this.index;
-    const snap = this.car.snapshot();
-    const prog = this.car.program;
-    const t0 = this.car.programT0;
-    this.seek(t);
-    const out = cloneState(this.car.s);
-    this.car.restore(snap);
-    this.car.program = prog;
-    this.car.programT0 = t0;
-    this.t = keepT;
-    this.index = keepI;
-    return out;
+    return cloneState(this.sample(t).state);
   }
 }
 

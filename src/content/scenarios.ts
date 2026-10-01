@@ -5,14 +5,14 @@
  * the repair). Each fault is a real fault in the car's model, so the gauges and the scene show
  * its true effects, not a scripted picture.
  */
-import { NO_FAULTS, presetCold, presetCruise, presetIdle, type CarState, type Faults, type Inputs, type Road } from '../sim/car';
-import { brakeAt, bump, cruise, holdSpeed, laneSteer, type Drive } from './drivers';
-import { units } from '../spec/vehicle';
+import { NO_FAULTS, presetCold, presetCruise, presetIdle, type CarState, type Faults, type Inputs, type RoadSpec } from '../sim/car';
+import { brakeAt, cruise, holdSpeed, laneSteer, type Drive } from './drivers';
+import { TIRE, units } from '../spec/vehicle';
 
 export interface ScenarioProgram {
   start: () => CarState;
   drive: Drive;
-  road?: Road & { curve?: number; curveX?: number; bumpAt?: number };
+  road?: RoadSpec;
   faults?: Partial<Faults>;
   timeScale?: number;
   /** Start again after this many simulated seconds (an event that is over). */
@@ -53,6 +53,8 @@ export interface FaultCase {
   measures: { readout: string; normal: string }[];
   causes: { id: string; label: string; right?: boolean; why: string }[];
   reveal: { look: string; text: string; repair: string };
+  /** What the repair replaces, set on the running car (a new battery is charged). */
+  repairState?: { soc?: number };
 }
 
 const P = (inp: Inputs) => {
@@ -143,16 +145,13 @@ export const SCENARIOS: Scenario[] = [
     title: 'A long bend',
     summary: 'A 40-metre left-hander at 55 km/h: the body leans and the outer tyres take the load.',
     view: 'corner-top',
-    program: { start: () => presetCruise(55), drive: cruise(55, { R: 40, curveX: 25 }), road: { mu: 1, curve: 1 / 40, curveX: 25 }, loop: 9 },
+    program: { start: () => presetCruise(55), drive: cruise(55, { R: 40, curveX: 25 }), road: { mu: TIRE.muDry, curve: 1 / 40, curveX: 25 }, loop: 9 },
     gauges: ['kmh', 'wheelSpeeds', 'accel'],
     watch: 'The outer rear wheel turns faster than the inner one, and the differential lets it.',
   },
 ];
 
-const bumpy = (at: number) => {
-  const b = bump(at);
-  return { mu: 1, height: (s: number) => b(s), bumpAt: at };
-};
+const bumpy = (at: number): RoadSpec => ({ mu: TIRE.muDry, bumpAt: at });
 
 export const FAULTS: FaultCase[] = [
   {
@@ -325,6 +324,7 @@ export const FAULTS: FaultCase[] = [
       text: 'The battery has lost much of its capacity. Cold makes it worse: under the starter’s load its voltage collapses, so the starter turns the engine slowly, the cranking takes longer, and on a colder day it might not start at all.',
       repair: 'Test and replace the battery; check the charging system too.',
     },
+    repairState: { soc: 0.95 },
   },
 ];
 

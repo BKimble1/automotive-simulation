@@ -3,32 +3,38 @@
  * (STEP = 1 ms), so the same inputs give the same motion whatever the frame rate, and a
  * lesson can be re-simulated from its declared starting state to any moment (seeking).
  *
- * All state lives in one plain object (`CarState`) that can be copied and restored exactly.
- * Inputs are what the driver does (ignition, start button, accelerator, brake pedal force,
- * steering-wheel angle, selector), the road (friction, bumps, the path) and the faults.
+ * All dynamic state lives in one plain object (`CarState`): the bodies' motion and also the
+ * controllers' memory (each ABS channel's phase, pressure, cycle count and hold timer, the
+ * wheel speeds of the previous step it differentiates, the firing-pulse shape in use, the
+ * geartrain's shaft angles). A snapshot is therefore a plain copy, and restoring one continues
+ * exactly as if the run had never been interrupted (tested). The configuration a run uses
+ * (inputs, parameters, faults, road) is set in one place, sim/run.ts, never inherited.
  *
- * What is modelled, briefly (constants in spec/vehicle.ts, equations in docs/ENGINEERING.md):
+ * What is modelled, briefly (constants in spec/vehicle.ts, assumptions in docs/ENGINEERING.md):
  *   engine        crank dynamics with the instantaneous gas torque of each cylinder at low
  *                 speed (so a misfire is felt as a speed dip), mean torque above; starter,
  *                 idle control, rev limiter, stall
  *   converter     impeller/turbine torques from the capacity factor, torque multiplication,
- *                 lock-up clutch
- *   gearbox       eight ratios, shift schedule with hysteresis, timed ratio change during a
- *                 shift, park pawl, neutral, reverse
+ *                 the stator's one-way clutch, lock-up clutch
+ *   gearbox       four planetary gearsets and five shift elements (geartrain.ts): ratios from
+ *                 tooth counts, shift schedule with hysteresis, clutch-to-clutch shifts with an
+ *                 inertia phase, park pawl, neutral, reverse
  *   rear axle     open differential: the carrier carries the drive (with the drivetrain's
  *                 reflected inertia), the wheels share its torque equally and may turn at
  *                 different speeds
  *   tyres         slip ratio and slip angle per wheel, combined grip, loads from the ride model
- *   body          longitudinal, lateral and yaw motion (4 wheels), and a 7-degree-of-freedom
- *                 ride model: heave, pitch, roll and four wheels on springs, dampers,
- *                 anti-roll bars and tyre springs
+ *   body          longitudinal, lateral and yaw motion about the centre of mass, and a
+ *                 7-degree-of-freedom ride model: heave, pitch, roll and four wheels on springs,
+ *                 dampers, anti-roll bars and tyre springs; static loads from the configured
+ *                 mass and its distribution
  *   brakes        pedal → master cylinder → calipers, proportioning, ABS per wheel, rotor heat
  *                 and pad fade
  *   cooling, oil, 12 V electrical (systems.ts)
  */
-import { BODY, BRAKES, CONVERTER, ELECTRICAL, ENGINE, GEARBOX, MASS, STATIC, STEERING, SUSPENSION, TIRE, AIR_DENSITY, G, units } from '../spec/vehicle';
+import { BODY, BRAKES, CONVERTER, ELECTRICAL, ENGINE, GEARBOX, MASS, STEERING, SUSPENSION, TIRE, AIR_DENSITY, G, units } from '../spec/vehicle';
 import { airMassFlow, fuelMassFlow, FUEL_LHV, frictionTorque, indicatedTorque, manifoldPressure, phaseDeg, sparkPhase, torqueRipple, CYCLE, fullLoadTorque } from './engine';
-import { converterTorqueRatio, downshiftRpm, gearRatio, impellerTorque, statorHeld, upshiftRpm, ELEMENTS, SHIFT_TABLE, DIFF, type Element } from './drivetrain';
+import { converterTorqueRatio, downshiftRpm, gearRatio, impellerTorque, statorHeld, upshiftRpm, DIFF } from './drivetrain';
+import { appliedElements, geartrainSpeeds, type Element, type GeartrainSpeeds } from './geartrain';
 import { slipRatio, tireForces } from './tire';
 import { AbsChannel, brakeTorque, Cooling, Electrical, Lubrication, masterPressure, padMu, rearPressureFactor, type AbsPhase } from './systems';
 
@@ -46,10 +52,15 @@ export interface Inputs {
   brakeN: number;
   /** Steering-wheel angle, rad (positive turns left). */
   steer: number;
+  /** The selector position the driver asks for (the gearbox may refuse it: see `CarState.selector`). */
   selector: Selector;
   heater: boolean;
   /** Extra electrical load (lights, fan, heated glass…), A. */
   accessoriesAmps: number;
+  /** Hold this gear in Drive (the selector's manual mode; 0 = automatic shifting). */
+  manualGear: number;
+  /** Ask for the converter's lock-up clutch whenever a gear is engaged and the car is moving (manual mode). */
+  lockup: boolean;
 }
 
 export interface Faults {
@@ -60,6 +71,7 @@ export interface Faults {
   lowCoolant: boolean;
   lowOil: boolean;
   wornBearings: boolean;
+  /** An aged battery: higher internal resistance (its low charge is part of the run's start). */
   weakBattery: boolean;
   alternatorFailed: boolean;
   /** A worn damper at a corner (0 FL, 1 FR, 2 RL, 3 RR), or −1. */
@@ -83,26 +95,59 @@ export const NO_FAULTS: Faults = {
   fadeProne: false,
 };
 
-/** The road under the car: friction, the height profile under each side, and the path. */
-export interface Road {
+/**
+ * The road as data (so a run can be described, compared and sent to a worker): friction, an
+ * optional bump across the lane, an optional left-hand arc, the air temperature. The physics
+ * (makeRoad) and the drawn road (scene/road.ts) are both built from it.
+ */
+export interface RoadSpec {
   mu: number;
-  /** Road height under the left and right wheels at a distance s along the path, m. */
-  height?: (s: number, side: -1 | 1) => number;
-  /** Ambient temperature, °C. */
   ambientC?: number;
+  /** A smooth bump across the lane, centred `bumpAt` metres along the path. */
+  bumpAt?: number;
+  bumpHeight?: number;
+  bumpLength?: number;
+  /** Curvature of the arc (1/m, positive left) and where it begins (road x, m). */
+  curve?: number;
+  curveX?: number;
+}
+
+export const DEFAULT_ROAD: RoadSpec = { mu: TIRE.muDry, ambientC: 25 };
+
+/** The road the model drives on: friction and the height under each side at distance s. */
+export interface Road {
+  spec: RoadSpec;
+  mu: number;
+  ambientC: number;
+  height: ((s: number, side: -1 | 1) => number) | null;
+}
+
+export function makeRoad(spec: RoadSpec = DEFAULT_ROAD): Road {
+  const sp = { ...spec };
+  let height: Road['height'] = null;
+  if (sp.bumpAt !== undefined) {
+    const H = sp.bumpHeight ?? 0.07;
+    const half = (sp.bumpLength ?? 0.7) / 2;
+    const at = sp.bumpAt;
+    height = (s: number) => {
+      const d = s - at;
+      return Math.abs(d) < half ? H * 0.5 * (1 + Math.cos((Math.PI * d) / half)) : 0;
+    };
+  }
+  return { spec: sp, mu: sp.mu, ambientC: sp.ambientC ?? 25, height };
 }
 
 /** Engineering parameters a lab may change (defaults from spec/vehicle.ts). */
 export interface Params {
   finalDrive: number;
-  /** Multipliers on the eight gear ratios' spread (1 = as designed). */
-  gearScale: number;
   wheelRateFront: number;
   wheelRateRear: number;
   dampingFront: number;
   dampingRear: number;
   steeringRatio: number;
+  /** Total mass with the driver, kg, and the share of it on the front axle. */
   mass: number;
+  frontShare: number;
   cgHeight: number;
   biasFront: number;
   muScale: number;
@@ -111,13 +156,13 @@ export interface Params {
 export function defaultParams(): Params {
   return {
     finalDrive: GEARBOX.finalDrive,
-    gearScale: 1,
     wheelRateFront: SUSPENSION.wheelRateFront,
     wheelRateRear: SUSPENSION.wheelRateRear,
     dampingFront: SUSPENSION.dampingFront,
     dampingRear: SUSPENSION.dampingRear,
     steeringRatio: STEERING.ratio,
     mass: MASS.total,
+    frontShare: MASS.frontShare,
     cgHeight: MASS.cgHeight,
     biasFront: BRAKES.biasFront,
     muScale: 1,
@@ -132,8 +177,62 @@ export const WHEELS = [
   { x: BODY.xRear, z: BODY.trackRear / 2, front: false },
 ] as const;
 
+/**
+ * What a configuration implies for the body (derived from Params, recomputed when they change).
+ *
+ * Assumptions, stated: mass added or removed sits at the designed centre of mass unless the
+ * front share is changed; the unsprung masses stay as designed; the sprung mass's pitch, roll
+ * and yaw inertias scale with it (the same radii of gyration). The suspension's ride height is
+ * taken as set for the configured load (spring seats adjusted), so every configuration starts
+ * settled at the same height, with static tyre loads that sum to its weight.
+ */
+export interface CarConfig {
+  m: number;
+  /** Sprung mass, kg. */
+  ms: number;
+  /** Centre of mass: x (vehicle frame), height, distances to the front and rear axles. */
+  xCg: number;
+  hCg: number;
+  a: number;
+  b: number;
+  /** Static load on each tyre, N (sums to m·g). */
+  fzStatic: number[];
+  /** Wheel x relative to the centre of mass, m. */
+  xr: number[];
+  yawInertia: number;
+  pitchInertia: number;
+  rollInertia: number;
+}
+
+export function configOf(P: Params): CarConfig {
+  const m = P.mass;
+  const fs = P.frontShare;
+  const L = BODY.wheelbase;
+  const a = L * (1 - fs);
+  const b = L * fs;
+  const xCg = BODY.xFront - a;
+  const unsprung = 2 * MASS.unsprungFront + 2 * MASS.unsprungRear;
+  const ms = m - unsprung;
+  const k = ms / (MASS.total - unsprung);
+  return {
+    m,
+    ms,
+    xCg,
+    hCg: P.cgHeight,
+    a,
+    b,
+    fzStatic: WHEELS.map((w) => (m * G * (w.front ? fs : 1 - fs)) / 2),
+    xr: WHEELS.map((w) => w.x - xCg),
+    yawInertia: MASS.yawInertia * (m / MASS.total),
+    pitchInertia: MASS.pitchInertia * k,
+    rollInertia: MASS.rollInertia * k,
+  };
+}
+
 export interface CarState {
   t: number;
+  /** The selector position in effect (the driver's request, once the gearbox allows it). */
+  selector: Selector;
   engine: EngineMode;
   /** Crank angle (rad, kept within one 720° cycle) and speed (rad/s). */
   crank: number;
@@ -151,12 +250,14 @@ export interface CarState {
   /** Number of combustion events so far (for the first-fire moment). */
   fires: number;
   limiter: boolean;
+  /** The firing-pulse shape in use (it is re-derived when the conditions change): its inputs. */
+  ripple: { map: number; spark: number; comb: number[]; t: number } | null;
   // drivetrain
   gear: number;
   /** Gear being shifted to, and the shift's progress (0 … 1; 1 = done). */
   gearTarget: number;
   shift: number;
-  /** Ratio in use (blends during a shift). */
+  /** Ratio in use (moves from the old ratio to the new one in a shift's inertia phase). */
   ratio: number;
   lockup: number;
   /** Turbine speed (rad/s) and angles of the converter's members, the driveshaft and the diff. */
@@ -167,9 +268,14 @@ export interface CarState {
   driveshaftAngle: number;
   carrierAngle: number;
   spiderAngle: number;
+  /** The geartrain's eight shaft angles (geartrain.SHAFTS order) and each set's planet spin. */
+  gt: number[];
+  gtPlanet: number[];
   // wheels: spin angle (rad, forward rolling positive) and speed (rad/s)
   wheelAngle: number[];
   wheelOmega: number[];
+  /** Wheel speeds one step earlier (the ABS reads wheel deceleration from them). */
+  prevOmega: number[];
   /** Road-wheel steer angles, rad (positive left). */
   steerAngle: number[];
   steerWheel: number;
@@ -204,7 +310,10 @@ export interface CarState {
   // brakes
   linePa: number;
   caliperPa: number[];
+  /** ABS channels: phase, cycles counted this stop, hold timer (s). */
   absPhase: AbsPhase[];
+  absCount: number[];
+  absHold: number[];
   absCycles: number;
   rotorC: number[];
   brakePowerW: number;
@@ -226,8 +335,11 @@ export interface CarState {
   alternatorAmps: number;
   starterAmps: number;
   ecuPowered: boolean;
-  /** Integrated quantities for drawing flows (they advance with flow rate). */
-  phase: { air: number; fuel: number; exhaust: number; oil: number; coolant: number; bypass: number; power: number; signal: number; brake: number; heater: number };
+  /**
+   * Integrated quantities for drawing flows: each advances with its modelled rate (and stands
+   * still when the rate is zero), so a seek reconstructs the same picture.
+   */
+  phase: { air: number; fuel: number; exhaust: number; oil: number; coolant: number; bypass: number; power: number; signal: number; brake: number; heater: number; converter: number; radiatorAir: number; torque: number; refrigerant: number; cabinAir: number };
   // derived readouts
   engineTorque: number;
   wheelTorque: number;
@@ -249,8 +361,10 @@ function zeros(n: number) {
 }
 
 export function initialState(): CarState {
+  const cfg = configOf(defaultParams());
   return {
     t: 0,
+    selector: 'P',
     engine: 'off',
     crank: 0,
     omegaE: 0,
@@ -262,6 +376,7 @@ export function initialState(): CarState {
     combustion: zeros(4),
     fires: 0,
     limiter: false,
+    ripple: null,
     gear: 0,
     gearTarget: 0,
     shift: 1,
@@ -273,8 +388,11 @@ export function initialState(): CarState {
     driveshaftAngle: 0,
     carrierAngle: 0,
     spiderAngle: 0,
+    gt: zeros(8),
+    gtPlanet: zeros(4),
     wheelAngle: zeros(4),
     wheelOmega: zeros(4),
+    prevOmega: zeros(4),
     steerAngle: zeros(4),
     steerWheel: 0,
     u: 0,
@@ -294,7 +412,7 @@ export function initialState(): CarState {
     rollV: 0,
     wheelZ: zeros(4),
     wheelZV: zeros(4),
-    fz: WHEELS.map((wh) => (wh.front ? STATIC.frontAxle : STATIC.rearAxle) / 2),
+    fz: [...cfg.fzStatic],
     fx: zeros(4),
     fy: zeros(4),
     slip: zeros(4),
@@ -303,6 +421,8 @@ export function initialState(): CarState {
     linePa: 0,
     caliperPa: zeros(4),
     absPhase: ['off', 'off', 'off', 'off'],
+    absCount: zeros(4),
+    absHold: zeros(4),
     absCycles: 0,
     rotorC: [25, 25, 25, 25],
     brakePowerW: 0,
@@ -322,7 +442,7 @@ export function initialState(): CarState {
     alternatorAmps: 0,
     starterAmps: 0,
     ecuPowered: false,
-    phase: { air: 0, fuel: 0, exhaust: 0, oil: 0, coolant: 0, bypass: 0, power: 0, signal: 0, brake: 0, heater: 0 },
+    phase: { air: 0, fuel: 0, exhaust: 0, oil: 0, coolant: 0, bypass: 0, power: 0, signal: 0, brake: 0, heater: 0, converter: 0, radiatorAir: 0, torque: 0, refrigerant: 0, cabinAir: 0 },
     engineTorque: 0,
     wheelTorque: 0,
     fuelGs: 0,
@@ -337,7 +457,7 @@ export function initialState(): CarState {
 }
 
 export function defaultInputs(): Inputs {
-  return { ignition: false, start: false, throttle: 0, brakeN: 0, steer: 0, selector: 'P', heater: false, accessoriesAmps: 0 };
+  return { ignition: false, start: false, throttle: 0, brakeN: 0, steer: 0, selector: 'P', heater: false, accessoriesAmps: 0, manualGear: 0, lockup: false };
 }
 
 /** A deep copy (state objects hold only numbers, strings, booleans and arrays of them). */
@@ -345,23 +465,54 @@ export function cloneState(s: CarState): CarState {
   return structuredClone(s);
 }
 
+/** Why a selector position is not available now ('' when it is). */
+export function selectorRefusal(s: CarState, want: Selector): string {
+  const kmh = units.msToKmh(s.u);
+  if (want === s.selector) return '';
+  if (want === 'P' && Math.abs(kmh) > 3) return 'Park engages only when the car has stopped.';
+  if (want === 'R' && kmh > 5) return 'Reverse engages only below 5 km/h forward.';
+  if (want === 'D' && kmh < -5) return 'Drive engages only below 5 km/h in reverse.';
+  return '';
+}
+
+/**
+ * Everything a run needs to continue exactly: the state, the configuration, and the time not
+ * yet stepped. Plain data (the driver script is reattached by whoever owns it, by its id).
+ */
+export interface CarSnapshot {
+  state: CarState;
+  inputs: Inputs;
+  params: Params;
+  faults: Faults;
+  road: RoadSpec;
+  programId: string | null;
+  programT0: number;
+  acc: number;
+}
+
 const RW = TIRE.rollingRadius;
 /** Inertia of the turbine, gearbox internals and driveshaft (at the turbine), kg·m². */
 const DRIVE_INERTIA = 0.09;
 const ENGINE_OFF_DECAY = 6;
+const TWO_PI = 2 * Math.PI;
+const wrapBig = (a: number) => (a > 1e4 || a < -1e4 ? a % TWO_PI : a);
 
 export class Car {
   s: CarState;
   prev: CarState;
   inputs: Inputs = defaultInputs();
   faults: Faults = { ...NO_FAULTS };
-  road: Road = { mu: TIRE.muDry };
-  params: Params = defaultParams();
+  road: Road = makeRoad();
+  private _params: Params = defaultParams();
+  /** Derived from the parameters (recomputed when they are set). */
+  config: CarConfig = configOf(this._params);
   /**
    * A scripted driver: called before every fixed step with the time since the script started
    * (s of simulated time), so the same script gives the same motion however time is stepped.
    */
   program: ((t: number, inputs: Inputs, s: CarState) => void) | null = null;
+  /** The id of the run the program belongs to (for snapshots and telemetry). */
+  programId: string | null = null;
   programT0 = 0;
   /** Accumulated simulated time not yet stepped. */
   private acc = 0;
@@ -370,34 +521,63 @@ export class Car {
   private elec = new Electrical();
   private abs = [new AbsChannel(), new AbsChannel(), new AbsChannel(), new AbsChannel()];
   private ripple: ((theta: number) => number) | null = null;
-  private rippleKey = '';
-  private lastRippleT = -1;
-  private crankSpeedHist: number[] = [];
+  private gts: GeartrainSpeeds = { shaft: zeros(8), planet: zeros(4), slip: { A: 0, B: 0, C: 0, D: 0, E: 0 } };
 
   constructor(state?: CarState) {
     this.s = state ? cloneState(state) : initialState();
     this.prev = cloneState(this.s);
-    this.syncSystems();
+    this.syncHelpers();
   }
 
-  /** Restore an exact state (a lesson's starting point, or a seek). */
+  get params(): Params {
+    return this._params;
+  }
+  /** Setting the parameters re-derives the configuration (static loads, centre of mass, inertias). */
+  set params(p: Params) {
+    this._params = p;
+    this.config = configOf(p);
+  }
+
+  /** Restore an exact state (a lesson's starting point, or a seek). The configuration is kept. */
   restore(state: CarState) {
     this.s = cloneState(state);
     this.prev = cloneState(this.s);
     this.acc = 0;
-    this.ripple = null;
-    this.rippleKey = '';
-    this.lastRippleT = -1;
-    this.crankSpeedHist = [];
-    for (const a of this.abs) a.reset();
-    this.syncSystems();
+    this.syncHelpers();
   }
 
   snapshot(): CarState {
     return cloneState(this.s);
   }
 
-  private syncSystems() {
+  /** The whole run as data. */
+  save(): CarSnapshot {
+    return {
+      state: cloneState(this.s),
+      inputs: { ...this.inputs },
+      params: { ...this._params },
+      faults: { ...this.faults },
+      road: { ...this.road.spec },
+      programId: this.programId,
+      programT0: this.programT0,
+      acc: this.acc,
+    };
+  }
+
+  /** Load a saved run; its driver script is reattached by the caller (`program`, by `programId`). */
+  load(snap: CarSnapshot) {
+    this.params = { ...snap.params };
+    this.faults = { ...snap.faults };
+    this.road = makeRoad(snap.road);
+    this.inputs = { ...snap.inputs };
+    this.programId = snap.programId;
+    this.programT0 = snap.programT0;
+    this.restore(snap.state);
+    this.acc = snap.acc;
+  }
+
+  /** The helper models read their memory from the state (they keep none of their own between steps). */
+  private syncHelpers() {
     const s = this.s;
     this.cooling.coolantC = s.coolantC;
     this.cooling.thermostat = s.thermostat;
@@ -406,13 +586,16 @@ export class Car {
     this.oil.pressureBar = s.oilBar;
     this.elec.soc = s.soc;
     this.elec.volts = s.volts;
+    for (let i = 0; i < 4; i++) this.abs[i].load(s.absPhase[i], s.caliperPa[i], s.absCount[i], s.absHold[i]);
+    this.ripple = s.ripple ? torqueRipple(s.ripple.map, s.ripple.spark, s.ripple.comb, 1) : null;
   }
 
   /**
    * Advance simulated time by `dt` seconds in fixed steps. Returns the interpolation factor
-   * (0 … 1) between `prev` and `s` for drawing.
+   * (0 … 1) between `prev` and `s` for drawing. At most `maxSteps` steps run in one call (the
+   * rest of the time is dropped, not owed): a stalled frame never makes the car race to catch up.
    */
-  advance(dt: number): number {
+  advance(dt: number, maxSteps = 250): number {
     this.acc += Math.max(0, dt);
     let n = 0;
     while (this.acc >= STEP - 1e-12) {
@@ -420,9 +603,8 @@ export class Car {
       this.step();
       this.acc -= STEP;
       n++;
-      // a long stall (a hidden tab) never runs more than half a second of simulation at once
-      if (n > 500) {
-        this.acc = 0;
+      if (n >= maxSteps) {
+        this.acc = Math.min(this.acc, STEP * 0.999);
         break;
       }
     }
@@ -433,13 +615,12 @@ export class Car {
    * Step until simulated time reaches `t` (absolute), keeping the last two states for drawing.
    * Returns the interpolation factor (0 … 1) for the remainder.
    */
-  advanceTo(t: number): number {
+  advanceTo(t: number, maxSteps = 20000): number {
     let n = 0;
     while (this.s.t + STEP <= t + 1e-9) {
       this.copyPrev();
       this.step();
-      // a seek is done with runTo; per frame the gap is small, but never stall the page
-      if (++n > 20000) break;
+      if (++n >= maxSteps) break;
     }
     this.acc = 0;
     return Math.max(0, Math.min(1, (t - this.s.t) / STEP));
@@ -466,7 +647,9 @@ export class Car {
     p.driveshaftAngle = s.driveshaftAngle;
     p.carrierAngle = s.carrierAngle;
     p.spiderAngle = s.spiderAngle;
+    for (let i = 0; i < 8; i++) p.gt[i] = s.gt[i];
     for (let i = 0; i < 4; i++) {
+      p.gtPlanet[i] = s.gtPlanet[i];
       p.wheelAngle[i] = s.wheelAngle[i];
       p.wheelZ[i] = s.wheelZ[i];
       p.steerAngle[i] = s.steerAngle[i];
@@ -489,12 +672,16 @@ export class Car {
     if (this.program) this.program(s.t - this.programT0, this.inputs, s);
     const inp = this.inputs;
     const f = this.faults;
-    const P = this.params;
+    const P = this._params;
+    const cfg = this.config;
     s.t += h;
 
+    // ── the selector: the driver's request, once the gearbox allows it
+    if (inp.selector !== s.selector && !selectorRefusal(s, inp.selector)) s.selector = inp.selector;
+    const sel = s.selector;
+
     // ── electrical first: the starter and the ECU need volts
-    const cranking = inp.ignition && inp.start && s.engine !== 'running' && (inp.selector === 'P' || inp.selector === 'N');
-    if (f.weakBattery) this.elec.setWeak(true);
+    const cranking = inp.ignition && inp.start && s.engine !== 'running' && (sel === 'P' || sel === 'N');
     const accessories = inp.accessoriesAmps + (this.cooling.fanOn ? 22 : 0) + Math.abs(inp.steer) * 6;
     this.elec.step(h, inp.ignition, cranking, units.radToRpm(s.omegaE), accessories, f);
     s.soc = this.elec.soc;
@@ -541,17 +728,19 @@ export class Car {
     const spark = sparkPhase(Math.min(1, (s.map - 0.25e5) / 0.75e5), rpm);
     const meanIndicated = share > 0 ? indicatedTorque(Math.max(rpm, 300), s.map, 1) * share : 0;
     const friction = frictionTorque(rpm, this.oil.oilC) * (f.wornBearings ? 1.08 : 1);
-    // instantaneous gas torque at low speed (firing pulses, a misfire's dip), the mean above
+    // instantaneous gas torque at low speed (firing pulses, a misfire's dip), the mean above;
+    // the pulse shape is re-derived when the conditions change or a quarter second has passed,
+    // and what it was derived from is part of the state (so a restored run matches)
     let gas = meanIndicated;
     if (rpm < 2500 && share > 0) {
-      const key = `${Math.round(s.map / 2000)}|${Math.round(spark)}|${s.combustion.join('')}`;
-      if (key !== this.rippleKey || !this.ripple || s.t - this.lastRippleT > 0.25) {
+      const rp = s.ripple;
+      const stale = !rp || !this.ripple || Math.round(rp.map / 2000) !== Math.round(s.map / 2000) || Math.round(rp.spark) !== Math.round(spark) || rp.comb.some((c, i) => c !== s.combustion[i]) || s.t - rp.t > 0.25;
+      if (stale) {
+        s.ripple = { map: s.map, spark, comb: [...s.combustion], t: s.t };
         this.ripple = torqueRipple(s.map, spark, s.combustion, 1);
-        this.rippleKey = key;
-        this.lastRippleT = s.t;
       }
       const k = Math.max(0, 1 - Math.max(0, rpm - 1500) / 1000);
-      gas = meanIndicated * (1 - k + k * this.ripple(s.crank));
+      gas = meanIndicated * (1 - k + k * this.ripple!(s.crank));
     }
     // starter: a torque that falls to zero at the cranking speed the battery can reach
     const crankRpm = this.elec.crankingRpm();
@@ -560,7 +749,6 @@ export class Car {
     const alt = s.alternatorAmps > 0 && s.omegaE > 1 ? (s.alternatorAmps * s.volts) / 0.55 / s.omegaE : 0;
 
     // ── converter, lock-up, gearbox
-    const sel = inp.selector;
     const inGear = sel === 'D' || sel === 'R';
     if (sel === 'D' && s.gear <= 0) {
       s.gear = 1;
@@ -577,9 +765,13 @@ export class Car {
       s.gearTarget = 0;
       s.shift = 1;
     }
-    // automatic shifting (from the turbine's speed, with hysteresis)
+    // automatic shifting (from the turbine's speed, with hysteresis), or the gear the driver holds
     const turbRpm = units.radToRpm(Math.abs(s.omegaT));
-    if (sel === 'D' && s.shift >= 1) {
+    const held = sel === 'D' && inp.manualGear >= 1 ? Math.min(8, Math.round(inp.manualGear)) : 0;
+    if (held && s.shift >= 1 && s.gear !== held) {
+      s.gearTarget = s.gear + Math.sign(held - s.gear);
+      s.shift = 0;
+    } else if (sel === 'D' && !held && s.shift >= 1) {
       const up = upshiftRpm(inp.throttle);
       const down = downshiftRpm(inp.throttle);
       if (s.gear < 8 && turbRpm > up && s.u > 1) {
@@ -597,14 +789,14 @@ export class Car {
       s.shift = Math.min(1, s.shift + h / GEARBOX.shiftTime);
       if (s.shift >= 1) s.gear = s.gearTarget;
     }
-    const scale = (g: number) => (g > 1 ? 1 + (gearRatio(g) - 1) * P.gearScale : gearRatio(g));
-    const r0 = inGear ? scale(s.gear) : 0;
-    const r1 = inGear ? scale(s.gearTarget) : 0;
+    // the inertia phase: the input speed moves from the old ratio to the new one
+    const r0 = inGear ? gearRatio(s.gear) : 0;
+    const r1 = inGear ? gearRatio(s.gearTarget) : 0;
     const u2 = s.shift * s.shift * (3 - 2 * s.shift);
     s.ratio = r0 + (r1 - r0) * u2;
     const fd = P.finalDrive;
     // lock-up clutch: from 3rd gear, above the lock-up speed, not under hard throttle from low speed
-    const wantLock = sel === 'D' && s.gear >= 3 && s.shift >= 1 && units.msToKmh(s.u) > CONVERTER.lockupKmh && !(inp.throttle > 0.85 && s.gear <= 4) && inp.brakeN < 300;
+    const wantLock = (sel === 'D' && s.gear >= 3 && s.shift >= 1 && units.msToKmh(s.u) > CONVERTER.lockupKmh && !(inp.throttle > 0.85 && s.gear <= 4) && inp.brakeN < 300) || (inp.lockup && inGear && s.shift >= 1 && Math.abs(s.u) > 3);
     s.lockup += ((wantLock ? 1 : 0) - s.lockup) * Math.min(1, h * (wantLock ? 2.2 : 8));
 
     // ── rear axle carrier speed and the turbine (kinematically tied through the gearbox)
@@ -637,7 +829,7 @@ export class Car {
       if (s.omegaE < 0) s.omegaE = 0;
     }
     if (s.engine === 'cranking') {
-      s.crankRevs += (s.omegaE * h) / (2 * Math.PI);
+      s.crankRevs += (s.omegaE * h) / TWO_PI;
       if (rpm > 480 && s.fires > 3) {
         s.engine = 'running';
         s.sinceStart = 0;
@@ -667,9 +859,10 @@ export class Car {
     s.wheelTorque = ringTorque;
     const reflected = DRIVE_INERTIA * Math.pow(s.ratio * fd, 2);
 
-    // ── steering (Ackermann)
-    s.steerWheel = inp.steer;
-    const delta = inp.steer / P.steeringRatio;
+    // ── steering (Ackermann), within the rack's travel
+    const maxWheel = STEERING.maxWheelAngle;
+    s.steerWheel = Math.max(-maxWheel * P.steeringRatio, Math.min(maxWheel * P.steeringRatio, inp.steer));
+    const delta = s.steerWheel / P.steeringRatio;
     const L = BODY.wheelbase;
     if (Math.abs(delta) > 1e-5) {
       const R = L / Math.tan(Math.abs(delta));
@@ -689,28 +882,32 @@ export class Car {
     const kmh = units.msToKmh(Math.abs(s.u));
     let brakePower = 0;
     const brakeT: number[] = [0, 0, 0, 0];
+    let cycles = 0;
     for (let i = 0; i < 4; i++) {
       const wh = WHEELS[i];
       const line = wh.front ? s.linePa : s.linePa * rearK;
-      const slip = s.slip[i];
-      const decel = -(s.wheelOmega[i] - this.prevOmega[i]) / h;
-      this.abs[i].step(h, line, slip, decel, kmh, !f.absDisabled);
-      s.caliperPa[i] = this.abs[i].pressure;
-      s.absPhase[i] = this.abs[i].phase;
+      const decel = -(s.wheelOmega[i] - s.prevOmega[i]) / h;
+      const ch = this.abs[i];
+      ch.step(h, line, s.slip[i], decel, kmh, !f.absDisabled);
+      s.caliperPa[i] = ch.pressure;
+      s.absPhase[i] = ch.phase;
+      s.absCount[i] = ch.cycles;
+      s.absHold[i] = ch.holdT;
+      cycles += ch.cycles;
       const mu = padMu(s.rotorC[i] + (f.fadeProne ? 120 : 0), f.fadeProne ? 1.3 : 1);
       brakeT[i] = brakeTorque(wh.front, s.caliperPa[i], mu);
       brakePower += brakeT[i] * Math.abs(s.wheelOmega[i]);
     }
-    s.absCycles = this.abs.reduce((a, c) => a + c.cycles, 0);
+    s.absCycles = cycles;
     s.brakePowerW = brakePower;
     for (let i = 0; i < 4; i++) {
       const wh = WHEELS[i];
       const cap = wh.front ? BRAKES.rotorHeatCapFront : BRAKES.rotorHeatCapRear;
       const q = brakeT[i] * Math.abs(s.wheelOmega[i]) * 0.9;
-      const cool = (8 + 1.6 * Math.abs(s.u)) * (s.rotorC[i] - (this.road.ambientC ?? 25));
+      const cool = (8 + 1.6 * Math.abs(s.u)) * (s.rotorC[i] - this.road.ambientC);
       s.rotorC[i] += ((q - cool) / cap) * h;
     }
-    for (let i = 0; i < 4; i++) this.prevOmega[i] = s.wheelOmega[i];
+    for (let i = 0; i < 4; i++) s.prevOmega[i] = s.wheelOmega[i];
 
     // ── tyres: slip, loads (from the ride model), forces
     const mu = this.road.mu * P.muScale;
@@ -718,8 +915,9 @@ export class Car {
     const fys = [0, 0, 0, 0];
     for (let i = 0; i < 4; i++) {
       const wh = WHEELS[i];
+      const xr = cfg.xr[i];
       const vx = s.u + s.r * wh.z;
-      const vz = s.w - s.r * wh.x;
+      const vz = s.w - s.r * xr;
       const d = s.steerAngle[i];
       const cd = Math.cos(d);
       const sd = Math.sin(d);
@@ -734,7 +932,7 @@ export class Car {
       // near standstill the slip formulation is stiff: damp the force toward rest
       const low = Math.min(1, speed / 0.6);
       let fl = tf.fx;
-      let ft = tf.fy * low;
+      const ft = tf.fy * low;
       if (speed < 0.6 && Math.abs(s.wheelOmega[i] * RW - vl) < 0.05) fl *= low;
       s.slip[i] = kappa;
       s.slipAngle[i] = alpha;
@@ -782,43 +980,46 @@ export class Car {
       const target = ((s.wheelOmega[2] + s.wheelOmega[3]) / 2) * fd * s.ratio;
       s.omegaE += (target - s.omegaE) * Math.min(1, h * 40 * s.lockup);
     }
-    for (let i = 0; i < 4; i++) {
-      s.wheelAngle[i] += s.wheelOmega[i] * h;
-      if (s.wheelAngle[i] > 1e4 || s.wheelAngle[i] < -1e4) s.wheelAngle[i] %= 2 * Math.PI;
-    }
+    for (let i = 0; i < 4; i++) s.wheelAngle[i] = wrapBig(s.wheelAngle[i] + s.wheelOmega[i] * h);
+
+    // ── the geartrain: every shaft from the applied elements, the input and the output speeds
     const wcNow = (s.wheelOmega[2] + s.wheelOmega[3]) / 2;
-    s.turbineAngle += (inGear ? wcNow * fd * s.ratio : s.omegaT) * h;
+    const wOut = wcNow * fd;
+    const wIn = inGear ? wOut * s.ratio : s.omegaT;
+    const ap = appliedElements(s.gear, s.gearTarget, s.shift, sel);
+    geartrainSpeeds(ap.engaged, wIn, wOut, this.gts);
+    for (let i = 0; i < 8; i++) s.gt[i] = wrapBig(s.gt[i] + this.gts.shaft[i] * h);
+    for (let i = 0; i < 4; i++) s.gtPlanet[i] = wrapBig(s.gtPlanet[i] + this.gts.planet[i] * h);
+    s.turbineAngle = s.gt[0];
+    s.driveshaftAngle = s.gt[7];
     {
       const imp = s.omegaE;
       const held = imp > 1 && statorHeld(Math.max(0, s.omegaT) / imp) && s.lockup < 0.5;
-      s.statorAngle += (held ? 0 : s.omegaT * 0.92) * h;
-      if (Math.abs(s.statorAngle) > 1e4) s.statorAngle %= 2 * Math.PI;
+      s.statorAngle = wrapBig(s.statorAngle + (held ? 0 : s.omegaT * 0.92) * h);
     }
-    s.driveshaftAngle += wcNow * fd * h;
-    s.carrierAngle += wcNow * h;
+    s.carrierAngle = wrapBig(s.carrierAngle + wcNow * h);
     const dsp = ((s.wheelOmega[2] - s.wheelOmega[3]) / 2) * (DIFF.sideTeeth / DIFF.spiderTeeth);
-    s.spiderAngle += dsp * h;
-    for (const k of ['turbineAngle', 'driveshaftAngle', 'carrierAngle', 'spiderAngle'] as const) if (Math.abs(s[k]) > 1e4) s[k] %= 2 * Math.PI;
+    s.spiderAngle = wrapBig(s.spiderAngle + dsp * h);
 
-    // ── body: longitudinal, lateral, yaw (car frame)
-    const m = P.mass;
+    // ── body: longitudinal, lateral, yaw (car frame, about the centre of mass)
+    const m = cfg.m;
     const drag = 0.5 * AIR_DENSITY * BODY.dragCoefficient * BODY.frontalArea * s.u * Math.abs(s.u);
     const rollRes = TIRE.rollingResistance * m * G * Math.tanh(s.u * 2);
     const Fx = fxs[0] + fxs[1] + fxs[2] + fxs[3] - drag - rollRes;
     const Fz = fys[0] + fys[1] + fys[2] + fys[3];
     let Mz = 0;
-    for (let i = 0; i < 4; i++) Mz += WHEELS[i].z * fxs[i] - WHEELS[i].x * fys[i];
+    for (let i = 0; i < 4; i++) Mz += WHEELS[i].z * fxs[i] - cfg.xr[i] * fys[i];
     const ax = Fx / m;
     const azl = Fz / m;
     s.u += (ax - s.r * s.w) * h;
     s.w += (azl + s.r * s.u) * h;
-    s.r += (Mz / MASS.yawInertia) * h;
+    s.r += (Mz / cfg.yawInertia) * h;
     // at walking pace and below, the tyres' slip model gives way to rolling without sliding
     if (Math.abs(s.u) < 1.2) {
       const k = 1 - Math.abs(s.u) / 1.2;
       const rKin = (s.u * Math.tan((s.steerAngle[0] + s.steerAngle[1]) / 2)) / L;
       s.r += (rKin - s.r) * Math.min(1, h * 30 * k);
-      s.w += (rKin * STATIC.b - s.w) * Math.min(1, h * 30 * k);
+      s.w += (rKin * cfg.b - s.w) * Math.min(1, h * 30 * k);
     }
     if (Math.abs(s.u) < 0.02 && Math.abs(ax) < 0.05 && brakeT.some((b) => b > 0)) {
       s.u = 0;
@@ -851,12 +1052,12 @@ export class Car {
     const airKgS = rpm > 30 ? airMassFlow(rpm, s.map) : 0;
     s.fuelGs = fuelKgS * 1000;
     s.airGs = airKgS * 1000;
-    this.cooling.step(h, rpm, fuelKgS * FUEL_LHV, Math.abs(s.u), { thermostatStuckClosed: f.thermostatStuckClosed, fanFailed: f.fanFailed, lowCoolant: f.lowCoolant }, inp.heater);
+    this.cooling.step(h, rpm, fuelKgS * FUEL_LHV, Math.abs(s.u), { thermostatStuckClosed: f.thermostatStuckClosed, fanFailed: f.fanFailed, lowCoolant: f.lowCoolant }, inp.heater, this.road.ambientC);
     s.coolantC = this.cooling.coolantC;
     s.thermostat = this.cooling.thermostat;
     s.fanOn = this.cooling.fanOn;
     s.fanSpeed += ((s.fanOn ? 220 : 0) - s.fanSpeed) * Math.min(1, h * (s.fanOn ? 1.5 : 0.6));
-    s.fanAngle = (s.fanAngle + s.fanSpeed * h) % (2 * Math.PI);
+    s.fanAngle = (s.fanAngle + s.fanSpeed * h) % TWO_PI;
     s.radiatorFlow = this.cooling.radiatorFlow;
     s.bypassFlow = this.cooling.bypassFlow;
     this.oil.step(h, rpm, s.coolantC, ax / G + 0.6 * (azl / G), { lowLevel: f.lowOil, wornBearings: f.wornBearings }, s.t);
@@ -866,23 +1067,29 @@ export class Car {
     // closed-loop fuel: the oxygen sensor sees a lean exhaust when a cylinder does not burn its
     // charge (its oxygen passes through); the ECU's trim oscillates around lambda 1 otherwise
     const misfiring = f.misfireCyl >= 0 && fuelling;
-    s.lambda = misfiring ? 1.25 : 1 + 0.015 * Math.sin(s.t * 2 * Math.PI * 1.2);
-    s.fuelTrim += ((misfiring ? 18 : 2.5 * Math.sin(s.t * 2 * Math.PI * 1.2)) - s.fuelTrim) * Math.min(1, h * 2);
-    // crank speed variation (how the ECU detects misfire)
-    this.crankSpeedHist.push(s.omegaE);
-    if (this.crankSpeedHist.length > 60) this.crankSpeedHist.shift();
-    // flows advance with their rates (drawn as moving particles)
+    s.lambda = misfiring ? 1.25 : 1 + 0.015 * Math.sin(s.t * TWO_PI * 1.2);
+    s.fuelTrim += ((misfiring ? 18 : 2.5 * Math.sin(s.t * TWO_PI * 1.2)) - s.fuelTrim) * Math.min(1, h * 2);
+    // flows advance with their modelled rates (drawn as moving particles; still when zero)
     const ph = s.phase;
     ph.air += (airKgS / 0.08) * h;
     ph.fuel += (fuelKgS / 0.006) * h;
     ph.exhaust += ((airKgS + fuelKgS) / 0.06) * h;
     ph.oil += (this.oil.flow / 50) * h;
-    ph.coolant += (s.radiatorFlow * this.cooling.pumpFlow / 120) * h;
-    ph.bypass += (s.bypassFlow * this.cooling.pumpFlow / 120) * h;
+    ph.coolant += ((s.radiatorFlow * this.cooling.pumpFlow) / 120) * h;
+    ph.bypass += ((s.bypassFlow * this.cooling.pumpFlow) / 120) * h;
     ph.heater += (inp.heater ? this.cooling.pumpFlow / 160 : 0) * h;
-    ph.power += (Math.abs(s.batteryAmps) + s.alternatorAmps) / 120 * h;
+    ph.power += ((Math.abs(s.batteryAmps) + s.alternatorAmps) / 120) * h;
     ph.signal += (s.ecuPowered ? 1 : 0) * h;
     ph.brake += (s.linePa / 8e6) * h;
+    // the converter's fluid circulates as fast as the impeller outruns the turbine
+    ph.converter += Math.min(3, Math.abs(s.omegaE - s.omegaT) / 60) * h;
+    // air through the radiator: ram air with road speed, plus the fans
+    ph.radiatorAir += (Math.abs(s.u) * 0.08 + s.fanSpeed / 220 * 0.6) * h;
+    // torque chevrons move with the power being carried
+    ph.torque += Math.min(2.5, (Math.abs(s.wheelTorque) * Math.abs(wcNow) + Math.max(0, s.engineTorque) * s.omegaE * (inGear ? 0 : 0.2)) / 40000) * h;
+    // illustrative (no model of the air conditioning or the blower): steady while they would run
+    ph.refrigerant += (s.engine === 'running' ? 0.25 : 0) * h;
+    ph.cabinAir += (inp.ignition ? 0.5 : 0) * h;
     for (const k of Object.keys(ph) as (keyof typeof ph)[]) if (ph[k] > 1e4) ph[k] %= 1;
     // warnings
     s.warnings.engine = s.misfireCount > 3 && f.misfireCyl >= 0;
@@ -893,14 +1100,11 @@ export class Car {
     s.warnings.brake = s.rotorC.some((c) => c > 550);
   }
 
-  private prevOmega = [0, 0, 0, 0];
-
   /** Heave, pitch, roll and the four wheels on their springs and tyres. */
   private ride(h: number, ax: number, azl: number) {
     const s = this.s;
-    const P = this.params;
-    const ms = P.mass - 2 * MASS.unsprungFront - 2 * MASS.unsprungRear;
-    const hcg = P.cgHeight;
+    const P = this._params;
+    const cfg = this.config;
     const road = this.road.height;
     const Fsus = [0, 0, 0, 0];
     const dis = [0, 0, 0, 0];
@@ -931,18 +1135,18 @@ export class Car {
     };
     arb(0, 1, SUSPENSION.antiRollFront, BODY.trackFront);
     arb(2, 3, SUSPENSION.antiRollRear, BODY.trackRear);
-    // body
+    // body: moments about the centre of mass
     let Fz = 0;
-    let Mp = P.mass * ax * hcg;
-    let Mr = -P.mass * azl * (hcg - 0.09);
+    let Mp = cfg.m * ax * cfg.hCg;
+    let Mr = -cfg.m * azl * (cfg.hCg - 0.09);
     for (let i = 0; i < 4; i++) {
       Fz += Fsus[i];
-      Mp += WHEELS[i].x * Fsus[i];
+      Mp += cfg.xr[i] * Fsus[i];
       Mr += -WHEELS[i].z * Fsus[i];
     }
-    s.heaveV += (Fz / ms) * h;
-    s.pitchV += (Mp / MASS.pitchInertia) * h;
-    s.rollV += (Mr / MASS.rollInertia) * h;
+    s.heaveV += (Fz / cfg.ms) * h;
+    s.pitchV += (Mp / cfg.pitchInertia) * h;
+    s.rollV += (Mr / cfg.rollInertia) * h;
     s.heave += s.heaveV * h;
     s.pitch += s.pitchV * h;
     s.roll += s.rollV * h;
@@ -952,7 +1156,7 @@ export class Car {
       const mu = wh.front ? MASS.unsprungFront : MASS.unsprungRear;
       const side: -1 | 1 = wh.z < 0 ? -1 : 1;
       const zr = road ? road(s.s + wh.x, side) : 0;
-      const fz0 = (wh.front ? STATIC.frontAxle : STATIC.rearAxle) / 2;
+      const fz0 = cfg.fzStatic[i];
       // tyre: a spring that can only push (the wheel may leave the road)
       const comp = zr - s.wheelZ[i];
       const Ft = Math.max(-fz0, TIRE.verticalStiffness * comp + 350 * (0 - s.wheelZV[i]) * (comp > -fz0 / TIRE.verticalStiffness ? 1 : 0));
@@ -969,17 +1173,14 @@ export class Car {
   get kmh(): number {
     return units.msToKmh(this.s.u);
   }
-  /** Engaged shift elements (both sets during a shift). */
+  /** Applied shift elements (the shared ones during a shift, with the one applying and the one releasing). */
   elements(): { engaged: Element[]; applying: Element | null; releasing: Element | null } {
     const s = this.s;
-    const key = (g: number) => (g === -1 ? 'R' : g === 0 ? (this.inputs.selector === 'P' ? 'P' : 'N') : String(g));
-    const a = SHIFT_TABLE[key(s.gear)] ?? [];
-    const b = SHIFT_TABLE[key(s.gearTarget)] ?? [];
-    if (s.shift >= 1 || s.gear === s.gearTarget) return { engaged: [...a], applying: null, releasing: null };
-    const applying = b.find((e) => !a.includes(e)) ?? null;
-    const releasing = a.find((e) => !b.includes(e)) ?? null;
-    const engaged = ELEMENTS.filter((e) => a.includes(e) && b.includes(e));
-    return { engaged, applying, releasing };
+    return appliedElements(s.gear, s.gearTarget, s.shift, s.selector);
+  }
+  /** The geartrain's speeds this step (shafts, planets, element slip), rad/s. */
+  get geartrain(): GeartrainSpeeds {
+    return this.gts;
   }
   get statorLocked(): boolean {
     const imp = this.s.omegaE;
@@ -994,10 +1195,10 @@ export class Car {
 
 /** A warm engine idling in Park. */
 export function presetIdle(): CarState {
-  const c = new Car();
-  const s = c.s;
+  const s = initialState();
   s.engine = 'running';
   s.omegaE = units.rpmToRad(ENGINE.idleRpm);
+  s.omegaT = s.omegaE * 0.95;
   s.sinceStart = 30;
   s.coolantC = 90;
   s.oilC = 92;
@@ -1007,7 +1208,7 @@ export function presetIdle(): CarState {
   s.soc = 0.9;
   s.ecuPowered = true;
   s.throttleEff = 0.035;
-  return cloneState(s);
+  return s;
 }
 
 /** Cruising in a gear at a steady speed (converter locked from 3rd), engine warm. */
@@ -1025,12 +1226,14 @@ export function presetCruise(kmh: number, gear?: number, params: Params = defaul
       }
     }
   }
+  s.selector = 'D';
   s.gear = g;
   s.gearTarget = g;
   s.shift = 1;
   s.ratio = gearRatio(g);
   s.u = v;
   s.wheelOmega = [wheel, wheel, wheel, wheel];
+  s.prevOmega = [wheel, wheel, wheel, wheel];
   s.omegaT = wheel * params.finalDrive * s.ratio;
   s.lockup = g >= 3 && kmh > CONVERTER.lockupKmh ? 1 : 0;
   s.omegaE = s.lockup ? s.omegaT : Math.max(s.omegaT * 1.05, units.rpmToRad(ENGINE.idleRpm));

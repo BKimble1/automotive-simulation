@@ -1,9 +1,19 @@
 /**
- * A small line chart (SVG): the current run bold, earlier runs faint behind it, an optional
- * reference curve dashed. Axes get round-number ticks. Colours come from the visual language;
- * each series is also named in the legend, so colour is never the only key.
+ * A small line chart (SVG): the active run bold, the other runs (the baseline and up to two
+ * comparisons) fainter, each with its own dash pattern and named in the legend, so neither
+ * colour nor weight is the only key. An optional reference curve is dotted. Axes get
+ * round-number ticks.
  */
 import type { Sample } from '../content/labs';
+
+export interface ChartRun {
+  id: number;
+  label: string;
+  samples: Sample[];
+}
+
+/** Dash patterns for runs other than the active one (by their place in the list). */
+const DASH = ['', '6 3', '2 3', '9 3 2 3'];
 
 export interface ChartSpec {
   x: string;
@@ -27,10 +37,11 @@ function ticks(lo: number, hi: number, n = 5): number[] {
 
 const fmt = (v: number) => (Math.abs(v) >= 1000 ? v.toLocaleString('en-GB') : Number.isInteger(v) ? String(v) : v.toFixed(Math.abs(v) < 1 ? 2 : 1));
 
-export function Chart({ spec, runs, height = 170 }: { spec: ChartSpec; runs: Sample[][]; height?: number }) {
+export function Chart({ spec, runs: list, active, height = 170, onPick }: { spec: ChartSpec; runs: ChartRun[]; active: number; height?: number; onPick?: (id: number) => void }) {
   const W = 320;
   const H = height;
   const m = { l: 40, r: 10, t: 10, b: 30 };
+  const runs = list.map((r) => r.samples);
   const all = runs.flat();
   if (!all.length) return <div className="chart chart--empty">Run the lab to see the result.</div>;
   const xs = all.map((s) => s[spec.x]);
@@ -69,11 +80,14 @@ export function Chart({ spec, runs, height = 170 }: { spec: ChartSpec; runs: Sam
         ))}
         <line x1={m.l} x2={W - m.r} y1={Y(y0)} y2={Y(y0)} className="chart__axis" />
         {refPts.length > 0 && <path d={path(refPts)} className="chart__ref" />}
-        {runs.map((run, ri) =>
-          spec.series.map((se) => (
-            <path key={`${ri}-${se.key}`} d={path(run.map((s) => [s[spec.x], s[se.key]]))} stroke={se.color} className={ri === runs.length - 1 ? 'chart__line' : 'chart__line chart__line--old'} />
-          )),
+        {list.map((run, ri) =>
+          run.id === active
+            ? null
+            : spec.series.map((se) => <path key={`${run.id}-${se.key}`} d={path(run.samples.map((s) => [s[spec.x], s[se.key]]))} stroke={se.color} strokeDasharray={DASH[ri % DASH.length] || '6 3'} className="chart__line chart__line--old" />),
         )}
+        {list
+          .filter((r) => r.id === active)
+          .map((run) => spec.series.map((se) => <path key={`${run.id}-${se.key}`} d={path(run.samples.map((s) => [s[spec.x], s[se.key]]))} stroke={se.color} className="chart__line" />))}
         <text x={W - m.r} y={H - 4} textAnchor="end" className="chart__label">
           {spec.xLabel}
         </text>
@@ -92,8 +106,19 @@ export function Chart({ spec, runs, height = 170 }: { spec: ChartSpec; runs: Sam
             {spec.referenceLabel}
           </span>
         )}
-        {runs.length > 1 && <span className="chart__old">Faint: earlier runs</span>}
       </figcaption>
+      {list.length > 1 && (
+        <div className="chart__runs" role="group" aria-label="Runs on the chart">
+          {list.map((r, ri) => (
+            <button key={r.id} className="chart__run" aria-pressed={r.id === active} onClick={() => onPick?.(r.id)}>
+              <svg width="22" height="8" aria-hidden="true">
+                <line x1="1" x2="21" y1="4" y2="4" stroke="currentColor" strokeWidth={r.id === active ? 2.4 : 1.4} strokeDasharray={r.id === active ? '' : DASH[ri % DASH.length] || '6 3'} />
+              </svg>
+              {r.label}
+            </button>
+          ))}
+        </div>
+      )}
     </figure>
   );
 }

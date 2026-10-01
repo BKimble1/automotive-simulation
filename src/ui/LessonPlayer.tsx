@@ -18,21 +18,22 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
   const [menu, setMenu] = useState(false);
   const chapters = p.beats.map((b, i) => ({ ...b, i })).filter((b) => b.chapter);
   const chapterNow = [...chapters].reverse().find((c) => c.i <= p.beat);
-  const seek = (t: number) => {
-    world.player.seek(t);
-    world.publishPlayer();
-  };
+  // the world coalesces seeks: dragging the scrubber never queues a calculation per event,
+  // and the last position asked for is the one the car arrives at
+  const seek = (t: number) => world.seek(t);
   const toggle = () => {
     if (p.ended) {
       seek(0);
-      world.pause(false);
+      world.setPaused(false);
       return;
     }
-    world.pause(p.playing);
+    world.setPaused(p.playing);
   };
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT' && (e.target as HTMLInputElement).type !== 'range') return;
+      const el = e.target as HTMLElement;
+      // never take keys from a field, a slider (it moves with arrows) or the workbench's controls
+      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.tagName === 'SELECT' || el?.isContentEditable) return;
       if (e.key === ' ' || e.key === 'k') {
         e.preventDefault();
         toggle();
@@ -112,6 +113,7 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
             />
           </div>
           <span className="lesson__time num">
+            {p.holding && p.playing ? <span className="lesson__wait" aria-label="Arriving at the next view">•••</span> : null}
             {fmt(p.t)} / {fmt(p.duration)}
           </span>
           <button className="pbtn" onClick={onExit} aria-label={exitLabel}>

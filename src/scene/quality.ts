@@ -1,8 +1,8 @@
 /**
  * Rendering quality: three tiers chosen from the device, lowered (or raised back) from measured
  * frame times, with hysteresis. A tier changes only how the picture is drawn (pixel ratio,
- * shadows, ambient occlusion, bloom, reflections, particle density, far detail), never what is
- * shown or when: the low tier still runs every mechanism and every lesson in full.
+ * shadow resolution, ambient occlusion, bloom, edge smoothing, body detail, particle density),
+ * never what is shown or when: the low tier still runs every mechanism and every lesson in full.
  *
  * ?quality=high|medium|low forces a tier (tests, captures). Software renderers (SwiftShader,
  * llvmpipe) start at low.
@@ -18,8 +18,6 @@ export interface TierSpec {
   bloom: boolean;
   msaa: number;
   aoQuality: 'Performance' | 'Low' | 'Medium' | 'High' | 'Ultra';
-  /** Floor reflection of the car (planar, blurred). */
-  reflection: boolean;
   /** Body mesh detail. */
   bodyLod: 'hi' | 'lo';
   /** Share of flow particles drawn (the flows themselves always run). */
@@ -27,9 +25,9 @@ export interface TierSpec {
 }
 
 export const TIERS: Record<Tier, TierSpec> = {
-  high: { dprMax: 2, shadowMap: 2048, ao: true, bloom: true, msaa: 4, aoQuality: 'Medium', reflection: true, bodyLod: 'hi', particles: 1 },
-  medium: { dprMax: 1.5, shadowMap: 1024, ao: true, bloom: true, msaa: 2, aoQuality: 'Low', reflection: false, bodyLod: 'hi', particles: 0.75 },
-  low: { dprMax: 1, shadowMap: 1024, ao: false, bloom: false, msaa: 0, aoQuality: 'Performance', reflection: false, bodyLod: 'lo', particles: 0.5 },
+  high: { dprMax: 2, shadowMap: 2048, ao: true, bloom: true, msaa: 4, aoQuality: 'Medium', bodyLod: 'hi', particles: 1 },
+  medium: { dprMax: 1.5, shadowMap: 1024, ao: true, bloom: true, msaa: 2, aoQuality: 'Low', bodyLod: 'hi', particles: 0.75 },
+  low: { dprMax: 1.25, shadowMap: 1024, ao: false, bloom: false, msaa: 0, aoQuality: 'Performance', bodyLod: 'lo', particles: 0.5 },
 };
 
 const ORDER: Tier[] = ['low', 'medium', 'high'];

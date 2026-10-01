@@ -10,17 +10,19 @@ import { Color, Mesh, PlaneGeometry, ShaderMaterial, Group } from 'three';
 const VS = /* glsl */ `
 uniform vec3 uCar;
 uniform float uBumpAt;
+uniform vec2 uBump; // height, half length
 varying vec2 vLocal;
 void main() {
   vLocal = position.xy;
-  // the speed bump is real: the surface rises where the model's road profile does (drivers.ts
-  // bump(): 70 mm over 0.7 m, a raised cosine), so the tyres meet it where they are lifted
+  // the speed bump is real: the surface rises exactly where and as the model's road does
+  // (sim/car.ts makeRoad: a raised cosine from the same road spec), so the tyres meet it where
+  // they are lifted
   vec2 loc = vec2(position.x, -position.y);
   float c = cos(uCar.z), s = sin(uCar.z);
   float along = uCar.x + loc.x * c + loc.y * s;
   float d = along - uBumpAt;
   vec3 p = position;
-  if (abs(d) < 0.35) p.z += 0.07 * 0.5 * (1.0 + cos(3.14159265 * d / 0.35));
+  if (abs(d) < uBump.y) p.z += uBump.x * 0.5 * (1.0 + cos(3.14159265 * d / uBump.y));
   gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }`;
 
@@ -91,6 +93,7 @@ export class Road {
         uCurve: { value: 0 },
         uCurveX: { value: 0 },
         uBumpAt: { value: -1e6 },
+        uBump: { value: [0.07, 0.35] },
         uLowGrip: { value: 0 },
         uFar: { value: new Color('#0b0c0e') },
       },
@@ -104,7 +107,8 @@ export class Road {
     this.mesh.visible = false;
     this.group.add(this.mesh);
   }
-  update(opacity: number, x: number, z: number, heading: number, opts: { curve?: number; curveX?: number; bumpAt?: number; lowGrip?: number } = {}) {
+  update(opacity: number, x: number, z: number, heading: number, opts: { curve?: number; curveX?: number; bumpAt?: number; bumpHeight?: number; bumpLength?: number; lowGrip?: number } = {}) {
+    this.mat.uniforms.uBump.value = [opts.bumpHeight ?? 0.07, (opts.bumpLength ?? 0.7) / 2];
     this.mesh.visible = opacity > 0.003;
     this.mat.uniforms.uOpacity.value = opacity;
     this.mat.uniforms.uCar.value = [x, z, heading];

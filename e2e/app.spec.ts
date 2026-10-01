@@ -52,13 +52,27 @@ test('the film starts where a shared link says, with chapters and captions', asy
   expect(t2).toBeGreaterThan(250);
 });
 
-test('a lab runs and answers', async ({ page }) => {
+test('a lab runs its baseline, compares a change, and the car ends where the chart does', async ({ page }) => {
   await open(page, 'mode=engineer&lab=braking');
   await expect(page.locator('.eng h2')).toHaveText('Stopping distance');
-  await page.locator('.eng-actions .pbtn--accent').click();
+  // the baseline (design values) runs at once: its numbers, and the same run on the car
   await expect(page.locator('.eng-results')).toContainText('Stopping distance');
-  await frames(page, 60);
+  await expect(page.locator('.eng-results__title')).toContainText('Baseline');
   expect(await page.evaluate(() => window.__fab.live?.id)).toBe('lab:braking');
+  // a change: dry asphalt
+  await page.locator('.seg button', { hasText: 'Dry asphalt' }).click();
+  await page.locator('.eng-actions .pbtn--accent').click();
+  await expect(page.locator('.eng-results__title')).toContainText('Dry asphalt');
+  await expect(page.locator('.chart__run')).toHaveCount(2);
+  // play the live run to its end: the car stops where the chart says it does
+  for (let i = 0; i < 20; i++) {
+    await frames(page, 30);
+    if ((await page.evaluate(() => window.__fabStores.useRun.getState().status)) === 'ended') break;
+  }
+  expect(await page.evaluate(() => window.__fabStores.useRun.getState().status)).toBe('ended');
+  const chart = Number((await page.locator('.eng-results dd').first().textContent())!.replace(/[^0-9.]/g, ''));
+  const car = await page.evaluate(() => window.__fab.model.s.stopDistance);
+  expect(Math.abs(car - chart)).toBeLessThan(0.1);
 });
 
 test('a fault can be diagnosed from complaint to repair', async ({ page }) => {

@@ -272,8 +272,9 @@ export class Director {
       return;
     }
     this.transitionId++;
-    // include the visitor's offsets and the avoidance in the starting state, then clear them
-    const start = this.effective();
+    // start from the camera as drawn (the visitor's offsets, the avoidance and any clearance
+    // correction included), then clear the offsets
+    const start = this.drawn ?? this.effective();
     this.from = { target: start.target.clone(), az: start.az, el: start.el, dist: start.dist, fov: start.fov, ox: start.ox, oy: start.oy };
     const v = this.vel;
     this.fromVel = { t: v.t.clone(), az: v.az, el: v.el, dist: v.dist, fov: v.fov, ox: v.ox, oy: v.oy };
@@ -557,9 +558,14 @@ export class Director {
   }
 
   private _p = new Vector3();
+  /** The state actually drawn last frame (after the clearance correction), for interruptions. */
+  private drawn: CamState | null = null;
+  /** Telemetry: how many frames needed the last-resort clamp, and the deepest push (m). */
+  clamps = { frames: 0, deepest: 0 };
   private apply(s: CamState) {
     const cam = this.camera;
     const p = positionOf(s, this._p);
+    let clamped = 0;
     // last resort: never inside an obstacle
     for (const list of [this.obstacles(), this.keepOut]) {
       for (const k of list) {
@@ -572,10 +578,30 @@ export class Director {
           if (dir.lengthSq() < 1e-8) dir.set(0, 0, 1);
           p.copy(closest).addScaledVector(dir.normalize(), k.r + 0.01);
           this.onClamp?.(0.01 - d);
+          clamped = Math.max(clamped, 0.01 - d);
         }
       }
     }
+    if (clamped > 0) {
+      this.clamps.frames++;
+      this.clamps.deepest = Math.max(this.clamps.deepest, clamped);
+    }
     p.y = MathUtils.clamp(p.y, this.floor, this.ceiling);
+    // what is drawn, as an orbit about the target (a later move starts from exactly this)
+    {
+      const dx = p.x - s.target.x;
+      const dy = p.y - s.target.y;
+      const dz = p.z - s.target.z;
+      const dist = Math.max(1e-4, Math.hypot(dx, dy, dz));
+      const d = this.drawn ?? (this.drawn = { target: new Vector3(), az: 0, el: 0, dist: 1, fov: 30, ox: 0, oy: 0 });
+      d.target.copy(s.target);
+      d.az = s.az + wrap(Math.atan2(dx, dz) - s.az);
+      d.el = Math.asin(MathUtils.clamp(dy / dist, -1, 1));
+      d.dist = dist;
+      d.fov = s.fov;
+      d.ox = s.ox;
+      d.oy = s.oy;
+    }
     cam.position.copy(p);
     cam.up.set(0, 1, 0);
     cam.lookAt(s.target);
@@ -601,8 +627,19 @@ export class Director {
   /** Pointers something else owns (the IK target being dragged): the camera ignores them. */
   claimed = new Set<number>();
 
-  canOrbit(): boolean {
+  /** Whether the shot lets the visitor orbit at all. */
+  shotAllowsOrbit(): boolean {
     return !!this.shot && this.shot.orbit !== false && this.shot.orbit !== undefined;
+  }
+
+  /**
+   * The owner of the camera decides whether the visitor may take it now (the animation
+   * director: never during an authored move). Without an owner, the shot decides.
+   */
+  permit: () => boolean = () => this.shotAllowsOrbit();
+
+  canOrbit(): boolean {
+    return this.permit();
   }
 
   attach(el: HTMLElement): () => void {
@@ -628,6 +665,13 @@ export class Director {
     const move = (e: PointerEvent) => {
       const p = this.pointers.get(e.pointerId);
       if (!p) return;
+      // an authored move took the camera (a request arrived mid-drag): let go of it
+      if (!this.canOrbit()) {
+        this.pointers.clear();
+        this.dragging = false;
+        this.trail = [];
+        return;
+      }
       const dx = e.clientX - p.x;
       const dy = e.clientY - p.y;
       p.x = e.clientX;
@@ -703,6 +747,11 @@ export class Director {
       el.removeEventListener('pointercancel', up);
       el.removeEventListener('wheel', wheel);
     };
+  }
+
+  /** The visitor is dragging the camera now. */
+  get isDragging(): boolean {
+    return this.dragging;
   }
 
   /** The visitor has moved the camera away from the directed framing. */

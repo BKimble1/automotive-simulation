@@ -2,55 +2,84 @@
  * The world: the runtime that owns the scene for the whole visit. One frame loop in a fixed
  * order, and nothing else moves anything:
  *
- *   clocks → director (sample) → sequence or live model → channels → mechanism → looks
+ *   clocks → director (sample) → sequence or live run → channels → mechanism → looks
  *          → rig (baselines + offsets + explodes) → flows, cylinders, arrows, road
  *          → camera → render → readouts (10 Hz)
  *
+ * Who owns what:
+ *   - the pause belongs to the world alone (setPaused); the director, the sequence player, the
+ *     live run and the narration read it, none of them releases it;
+ *   - a run (a lab, a scenario, a fault case, the workbench, a lesson's chain) is started only
+ *     through sim/run.ts's initRun, from a complete specification: nothing is inherited;
+ *   - a guided beat waits for its subject: while its view is still arriving (or its assets are
+ *     still compiling, or a sought state is still being computed off the page) presentation
+ *     time, the model and the narration hold, and the camera and the channels move;
+ *   - while the graphics context is lost, or being restored, the world does not tick at all:
+ *     nothing advances, and nothing races to catch up afterwards.
+ *
  * The scene is built once, progressively: the studio and the car (on the light body mesh) and
  * the materials the opening picture needs, compiled before the veil lifts; then every other
- * material variant (ghosts, sections) is compiled in the background; then the detailed body is
- * swapped in where the device can afford it. The director will not move to a view whose parts
- * are not ready (it holds the picture instead), so there is never a blank frame or a shader
- * compile in the middle of a move.
+ * material variant (ghosts, sections) is compiled off screen; then the detailed body is swapped
+ * in at a quiet moment where the device can afford it. The director will not move to a view whose
+ * parts are not ready (it holds the picture instead), so there is never a blank frame or a
+ * shader compile in the middle of a move.
  */
-import { Matrix4, Vector3, type Mesh } from 'three';
+import { Vector3 } from 'three';
 import { Stage } from '../scene/stage';
 import { Studio } from '../scene/studio';
 import { Road } from '../scene/road';
 import { Channels } from '../scene/channels';
 import { Director as CameraDirector, type KeepOut } from '../scene/camera/director';
 import { frameTime, tickRealtime, tickVirtual, VIRTUAL_TIME, TEST_HOOKS } from '../scene/time';
-import { TIERS, useQuality } from '../scene/quality';
+import { TIERS, useQuality, type Tier } from '../scene/quality';
 import { loadBody } from '../scene/car/bodyData';
 import { splitPanels } from '../scene/car/body';
 import { buildCar, type Car as CarScene } from '../scene/car/build';
 import { Flows } from '../scene/viz/flows';
 import { ArrowSet } from '../scene/viz/arrows';
 import { EngineViz } from '../scene/viz/engineViz';
-import { Car, presetIdle, type CarState } from '../sim/car';
+import { disposeTree } from '../scene/dispose';
+import { Car, presetIdle, type CarState, type Faults } from '../sim/car';
+import { initRun, type RunSpec } from '../sim/run';
 import { TIRE, units } from '../spec/vehicle';
 import { Clocks } from './clocks';
 import { AnimationDirector } from './director';
 import { Looks } from './looks';
 import { Mechanism, emptyView, interpolate } from './mechanism';
 import { SequencePlayer, type Sequence } from './sequence';
+import { SeekCache } from './seekCache';
+import { SimJobs } from './jobs';
 import { KEEP_OUT, VIEWS, type View } from './views';
 import { FLOW_DEFS } from './flowDefs';
 import { LabelLayer } from '../scene/labels';
 import { labelDefs } from './labelDefs';
-import { usePlayer, useReadouts, useApp } from '../state/store';
+import { usePlayer, useReadouts, useApp, useRun } from '../state/store';
 
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-/** The live (free-mode) program the model runs when no lesson does. */
-export interface LiveProgram {
-  id: string;
-  start: () => CarState;
-  drive?: (t: number, inp: Car['inputs'], s: CarState) => void;
-  setup?: (car: Car) => void;
-  timeScale?: number;
-  /** Start the program again after this many simulated seconds. */
-  loop?: number;
+/** The longest a beat waits for its view before it carries on regardless, s. */
+const GATE_MAX = 2.5;
+/** A sought moment this close to its chain's start is computed on the page at once (simulated s). */
+const SEEK_INLINE = 0.6;
+
+export interface Telemetry {
+  on: boolean;
+  frames: {
+    t: number;
+    cam: number[];
+    target: number[];
+    fov: number;
+    state: string;
+    transitions: number;
+    camMove: number;
+    clamps: number;
+    modelT: number;
+    presT: number;
+    run: string | null;
+    paused: boolean;
+    gated: boolean;
+    input: 'visitor' | 'authored' | 'none';
+  }[];
 }
 
 export class World {
@@ -63,6 +92,7 @@ export class World {
   director: AnimationDirector;
   model = new Car(presetIdle());
   player: SequencePlayer;
+  jobs: SimJobs;
   car!: CarScene;
   labels: LabelLayer | null = null;
   looks!: Looks;
@@ -76,14 +106,30 @@ export class World {
   private raf = 0;
   private lastPublish = 0;
   private detachInput: (() => void) | null = null;
-  /** The live program (free modes). */
-  live: LiveProgram | null = null;
+  /** The live run (free modes, labs, scenarios, fault cases, the workbench). */
+  live: RunSpec | null = null;
+  /** The live run reached its duration (or its end condition): its last state holds. */
+  liveEnded = false;
   /** True while a sequence (lesson or film) drives the car. */
   guided = false;
-  /** Road settings of the current program (for drawing). */
-  roadOpts: { curve?: number; curveX?: number; bumpAt?: number; lowGrip?: number } = {};
+  /** The visitor's pause: the one owner. */
+  paused = false;
+  /** Set when the world is gone: background work that finishes later does nothing. */
+  disposed = false;
+  /** The graphics context came back and the scene's programs are being rebuilt. */
+  private restoring = false;
+  /** A beat waiting for its view (when it started waiting, on the real clock). */
+  private gate: { since: number } | null = null;
+  /** A sought sequence state being computed off the page. */
+  private seekPending: { id: number; t: number } | null = null;
+  private seekSerial = 0;
+  private seekCache = new SeekCache();
+  /** Road settings of the current run (for drawing). */
+  roadOpts: { curve?: number; curveX?: number; bumpAt?: number; bumpHeight?: number; bumpLength?: number; lowGrip?: number } = {};
   /** Telemetry for the continuity tests (with the test hooks): one record per frame. */
-  telemetry: { on: boolean; frames: { t: number; cam: number[]; target: number[]; fov: number; state: string; transitions: number }[] } = { on: false, frames: [] };
+  telemetry: Telemetry = { on: false, frames: [] };
+  /** Resource and timing counters for development (window.__fab.counters). */
+  counters = { frames: 0, suspendedFrames: 0, disposed: { geometries: 0, materials: 0, textures: 0 } };
   private keepOut: KeepOut[] = [];
   /** The engine cylinder the current lesson follows. */
   focusCyl = -1;
@@ -95,6 +141,7 @@ export class World {
     this.stage.scene.add(this.road.group);
     this.camera = new CameraDirector(this.stage.camera);
     this.player = new SequencePlayer(this.model);
+    this.jobs = new SimJobs();
     this.director = new AnimationDirector(this.camera, this.channels, {
       ready: (groups) => groups.every((g) => this.readyGroups.has(g)),
       focus: (a, tint) => {
@@ -103,7 +150,13 @@ export class World {
       },
       adjust: (c) => c,
     });
-    this.stage.onContextChange = (lost) => useApp.setState({ contextLost: lost });
+    // the visitor may take the camera only when no authored move owns it
+    this.camera.permit = () => this.director.canOrbit;
+    this.stage.onContextChange = (lost) => {
+      useApp.setState({ contextLost: lost });
+      if (!lost) void this.recoverContext();
+    };
+    this.stage.onTier = (t) => this.applyTier(t);
     this.model.inputs.ignition = true;
   }
 
@@ -126,12 +179,14 @@ export class World {
       progress(0.05);
       const tier = this.stage.currentTier;
       const lo = await loadBody('lo');
+      if (this.disposed) return false;
       progress(0.25);
       await nextFrame();
       this.car = buildCar(lo);
       this.stage.scene.add(this.car.root);
       progress(0.55);
       await nextFrame();
+      if (this.disposed) return false;
       this.mech = new Mechanism(this.car);
       this.looks = new Looks(this.car, this.channels, this.studio);
       this.flows = new Flows(this.car.sprung);
@@ -144,14 +199,17 @@ export class World {
       this.camera.obstacles = () => this.keepOut;
       this.camera.reducedMotion = useApp.getState().reducedMotion;
       this.channels.speed = useApp.getState().reducedMotion ? 0.6 : 1;
+      this.stage.applyLights();
       // first picture
       this.frameOnce(0);
       progress(0.7);
-      await this.stage.prewarm();
+      await this.stage.prewarm(this.stage.scene, { onlyVisible: true });
+      if (this.disposed) return false;
       progress(0.9);
       this.readyGroups.add('hero');
-      // the rest compiles in the background: every material's other variants (ghost, section)
+      // the rest compiles off screen: every material's other variants (ghost, section)
       void this.compileVariants().then(async () => {
+        if (this.disposed) return;
         this.readyGroups.add('car');
         this.readyGroups.add('detail');
         useApp.setState({ carReady: true });
@@ -166,40 +224,71 @@ export class World {
     }
   }
 
-  /** Compile every ghost variant (by drawing a frame with them swapped in, off screen). */
+  /**
+   * Compile every material variant the destinations need (ghost, section) without touching the
+   * displayed scene: the variants are compiled on stand-in meshes in a scene of their own, so
+   * nothing hidden ever appears and no live material is swapped while compiling.
+   */
   private async compileVariants() {
     await nextFrame();
-    const swapped: [Mesh, unknown][] = [];
+    if (this.disposed) return;
+    const mats = new Set<import('three').Material>();
     for (const n of this.car.rig.parts.values())
       for (const m of n.meshes) {
         const pair = m.userData.pair;
-        if (!pair) continue;
-        swapped.push([m, m.material]);
-        m.material = pair.ghost;
+        if (pair?.ghost) mats.add(pair.ghost);
+        if (pair?.opaque) mats.add(pair.opaque);
       }
     for (const p of this.car.body.panels) {
-      swapped.push([p.paint, p.paint.material], [p.glass, p.glass.material]);
-      p.paint.material = p.mats.paintGhost;
-      p.glass.material = p.mats.glassGhost;
+      mats.add(p.mats.paintGhost);
+      mats.add(p.mats.glassGhost);
     }
-    try {
-      await this.stage.prewarm();
-    } finally {
-      for (const [m, mat] of swapped) m.material = mat as Mesh['material'];
-    }
+    await this.stage.compileMaterials([...mats]);
     await nextFrame();
   }
 
-  /** Replace the body's panel geometry with another level of detail (same shape: no visible change). */
+  /**
+   * Replace the body's panel geometry with another level of detail at a quiet moment: the same
+   * surface and seams from the same bake, swapped between two frames, never during a move.
+   */
   async swapBody(lod: 'hi' | 'lo') {
     const g = await loadBody(lod);
+    if (this.disposed) return;
     const geos = splitPanels(g);
+    // wait for a moment when nothing authored is moving (at most a few seconds)
+    for (let i = 0; i < 240 && (this.director.busy || this.camera.moving) && !this.disposed; i++) await nextFrame();
+    if (this.disposed) {
+      for (const g of Object.values(geos)) g.dispose();
+      return;
+    }
     for (const p of this.car.body.panels) {
       const old = p.paint.geometry;
       p.paint.geometry = geos[p.id];
       p.glass.geometry = geos[p.id];
-      old.dispose();
+      if (old !== geos[p.id]) old.dispose();
     }
+    this.bodyLod = lod;
+  }
+  bodyLod: 'hi' | 'lo' = 'lo';
+
+  /** A quality change after the start: the body detail and the flow density follow the tier. */
+  private applyTier(t: Tier) {
+    if (this.disposed || !this.car) return;
+    const spec = TIERS[t];
+    this.flows?.setDensity(spec.particles);
+    if (spec.bodyLod !== this.bodyLod && this.readyGroups.has('car')) void this.swapBody(spec.bodyLod);
+  }
+
+  /** The graphics context came back: rebuild the programs before anything moves again. */
+  private async recoverContext() {
+    if (this.disposed || !this.car) return;
+    this.restoring = true;
+    try {
+      await this.stage.prewarm(this.stage.scene, { onlyVisible: true });
+    } catch (e) {
+      console.warn('context restore: compile failed', e);
+    }
+    this.restoring = false;
   }
 
   start() {
@@ -228,9 +317,10 @@ export class World {
     return this.director.request(v, opts);
   }
 
-  /** Run a lesson or the film. */
+  /** Run a lesson or the film from a moment. Starting a sequence plays it (the pause is released). */
   playSequence(seq: Sequence, at = 0) {
     this.live = null;
+    this.liveEnded = false;
     this.guided = true;
     this.player.load(seq);
     this.player.onBeat = (b) => {
@@ -239,49 +329,120 @@ export class World {
       const v = VIEWS[b.beat.view];
       if (v) {
         const merged: View = b.beat.channels ? { ...v, id: `${v.id}+${b.beat.id}`, channels: { ...v.channels, ...b.beat.channels } } : v;
+        const before = this.director.view?.id;
         this.director.request(merged, { demonstrating: true });
+        // the beat waits for its subject when the view changes (or its assets are not ready)
+        if (this.director.state === 'preparing' || (before !== merged.id && this.director.busy)) this.gate = { since: this.clocks.real };
       }
-      this.roadOpts = b.beat.program?.road ? roadOptsOf(b.beat.program.road) : this.roadOpts;
+      this.roadOpts = roadOptsOf(b.beat.program?.road ?? this.model.road.spec);
       this.publishPlayer();
     };
     this.player.onEnd = () => this.publishPlayer();
-    this.player.seek(at);
+    this.seek(at);
+    this.setPaused(false);
     this.player.play();
     this.publishPlayer();
   }
 
   stopSequence() {
     this.guided = false;
+    this.gate = null;
+    this.seekPending = null;
+    this.jobs.cancel('seek');
     this.player.pause();
+    this.player.hold = false;
     this.player.seq = null;
     this.player.onBeat = undefined;
     this.focusCyl = -1;
     this.extraChannels = {};
-    usePlayer.setState({ id: null, playing: false, caption: '', beats: [], beat: -1 });
+    usePlayer.setState({ id: null, playing: false, caption: '', beats: [], beat: -1, holding: false });
   }
 
-  /** Run a live program (free modes, labs, scenarios). The car restarts from its state. */
-  setLive(p: LiveProgram | null, keepState = false) {
-    this.live = p;
+  /**
+   * Seek the sequence: the beat and its view at once; the car's exact state at that moment
+   * from its chain's start — on the page when it is a short way in, otherwise off the page,
+   * while the beat waits (the last good picture stays). Successive seeks supersede each other.
+   */
+  seek(t: number) {
+    const p = this.player;
+    if (!p.seq) return;
+    const b = p.seekTo(t);
+    const mech = p.mechTime(p.t);
+    const seq = p.seq;
+    const id = ++this.seekSerial;
+    if (mech - p.beats[b.chain].mechStart <= SEEK_INLINE || mech <= SEEK_INLINE || !this.jobs.usingWorker) {
+      this.seekPending = null;
+      this.jobs.cancel('seek');
+      this.loadSeek(this.seekCache.sample(seq, p.t), b.chain);
+    } else {
+      this.seekPending = { id, t: p.t };
+      this.jobs
+        .seek(seq.id, p.t)
+        .then((snap) => {
+          if (this.disposed || this.seekPending?.id !== id || this.player.seq !== seq) return;
+          this.loadSeek(snap, b.chain);
+          this.seekPending = null;
+        })
+        .catch((e) => {
+          if (this.disposed || this.seekPending?.id !== id || this.player.seq !== seq) return;
+          console.warn('seek off the page failed; computing here', e);
+          this.loadSeek(this.seekCache.sample(seq, this.player.t), b.chain);
+          this.seekPending = null;
+        });
+    }
+    this.publishPlayer();
+  }
+
+  private loadSeek(snap: import('../sim/car').CarSnapshot, chain: number) {
+    this.model.load(snap);
+    this.player.attachProgram(chain);
+    this.roadOpts = roadOptsOf(this.model.road.spec);
+  }
+
+  /** Start a live run (free modes, labs, scenarios, the workbench). Nothing is inherited. */
+  setLive(spec: RunSpec | null) {
+    this.live = spec;
+    this.liveEnded = false;
     this.guided = false;
-    if (!p) return;
-    if (!keepState) this.model.restore(p.start());
-    this.model.program = p.drive ? (t, inp, s) => p.drive!(t, inp, s) : null;
-    this.model.programT0 = this.model.s.t;
-    p.setup?.(this.model);
-    this.roadOpts = roadOptsOf(this.model.road);
-    this.clocks.timeScale = p.timeScale ?? 1;
+    if (!spec) return;
+    initRun(this.model, spec);
+    this.roadOpts = roadOptsOf(this.model.road.spec);
+    this.clocks.timeScale = spec.timeScale ?? 1;
+    this.publishRun();
   }
 
-  pause(paused: boolean) {
-    this.clocks.paused = paused;
-    if (paused) this.director.pause();
-    else this.director.resume();
+  /** Start the live run again from its beginning (replay). */
+  restartLive() {
+    if (this.live) this.setLive(this.live);
+  }
+
+  /**
+   * A repair during a fault case: the fault is cleared on the running car (and in its run, so a
+   * loop does not bring it back); what the repair replaces is set too (a new battery is charged).
+   * Everything else carries on from where it is, so temperatures and pressures recover over time.
+   */
+  repair(faults: Partial<Faults>, state: Partial<Pick<CarState, 'soc'>> = {}) {
+    this.model.faults = { ...this.model.faults, ...faults };
+    Object.assign(this.model.s, state);
+    if (state.soc !== undefined) this.model.restore(this.model.s);
+    if (this.live) this.live = { ...this.live, faults: { ...(this.live.faults ?? {}), ...faults }, start: this.live.start };
+  }
+
+  /** Pause or resume the presentation: the lesson or film, the live run, the narration. */
+  setPaused(paused: boolean) {
+    this.paused = paused;
+    this.director.setPaused(paused);
     if (this.player.seq) {
       if (paused) this.player.pause();
       else if (!this.player.ended) this.player.play();
     }
     this.publishPlayer();
+    this.publishRun();
+  }
+
+  /** @deprecated use setPaused */
+  pause(paused: boolean) {
+    this.setPaused(paused);
   }
 
   publishPlayer() {
@@ -293,10 +454,23 @@ export class World {
       t: p.t,
       duration: p.duration,
       playing: p.playing,
+      holding: p.hold || !!this.seekPending,
       beat: p.index,
       beats: p.beats.map((b) => ({ title: b.beat.title, text: b.beat.text, start: b.start, chapter: b.beat.chapter, readouts: b.beat.readouts, timeScale: typeof b.beat.timeScale === 'number' ? b.beat.timeScale : (b.beat.timeScale?.to ?? 1), pace: b.beat.pace })),
       caption: p.caption(),
       ended: p.ended,
+    });
+  }
+
+  publishRun() {
+    const l = this.live;
+    const s = this.model.s;
+    const elapsed = l ? s.t - this.model.programT0 : 0;
+    useRun.setState({
+      id: l?.id ?? null,
+      status: !l ? 'none' : this.paused ? 'paused' : this.liveEnded ? 'ended' : l.drive ? 'scripted' : 'manual',
+      t: elapsed,
+      duration: l?.duration ?? null,
     });
   }
 
@@ -307,35 +481,51 @@ export class World {
   }
 
   frame(dt: number, render = true) {
-    const c = this.clocks;
-    c.paused = this.director.paused;
-    c.tick(dt);
-    this.director.update(c.presentationDt);
-
-    // ── the car's model: a lesson's program on presentation time, or the live program
-    let alpha = 0;
-    if (this.guided && this.player.seq) {
-      c.guided = true;
-      const b = this.player.beat;
-      const target = this.player.update(c.presentationDt);
-      if (target !== null) alpha = this.model.advanceTo(target);
-      // the lesson's own time scale is the beat's (for the readouts)
-      void b;
-    } else {
-      c.guided = false;
-      if (this.live?.loop && this.model.s.t - this.model.programT0 > this.live.loop) this.setLive(this.live);
-      alpha = this.model.advance(c.mechanicalDt);
+    if (this.disposed) return;
+    // a lost (or restoring) graphics context suspends the whole presentation
+    if (this.stage.contextLost || this.restoring) {
+      this.counters.suspendedFrames++;
+      return;
     }
+    this.counters.frames++;
+    const c = this.clocks;
+    const guided = this.guided && !!this.player.seq;
+    // a beat waits for its subject: its view arriving, its assets, a sought state
+    if (this.gate && ((this.director.state !== 'preparing' && !this.director.busy) || c.real - this.gate.since > GATE_MAX)) this.gate = null;
+    const gated = guided && (!!this.gate || !!this.seekPending || this.director.state === 'preparing');
+    this.player.hold = gated;
+    c.guided = guided;
+    c.tick(dt, { paused: this.paused, gated, navigating: this.director.pausedNavigation, ended: !guided && this.liveEnded });
+    this.director.update(c.transitionDt);
+
+    // ── the car's model: a lesson's program on presentation time, or the live run
+    let alpha = 0;
+    const s0 = this.model.s;
+    if (guided) {
+      const target = this.player.update(c.presentationDt);
+      if (target !== null && !this.seekPending) alpha = this.model.advanceTo(target);
+    } else if (this.live) {
+      const l = this.live;
+      if (l.loop && s0.t - this.model.programT0 > l.loop) this.setLive(l);
+      let mdt = c.mechanicalDt;
+      if (l.duration !== undefined) mdt = Math.min(mdt, Math.max(0, this.model.programT0 + l.duration - this.model.s.t));
+      alpha = this.model.advance(mdt);
+      const el = this.model.s.t - this.model.programT0;
+      if (!this.liveEnded && ((l.duration !== undefined && el >= l.duration - 0.0015) || l.until?.(this.model.s, el))) {
+        this.liveEnded = true;
+        this.publishRun();
+      }
+    } else alpha = this.model.advance(c.mechanicalDt);
     const s = this.model.s;
     const inp = this.model.inputs;
     interpolate(this.model.prev, s, alpha, this.view, { brakeN: inp.brakeN, throttle: inp.throttle, cranking: inp.start && s.engine !== 'running', start: inp.start, ignition: inp.ignition });
 
-    // ── channels (stop with a pause), mechanism, looks, rig
-    this.channels.update(c.presentationDt);
+    // ── channels (they stop with a pause, and move for a paused navigation), mechanism, looks, rig
+    this.channels.update(c.transitionDt);
     const rig = this.car.rig;
     rig.resetMechanism();
     this.mech.pose(this.view);
-    this.looks.apply(s, c.presentationDt);
+    this.looks.apply(s, c.transitionDt);
     rig.apply((g) => this.channels.get(`explode:${g}`) + (g === 'open' ? this.channels.get('open') : 0));
 
     // ── keep-outs ride on the body
@@ -361,7 +551,22 @@ export class World {
 
     if (this.telemetry.on) {
       const cam = this.stage.camera;
-      this.telemetry.frames.push({ t: frameTime.now, cam: cam.position.toArray(), target: this.camera.effective().target.toArray(), fov: cam.fov, state: this.director.state, transitions: this.director.transitions });
+      this.telemetry.frames.push({
+        t: frameTime.now,
+        cam: cam.position.toArray(),
+        target: this.camera.effective().target.toArray(),
+        fov: cam.fov,
+        state: this.director.state,
+        transitions: this.director.transitions,
+        camMove: this.camera.transitionId,
+        clamps: this.camera.clamps.frames,
+        modelT: s.t,
+        presT: this.player.t,
+        run: this.guided ? (this.model.programId ?? null) : (this.live?.id ?? null),
+        paused: this.paused,
+        gated,
+        input: this.camera.isDragging ? 'visitor' : this.director.busy ? 'authored' : 'none',
+      });
     }
     // ── readouts, ten times a second (real time; every frame on the test clock)
     if (frameTime.now - this.lastPublish >= 0.1 || VIRTUAL_TIME) {
@@ -370,14 +575,15 @@ export class World {
     }
   }
 
-  /** The converter fluid's travel (integrated), and the model time it was last advanced to. */
-  private convPhase = 0;
-  private convT = 0;
+  private _o = new Vector3();
+  private _dir = new Vector3();
+  private _up = new Vector3(0, 1, 0);
+  private _x = new Vector3(1, 0, 0);
 
   private updateViz(s: CarState) {
     const ch = this.channels;
     const ph = s.phase;
-    const running = s.engine === 'running' || s.engine === 'cranking';
+    // a flow whose modelled rate is zero is drawn still and faint (the circuit, not a motion)
     const rateOk = (v: number) => (v > 0 ? 1 : 0.35);
     const fl = this.flows;
     const eye = this.stage.camera.position;
@@ -392,7 +598,7 @@ export class World {
     set('coolantBypass', ph.bypass, s.bypassFlow);
     set('coolantRadiator', ph.coolant, s.radiatorFlow);
     set('coolantHeater', ph.heater, this.model.inputs.heater ? 1 : 0);
-    set('radiatorAir', s.t * (0.3 + Math.abs(s.u) * 0.08 + (s.fanSpeed > 10 ? 0.6 : 0)), 1);
+    set('radiatorAir', ph.radiatorAir, Math.abs(s.u) + s.fanSpeed);
     set('oilMain', ph.oil, s.oilBar);
     set('oilHead', ph.oil * 0.8, s.oilBar);
     set('oilReturn', ph.oil * 0.5, s.oilBar);
@@ -404,8 +610,8 @@ export class World {
     set('can', ph.signal * 1.4, s.ecuPowered ? 1 : 0);
     for (let i = 0; i < 4; i++) set(`brake${i}`, ph.brake, s.linePa);
     set('brakeMaster', ph.brake, s.linePa);
-    set('refrigerant', s.t * 0.25, running ? 1 : 0);
-    set('cabinAir', s.t * 0.5, 1);
+    set('refrigerant', ph.refrigerant, s.engine === 'running' ? 1 : 0);
+    set('cabinAir', ph.cabinAir, this.model.inputs.ignition ? 1 : 0);
     // the gearbox's shift elements: lit while applied, fading in and out through a change
     const elOn = ch.get('flow:elements');
     if (elOn > 0.002) {
@@ -419,15 +625,12 @@ export class World {
         }
       }
     }
-    // the converter's fluid circulates as fast as the impeller outruns the turbine
-    const dtm = s.t - this.convT;
-    this.convT = s.t;
-    if (dtm > 0 && dtm < 0.5) this.convPhase += dtm * Math.min(3, 0.15 + Math.abs(s.omegaE - s.omegaT) / 60);
-    for (const id of ['convUpper', 'convLower']) fl.get(id)?.update(this.convPhase * 0.25, ch.get('flow:converter'), eye);
-    const torqueOn = Math.abs(s.wheelTorque) > 5 || (running && Math.abs(s.engineTorque) > 5) ? 1 : 0;
+    // the converter's fluid: from the model's integrated circulation (a seek rebuilds it)
+    for (const id of ['convUpper', 'convLower']) fl.get(id)?.update(ph.converter * 0.25, ch.get('flow:converter') * rateOk(Math.abs(s.omegaE - s.omegaT) - 1), eye);
+    const torqueOn = Math.abs(s.wheelTorque) > 5 || (s.engine === 'running' && Math.abs(s.engineTorque) > 5) ? 1 : 0;
     for (const id of ['torque', 'torqueL', 'torqueR']) {
       const f = fl.get(id);
-      if (f) f.update(s.t * 0.8, ch.get('flow:torque') * rateOk(torqueOn), eye);
+      if (f) f.update(ph.torque, ch.get('flow:torque') * rateOk(torqueOn), eye);
     }
 
     // the cylinders
@@ -442,20 +645,20 @@ export class World {
       sparkWindowDeg: 10,
     });
 
-    // tyre force arrows at the contact patches
+    // tyre force arrows at the contact patches (no allocation per frame)
     const at = ch.get('arrow:tyre');
     if (at > 0) {
       const corners = this.car.chassis.corners;
       for (let i = 0; i < 4; i++) {
         const g = corners[i].group;
-        const o = new Vector3(g.position.x, 0.01, g.position.z);
+        const o = this._o.set(g.position.x, 0.01, g.position.z);
         const fx = s.fx[i];
         const fy = s.fy[i];
         const steer = s.steerAngle[i];
-        const dir = new Vector3(Math.cos(steer) * fx + Math.sin(steer) * fy, 0, -Math.sin(steer) * fx + Math.cos(steer) * fy);
+        const dir = this._dir.set(Math.cos(steer) * fx + Math.sin(steer) * fy, 0, -Math.sin(steer) * fx + Math.cos(steer) * fy);
         const mag = dir.length();
-        this.arrows.get(`tyre${i}`, '#E69F00', 0.012).set(o, mag > 1 ? dir : new Vector3(1, 0, 0), Math.min(1.4, mag / 3500), at);
-        this.arrows.get(`load${i}`, '#cfd6e2', 0.008).set(o.clone().add(new Vector3(0, 0, 0)), new Vector3(0, 1, 0), Math.min(0.9, s.fz[i] / 9000), at * 0.6);
+        this.arrows.get(`tyre${i}`, '#E69F00', 0.012).set(o, mag > 1 ? dir : this._x, Math.min(1.4, mag / 3500), at);
+        this.arrows.get(`load${i}`, '#cfd6e2', 0.008).set(o, this._up, Math.min(0.9, s.fz[i] / 9000), at * 0.6);
       }
     } else this.arrows.hideAll();
 
@@ -467,12 +670,14 @@ export class World {
   publish(s: CarState) {
     const st = this.engineViz.state;
     const el = this.model.elements();
-    const gearName = s.gear === -1 ? 'R' : s.gear === 0 ? this.model.inputs.selector : String(s.gear);
+    const gt = this.model.geartrain;
+    const gearName = s.gear === -1 ? 'R' : s.gear === 0 ? s.selector : String(s.gear);
     useReadouts.setState({
       rpm: units.radToRpm(s.omegaE),
       kmh: units.msToKmh(s.u),
       gear: gearName,
-      selector: this.model.inputs.selector,
+      selector: s.selector,
+      selectorWanted: this.model.inputs.selector,
       throttle: this.model.inputs.throttle,
       brakeBar: s.linePa / 1e5,
       torque: s.engineTorque,
@@ -502,10 +707,12 @@ export class World {
       rotorC: [...s.rotorC],
       abs: [...s.absPhase],
       absCycles: s.absCycles,
+      caliperBar: s.caliperPa.map((p) => p / 1e5),
       stopDistance: s.stopDistance,
       heave: s.heave,
       steerDeg: (s.steerWheel * 180) / Math.PI,
       roadWheelDeg: (((s.steerAngle[0] + s.steerAngle[1]) / 2) * 180) / Math.PI,
+      wheelAngleDeg: s.steerAngle.slice(0, 2).map((a) => (a * 180) / Math.PI),
       strokes: st.map((c) => c.stroke),
       pressures: st.map((c) => c.pressureBar),
       burns: st.map((c) => c.burn),
@@ -515,6 +722,8 @@ export class World {
       elements: el.engaged,
       applying: el.applying,
       releasing: el.releasing,
+      slipRpm: { A: units.radToRpm(gt.slip.A), B: units.radToRpm(gt.slip.B), C: units.radToRpm(gt.slip.C), D: units.radToRpm(gt.slip.D), E: units.radToRpm(gt.slip.E) },
+      shaftRpm: gt.shaft.map((w) => units.radToRpm(w)),
       statorLocked: this.model.statorLocked,
       starterAmps: s.starterAmps,
       turbineRpm: units.radToRpm(s.omegaT),
@@ -524,16 +733,21 @@ export class World {
     });
     if (this.player.seq) {
       const p = this.player;
-      usePlayer.setState({ t: p.t, playing: p.playing, beat: p.index, caption: p.caption(), ended: p.ended });
+      usePlayer.setState({ t: p.t, playing: p.playing, holding: p.hold || !!this.seekPending, beat: p.index, caption: p.caption(), ended: p.ended });
     }
+    if (this.live) this.publishRun();
     useApp.setState({ director: this.director.state });
   }
 
   dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
     this.running = false;
-    this.labels?.dispose();
     cancelAnimationFrame(this.raf);
     this.detachInput?.();
+    this.labels?.dispose();
+    this.jobs.dispose();
+    this.counters.disposed = disposeTree(this.stage.scene);
     this.stage.dispose();
   }
 
@@ -542,20 +756,20 @@ export class World {
     if (!TEST_HOOKS) return;
     const w = window as unknown as Record<string, unknown>;
     w.__fab = this;
-    w.__fabStores = { useApp, useReadouts, usePlayer };
+    w.__fabStores = { useApp, useReadouts, usePlayer, useRun, useQuality };
     w.__fabAdvance = (n = 1, render = true) => this.advance(n, render);
   }
 }
 
-function roadOptsOf(r: { height?: (s: number, side: -1 | 1) => number; mu: number }): World['roadOpts'] {
+function roadOptsOf(r: import('../sim/car').RoadSpec): World['roadOpts'] {
   const o: World['roadOpts'] = {};
-  const anyR = r as unknown as { bumpAt?: number; curve?: number; curveX?: number };
-  if (anyR.bumpAt !== undefined) o.bumpAt = anyR.bumpAt;
-  if (anyR.curve !== undefined) o.curve = anyR.curve;
-  if (anyR.curveX !== undefined) o.curveX = anyR.curveX;
+  if (r.bumpAt !== undefined) {
+    o.bumpAt = r.bumpAt;
+    o.bumpHeight = r.bumpHeight ?? 0.07;
+    o.bumpLength = r.bumpLength ?? 0.7;
+  }
+  if (r.curve !== undefined) o.curve = r.curve;
+  if (r.curveX !== undefined) o.curveX = r.curveX;
   if (r.mu < 0.5) o.lowGrip = Math.min(1, (0.6 - r.mu) / 0.5);
   return o;
 }
-
-void Matrix4;
-void useQuality;

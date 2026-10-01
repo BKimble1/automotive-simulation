@@ -69,12 +69,14 @@ function Diagnose({ f, world }: { f: FaultCase; world: World }) {
   const [seen, setSeen] = useState<string[]>([]);
   const [choice, setChoice] = useState<string | null>(null);
   const [repaired, setRepaired] = useState(false);
-  useEffect(() => {
+  // a new case starts clean; looking at parts (view changes) keeps the progress
+  const restart = () => {
     setStep(0);
     setSeen([]);
     setChoice(null);
     setRepaired(false);
-  }, [f]);
+  };
+  useEffect(restart, [f]);
   const right = f.causes.find((c) => c.right)!;
   const picked = f.causes.find((c) => c.id === choice);
   return (
@@ -176,15 +178,27 @@ function Diagnose({ f, world }: { f: FaultCase; world: World }) {
             className="pbtn pbtn--wide pbtn--accent"
             disabled={repaired}
             onClick={() => {
-              world.model.faults = { ...NO_FAULTS };
-              if (world.live) world.live = { ...world.live, setup: undefined };
+              // the fault is cleared on the running car; temperatures, pressures and charge
+              // recover from where they are, as they would after a real repair
+              world.repair({ ...NO_FAULTS }, f.repairState ?? {});
               setRepaired(true);
             }}
           >
             {repaired ? 'Repaired: watch the gauges recover' : 'Repair it'}
           </button>
+          {repaired && <p className="ex-hint">{f.id === 'overheat' ? 'The thermostat now opens: the temperature falls over the next minute as coolant reaches the radiator.' : 'The live values above are the repaired car’s.'}</p>}
         </>
       )}
+      <button
+        className="pbtn pbtn--wide pbtn--text"
+        onClick={() => {
+          runScenario(world, f.id, f.program);
+          restart();
+          look(world, f.view);
+        }}
+      >
+        Restart this case
+      </button>
     </>
   );
 }
@@ -239,7 +253,7 @@ export function SimulatePanel({ world }: { world: World }) {
               <p className="ex-compare">
                 <b>Watch for.</b> {sc.watch}
               </p>
-              <button className="pbtn pbtn--wide" onClick={() => runScenario(world, sc.program)}>
+              <button className="pbtn pbtn--wide" onClick={() => runScenario(world, sc.id, sc.program)}>
                 Start again
               </button>
             </>

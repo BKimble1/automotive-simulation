@@ -5,11 +5,12 @@
  * numbers appear at once) and the same program plays on the car in the scene. Earlier runs stay
  * on the chart, faint, for comparison.
  */
-import { Car, NO_FAULTS, presetCruise, presetIdle, type CarState, type Faults, type Params, type Road } from '../sim/car';
+import { Car, NO_FAULTS, presetCruise, presetIdle, type CarState } from '../sim/car';
 import { converterTorqueRatio } from '../sim/drivetrain';
 import { fullLoadTorque } from '../sim/engine';
+import { simulate, type RunSpec, type Sample } from '../sim/run';
 import { BODY, GEARBOX, MASS, SUSPENSION, TIRE, units } from '../spec/vehicle';
-import { brakeAt, bump, cruise, holdSpeed, laneSteer, type Drive } from './drivers';
+import { brakeAt, cruise, holdSpeed, laneSteer, type Drive } from './drivers';
 
 export type LabValues = Record<string, number | boolean | string>;
 
@@ -26,20 +27,10 @@ export interface LabControl {
   format?: (v: number) => string;
 }
 
-export interface LabRun {
-  start: () => CarState;
-  drive: Drive;
-  road?: Road & { curve?: number; curveX?: number; bumpAt?: number };
-  params?: Partial<Params>;
-  faults?: Partial<Faults>;
-  /** Simulated seconds to run (or until `until`). */
-  duration: number;
-  until?: (s: CarState, t: number) => boolean;
-  /** Playback speed of the live run in the scene. */
-  timeScale?: number;
-}
+/** A lab's run: a complete run specification (sim/run.ts) less its id, which the lab gives. */
+export type LabRun = Omit<RunSpec, 'id' | 'duration'> & { drive: Drive; duration: number };
 
-export type Sample = Record<string, number>;
+export type { Sample };
 
 export interface Lab {
   id: string;
@@ -87,6 +78,8 @@ function when(samples: Sample[], key: string, value: number, x = 't'): number {
   }
   return NaN;
 }
+/** A time (or any quantity) that may not have been reached in the run. */
+const reached = (v: number, unit: string, digits = 1) => (Number.isFinite(v) ? `${v.toFixed(digits)} ${unit}` : 'not reached in this run');
 const max = (samples: Sample[], key: string) => samples.reduce((m, s) => Math.max(m, s[key]), -Infinity);
 const min = (samples: Sample[], key: string) => samples.reduce((m, s) => Math.min(m, s[key]), Infinity);
 
@@ -105,7 +98,7 @@ export const LABS: Lab[] = [
       const fd = v.fd as number;
       const cruiseRpm = (units.kmhToMs(120) / TIRE.rollingRadius) * fd * GEARBOX.ratios[7] * (60 / (2 * Math.PI));
       return [
-        { label: '0–100 km/h', value: `${f1(when(sm, 'kmh', 100))} s` },
+        { label: '0–100 km/h', value: reached(when(sm, 'kmh', 100), 's') },
         { label: 'Speed after 14 s', value: `${f0(sm[sm.length - 1].kmh)} km/h` },
         { label: 'Engine at 120 km/h in 8th', value: `${f0(cruiseRpm)} rpm` },
       ];
@@ -118,31 +111,43 @@ export const LABS: Lab[] = [
     question: 'How do torque and power change with engine speed, and how much does the throttle decide?',
     view: 'firing-order',
     controls: [{ id: 'th', label: 'Throttle', kind: 'range', min: 0.2, max: 1, step: 0.05, value: 1, format: (v) => `${Math.round(v * 100)} %` }],
+    // a rolling-road sweep: 3rd gear held, the converter locked, from 1,000 rpm to the limiter
     run: (v) => ({
-      start: () => presetCruise(30, 2),
-      // hold second gear and sweep the engine speed upward
+      start: () => {
+        const s = presetCruise(18, 3);
+        s.lockup = 1;
+        s.omegaE = s.omegaT;
+        return s;
+      },
       drive: (_t, inp, s) => {
         inp.ignition = true;
         inp.selector = 'D';
+        inp.manualGear = 3;
+        inp.lockup = true;
         inp.throttle = v.th as number;
         inp.steer = laneSteer(s, { R: 0, curveX: 0 });
       },
-      duration: 9,
-      until: (s) => rpm(s) > 6300 || s.gear > 2,
-      timeScale: 0.5,
+      duration: 16,
+      until: (s) => rpm(s) > 6400,
+      timeScale: 1,
     }),
     sample: (s, t) => ({ t, rpm: rpm(s), torque: s.engineTorque, power: (s.engineTorque * s.omegaE) / 1000 }),
-    every: 0.01,
+    every: 0.02,
     chart: { x: 'rpm', xLabel: 'Engine speed, rpm', yLabel: 'Torque N·m · Power kW', series: [{ key: 'torque', label: 'Torque', color: '#E69F00' }, { key: 'power', label: 'Power', color: '#56B4E9' }], reference: fullLoadTorque, referenceLabel: 'Full-load torque', xMax: 6500 },
     results: (sm) => {
+      const lo = min(sm, 'rpm');
+      const hi = max(sm, 'rpm');
       const pk = sm.reduce((a, b) => (b.power > a.power ? b : a), sm[0]);
       const tq = sm.reduce((a, b) => (b.torque > a.torque ? b : a), sm[0]);
+      // a peak at the very end of the sweep is only the highest value reached, not a peak
+      const atEnd = (x: Sample) => x.rpm > hi - 60 && hi < 6300;
       return [
-        { label: 'Peak torque', value: `${f0(tq.torque)} N·m at ${f0(tq.rpm)} rpm` },
-        { label: 'Peak power', value: `${f0(pk.power)} kW at ${f0(pk.rpm)} rpm` },
+        { label: 'Range swept', value: `${f0(lo)}–${f0(hi)} rpm` },
+        { label: 'Peak torque', value: atEnd(tq) ? `still rising at ${f0(hi)} rpm` : `${f0(tq.torque)} N·m at ${f0(tq.rpm)} rpm` },
+        { label: 'Peak power', value: atEnd(pk) ? `still rising: ${f0(pk.power)} kW at ${f0(hi)} rpm` : `${f0(pk.power)} kW at ${f0(pk.rpm)} rpm` },
       ];
     },
-    notice: 'Torque is the twisting force of each firing; power is torque times speed. Torque peaks in the middle of the range, where the engine breathes best, but power keeps climbing as long as speed rises faster than torque falls. Part throttle limits the air, and with it every number.',
+    notice: 'Torque is the twisting force of each firing; power is torque times speed. Torque peaks in the middle of the range, where the engine breathes best, but power keeps climbing as long as speed rises faster than torque falls. Part throttle limits the air, and with it every number. (A rolling-road sweep: third gear held and the converter locked, so the engine speed rises with the car.)',
   },
   {
     id: 'braking',
@@ -187,11 +192,10 @@ export const LABS: Lab[] = [
       { id: 'c', label: 'Damping', kind: 'range', min: 0.15, max: 2.2, step: 0.05, value: 1, format: (v) => `×${v.toFixed(2)}` },
     ],
     run: (v) => {
-      const b = bump(9);
       return {
         start: () => presetCruise(30),
         drive: cruise(30),
-        road: { mu: 1, height: (s: number) => b(s), bumpAt: 9 },
+        road: { mu: TIRE.muDry, bumpAt: 9 },
         params: { wheelRateFront: SUSPENSION.wheelRateFront * (v.k as number), wheelRateRear: SUSPENSION.wheelRateRear * (v.k as number), dampingFront: SUSPENSION.dampingFront * (v.c as number), dampingRear: SUSPENSION.dampingRear * (v.c as number) },
         duration: 3.5,
         timeScale: 0.25,
@@ -309,7 +313,7 @@ export const LABS: Lab[] = [
     results: (sm) => [
       { label: 'Most multiplication', value: `×${max(sm, 'tr').toFixed(2)}` },
       { label: 'Engine speed pulling away', value: `${f0(max(sm.filter((s) => s.t < 1.5), 'rpm'))} rpm` },
-      { label: 'Coupling reached after', value: `${f1(when(sm, 'sr', 0.85))} s` },
+      { label: 'Coupling reached after', value: reached(when(sm, 'sr', 0.85), 's') },
     ],
     notice: 'With the car still, the turbine stands while the impeller spins: the stator redirects the fluid and the converter multiplies the engine’s torque about two times. As the turbine catches up the multiplication fades to one at the coupling point; then the lock-up clutch joins them so nothing is lost in the fluid.',
   },
@@ -358,22 +362,12 @@ export function defaults(lab: Lab): LabValues {
   return Object.fromEntries(lab.controls.map((c) => [c.id, c.value]));
 }
 
-/** Run a lab off screen: deterministic samples. */
-export function simulateLab(lab: Lab, v: LabValues): Sample[] {
-  const r = lab.run(v);
-  const car = new Car();
-  car.restore(r.start());
-  car.faults = { ...NO_FAULTS, ...(r.faults ?? {}) };
-  car.road = r.road ?? { mu: TIRE.muDry };
-  car.params = { ...car.params, ...(r.params ?? {}) };
-  car.program = (t, inp, s) => r.drive(t, inp, s);
-  car.programT0 = car.s.t;
-  const every = lab.every ?? 0.05;
-  const out: Sample[] = [];
-  for (let t = 0; t <= r.duration + 1e-9; t += every) {
-    car.runTo(car.programT0 + t);
-    out.push(lab.sample(car.s, t, car));
-    if (r.until?.(car.s, t)) break;
-  }
-  return out;
+/** A lab's complete run for these values (the same spec drives the chart and the live car). */
+export function labRun(lab: Lab, v: LabValues): RunSpec {
+  return { id: `lab:${lab.id}`, ...lab.run(v) };
+}
+
+/** Run a lab off screen: deterministic samples, from a fresh car (nothing inherited). */
+export function simulateLab(lab: Lab, v: LabValues, car?: Car): Sample[] {
+  return simulate(labRun(lab, v), lab.sample, lab.every ?? 0.05, car);
 }

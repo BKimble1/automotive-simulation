@@ -1,8 +1,13 @@
 /**
  * Plays the film's bundled narration in step with the presentation clock: the segment of the
- * beat on screen, from the beat's local time. The clock leads; the audio follows (it is moved
- * to the right place on every seek, and re-synchronised if it drifts more than a fifth of a
- * second). Muted by default; the header's sound button (a user gesture) turns it on.
+ * beat on screen, from the beat's local time. The presentation clock is the one timing
+ * authority; the audio follows it: it is moved to the right place on every seek, re-synchronised
+ * if it drifts more than a fifth of a second (a slow frame, a stall), and paused whenever the
+ * clock holds (the pause, a beat waiting for its view, a sought state being computed).
+ *
+ * Muted by default; the header's sound button (a user gesture) turns it on. If the browser
+ * refuses to play (autoplay policy), it is not retried every frame: the sound button shows that
+ * a tap is needed, and the next gesture tries again.
  */
 import { useEffect, useRef } from 'react';
 import { useApp, usePlayer } from '../state/store';
@@ -15,6 +20,23 @@ export function useNarration(world: World | null) {
   const sound = useApp((s) => s.sound);
   const audio = useRef<HTMLAudioElement | null>(null);
   const segment = useRef<string | null>(null);
+  const blocked = useRef(false);
+  const trying = useRef(false);
+
+  // any gesture lets the browser play again
+  useEffect(() => {
+    const unblock = () => {
+      if (!blocked.current) return;
+      blocked.current = false;
+      useApp.setState({ soundBlocked: false });
+    };
+    window.addEventListener('pointerdown', unblock, true);
+    window.addEventListener('keydown', unblock, true);
+    return () => {
+      window.removeEventListener('pointerdown', unblock, true);
+      window.removeEventListener('keydown', unblock, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!world || !NARRATION.version) return;
@@ -45,12 +67,26 @@ export function useNarration(world: World | null) {
       }
       const local = p.t - b.start;
       const end = seg.durationMs / 1000;
-      if (!p.playing || local >= end) {
+      if (!p.playing || p.hold || world.paused || local >= end) {
         if (!a.paused) a.pause();
         return;
       }
       if (Math.abs(a.currentTime - local) > 0.2 && a.readyState >= 1) a.currentTime = local;
-      if (a.paused) void a.play().catch(() => {});
+      if (a.paused && !blocked.current && !trying.current) {
+        trying.current = true;
+        a.play()
+          .then(() => {
+            trying.current = false;
+          })
+          .catch((err: DOMException) => {
+            trying.current = false;
+            // the browser wants a gesture: stop asking until the visitor gives one
+            if (err?.name === 'NotAllowedError') {
+              blocked.current = true;
+              useApp.setState({ soundBlocked: true });
+            }
+          });
+      }
     };
     raf = requestAnimationFrame(tick);
     return () => {

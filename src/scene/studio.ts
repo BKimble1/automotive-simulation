@@ -3,9 +3,6 @@
  * background (an infinite cyclorama), a turntable marked by a fine groove, a soft contact
  * shadow under the car, and the lights that match the reflection environment (env.ts): a key
  * from the front left that casts the shadows, a cool rim from behind, a soft overhead fill.
- *
- * The floor's reflection of the car (high tier) is a planar reflection, blurred and kept dim,
- * so it grounds the car without competing with it.
  */
 import {
   AmbientLight,
@@ -78,8 +75,6 @@ uniform vec3 uBase;
 uniform vec3 uFar;
 uniform vec3 uLine;
 uniform float uFade;
-uniform sampler2D uRefl;
-uniform float uReflAmt;
 uniform float uDim;
 varying vec3 vWorld;
 varying vec4 vClip;
@@ -105,12 +100,6 @@ void main() {
   // shadows from the key light
   float sh = getShadowMask();
   col *= mix(0.55, 1.0, sh);
-  // the reflection (high tier): screen-space lookup of the mirrored render, dim
-  if (uReflAmt > 0.0) {
-    vec2 suv = vClip.xy / vClip.w * 0.5 + 0.5;
-    vec3 refl = texture2D(uRefl, suv).rgb;
-    col += refl * uReflAmt * pool;
-  }
   // fade into the background with distance
   float fade = smoothstep(uFade * 0.45, uFade, r);
   col = mix(col, uFar, fade);
@@ -148,8 +137,6 @@ export class Studio {
         uFar: { value: new Color('#0b0c0e') },
         uLine: { value: new Color('#9aa3b5') },
         uFade: { value: 15 },
-        uRefl: { value: null },
-        uReflAmt: { value: 0 },
         uDim: { value: 1 },
         },
       ]),

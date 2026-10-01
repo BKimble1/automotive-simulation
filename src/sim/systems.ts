@@ -58,7 +58,15 @@ export class AbsChannel {
   pressure = 0;
   /** Count of release events (cycles) since the stop began. */
   cycles = 0;
-  private holdT = 0;
+  /** Time left in the hold phase, s. */
+  holdT = 0;
+  /** Take up a saved channel (its whole memory is these four numbers). */
+  load(phase: AbsPhase, pressure: number, cycles: number, holdT: number) {
+    this.phase = phase;
+    this.pressure = pressure;
+    this.cycles = cycles;
+    this.holdT = holdT;
+  }
   step(dt: number, linePa: number, slip: number, wheelDecel: number, speedKmh: number, enabled: boolean) {
     const bar = 1e5;
     if (!enabled || speedKmh < ABS.minKmh || linePa <= 0.5 * bar) {
@@ -102,9 +110,7 @@ export class AbsChannel {
     this.pressure = Math.min(this.pressure, linePa);
   }
   reset() {
-    this.phase = 'off';
-    this.pressure = 0;
-    this.cycles = 0;
+    this.load('off', 0, 0, 0);
   }
 }
 
@@ -129,7 +135,7 @@ export class Cooling {
   /** Heat rejected by the radiator, W, and heat into the coolant, W. */
   rejected = 0;
   heatIn = 0;
-  step(dt: number, engineRpm: number, fuelPowerW: number, speedMs: number, faults: CoolingFaults, heaterOn = false) {
+  step(dt: number, engineRpm: number, fuelPowerW: number, speedMs: number, faults: CoolingFaults, heaterOn = false, ambientC: number = COOLING.ambientC) {
     // pump flow follows engine speed (belt driven)
     this.pumpFlow = (engineRpm / 6000) * 160 * (faults.lowCoolant ? 0.45 : 1);
     const pumpShare = Math.min(1, engineRpm / 2500);
@@ -143,7 +149,7 @@ export class Cooling {
     const air = COOLING.radiatorUA + COOLING.radiatorUARam * ram + (this.fanOn ? COOLING.radiatorUAFan * (1 - 0.6 * ram) : 0);
     this.radiatorFlow = engineRpm > 50 ? this.thermostat * pumpShare : 0;
     this.bypassFlow = engineRpm > 50 ? (1 - this.thermostat) * pumpShare : 0;
-    const dT = this.coolantC - COOLING.ambientC;
+    const dT = this.coolantC - ambientC;
     // with little coolant, the radiator cannot carry its full load (air pockets)
     const coolantFactor = faults.lowCoolant ? 0.5 : 1;
     this.rejected = air * dT * this.radiatorFlow * coolantFactor + COOLING.blockLossUA * dT + (heaterOn ? 250 * dT * pumpShare : 0);
@@ -208,6 +214,7 @@ export class Lubrication {
 // ─────────────────────────── 12 V electrical ───────────────────────────
 
 export interface ElectricalFaults {
+  /** An aged battery: its internal resistance is half as much again (its charge is a starting condition). */
   weakBattery: boolean;
   alternatorFailed: boolean;
 }
@@ -223,9 +230,6 @@ export class Electrical {
   loadAmps = 0;
   /** The ECU has enough voltage to run. */
   ecuPowered = true;
-  setWeak(weak: boolean) {
-    if (weak) this.soc = Math.min(this.soc, 0.32);
-  }
   internal(faults: ElectricalFaults): number {
     return ELECTRICAL.internalOhm * (faults.weakBattery ? 1.5 : 1);
   }

@@ -7,6 +7,7 @@ import { useApp, type AppState } from '../state/store';
 import { LESSONS } from '../content/lessons';
 import { FILM } from '../content/film';
 import { presetIdle } from '../sim/car';
+import type { RunSpec } from '../sim/run';
 import { SYSTEM_VIEWS } from './views';
 import { viewFor } from './partViews';
 import { BY_ID } from '../content/registry';
@@ -15,11 +16,11 @@ import { FAULT_BY_ID, SCENARIO_BY_ID } from '../content/scenarios';
 import { runScenario } from '../ui/simulate/run';
 import type { World } from './world';
 
-/** The car idling in Park: the opening and Explore. */
-export const IDLE_PROGRAM = {
+/** The car idling in Park: the opening and Explore (a complete run: nothing inherited). */
+export const IDLE_RUN: RunSpec = {
   id: 'idle',
   start: presetIdle,
-  drive: (_t: number, inp: { ignition: boolean; selector: string }) => {
+  drive: (_t, inp) => {
     inp.ignition = true;
     inp.selector = 'P';
   },
@@ -28,6 +29,8 @@ export const IDLE_PROGRAM = {
 export function attachController(world: World): () => void {
   const apply = (s: AppState, prev: AppState | null) => {
     const first = prev === null;
+    // a new place starts running: a pause belongs to what was left (a paused lesson, a run)
+    if (!first && (s.mode !== prev.mode || s.lesson !== prev.lesson || s.lab !== prev.lab || s.scenario !== prev.scenario)) world.setPaused(false);
     world.camera.reducedMotion = s.reducedMotion;
     world.channels.speed = s.reducedMotion ? 0.6 : 1;
     // a lesson inside Explore ("Show how it works")
@@ -40,14 +43,14 @@ export function attachController(world: World): () => void {
     }
     if (!s.lesson && prev?.lesson) {
       world.stopSequence();
-      world.setLive(IDLE_PROGRAM as never);
+      world.setLive(IDLE_RUN);
     }
     const modeChanged = first || s.mode !== prev?.mode;
     switch (s.mode) {
       case 'intro':
         if (modeChanged) {
           world.stopSequence();
-          world.setLive(IDLE_PROGRAM as never);
+          world.setLive(IDLE_RUN);
           world.request('hero', { instant: first, returning: !first });
         }
         break;
@@ -61,7 +64,7 @@ export function attachController(world: World): () => void {
       case 'explore': {
         if (modeChanged) {
           world.stopSequence();
-          world.setLive(IDLE_PROGRAM as never);
+          world.setLive(IDLE_RUN);
         }
         if (modeChanged || s.system !== prev?.system || s.part !== prev?.part || (!s.lesson && prev?.lesson)) {
           // going up the hierarchy reads as returning
@@ -76,11 +79,11 @@ export function attachController(world: World): () => void {
       case 'engineer': {
         if (modeChanged) {
           world.stopSequence();
-          world.setLive(IDLE_PROGRAM as never);
+          world.setLive(IDLE_RUN);
         }
         if (modeChanged || s.lab !== prev?.lab) {
           const lab = s.lab ? LAB_BY_ID[s.lab] : null;
-          if (lab && !modeChanged) world.setLive(IDLE_PROGRAM as never);
+          if (lab && !modeChanged) world.setLive(IDLE_RUN);
           world.request(lab ? lab.view : 'overview', { instant: first, returning: !!prev?.lab && !s.lab });
         }
         break;
@@ -89,8 +92,8 @@ export function attachController(world: World): () => void {
         if (modeChanged) world.stopSequence();
         if (modeChanged || s.scenario !== prev?.scenario) {
           const sc = s.scenario ? (SCENARIO_BY_ID[s.scenario] ?? FAULT_BY_ID[s.scenario]) : null;
-          if (sc) runScenario(world, sc.program);
-          else world.setLive(IDLE_PROGRAM as never);
+          if (sc) runScenario(world, s.scenario!, sc.program);
+          else world.setLive(IDLE_RUN);
           world.request(sc ? sc.view : 'overview', { instant: first, returning: !!prev?.scenario && !s.scenario });
         }
         break;
@@ -98,7 +101,7 @@ export function attachController(world: World): () => void {
       default:
         if (modeChanged) {
           world.stopSequence();
-          world.setLive(IDLE_PROGRAM as never);
+          world.setLive(IDLE_RUN);
           world.request('overview', { instant: first });
         }
     }

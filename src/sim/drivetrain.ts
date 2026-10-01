@@ -1,7 +1,8 @@
 /**
  * The drivetrain's models: the torque converter, the eight-speed automatic's ratios and shift
- * elements, a single planetary gearset (for the lesson that explains how one gearset makes
- * several ratios), the final drive and the open differential.
+ * schedule, a single planetary gearset (the teaching view that explains how one gearset makes
+ * several ratios; the real geartrain is geartrain.ts), the final drive and the open
+ * differential.
  *
  * Rotation directions (vehicle coordinates: x forward, y up, z right):
  *   - the crankshaft turns clockwise seen from the front: its angular velocity points along −x;
@@ -53,26 +54,10 @@ export function statorHeld(sr: number): boolean {
 // ─────────────────────────── eight-speed automatic ───────────────────────────
 
 /**
- * Shift elements: two brakes (A, B) and three clutches (C, D, E). Three are applied in every
- * gear, and each single up-shift or down-shift releases one element and applies one (a
- * clutch-to-clutch shift), as in modern eight-speed planetary automatics.
+ * Shift elements and the geartrain that uses them live in geartrain.ts (four gearsets, five
+ * elements, eight shafts); the ratios here are derived from its tooth counts.
  */
-export type Element = 'A' | 'B' | 'C' | 'D' | 'E';
-export const ELEMENTS: readonly Element[] = ['A', 'B', 'C', 'D', 'E'];
-export const ELEMENT_KIND: Record<Element, 'brake' | 'clutch'> = { A: 'brake', B: 'brake', C: 'clutch', D: 'clutch', E: 'clutch' };
-export const SHIFT_TABLE: Record<string, readonly Element[]> = {
-  R: ['A', 'B', 'D'],
-  N: ['A', 'B'],
-  P: ['A', 'B'],
-  '1': ['A', 'B', 'C'],
-  '2': ['A', 'B', 'E'],
-  '3': ['B', 'C', 'E'],
-  '4': ['B', 'D', 'E'],
-  '5': ['B', 'C', 'D'],
-  '6': ['C', 'D', 'E'],
-  '7': ['A', 'C', 'D'],
-  '8': ['A', 'D', 'E'],
-};
+export { ELEMENTS, SHIFT_TABLE, ELEMENT_DEFS, type Element } from './geartrain';
 
 export function gearRatio(gear: number): number {
   if (gear === -1) return GEARBOX.reverse;
@@ -98,7 +83,7 @@ export function downshiftRpm(throttle: number): number {
   return GEARBOX.downshift + 2400 * Math.pow(t, 2);
 }
 
-// ─────────────────────────── one planetary gearset ───────────────────────────
+// ─────────────── one planetary gearset (the teaching view, not the S-1's geartrain) ───────────────
 
 /** Tooth counts of the lesson's planetary gearset: ring = sun + 2 × planet. */
 export const PLANETARY = { sun: 30, planet: 24, ring: 78 } as const;

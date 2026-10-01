@@ -7,9 +7,10 @@
  * Time: each beat runs mechanical time at its time scale (slow motion for the engine, real time
  * for driving, fast-forward for warming up), integrated exactly, so seeking is deterministic.
  */
-import { NO_FAULTS, presetCold, presetCruise, presetIdle, type CarState, type Inputs } from '../sim/car';
+import { NO_FAULTS, presetCold, presetCruise, presetIdle, type CarState, type Inputs, type RoadSpec } from '../sim/car';
+import { TIRE } from '../spec/vehicle';
 import type { Beat, Sequence } from '../world/sequence';
-import { brakeAt, bump, cruise, pullAway } from './drivers';
+import { brakeAt, cruise, pullAway } from './drivers';
 
 /** Hold the start button from `press` until the engine runs (the car's start-stop logic). */
 function startScript(press: number) {
@@ -249,7 +250,7 @@ const CORNER = { R: 12, curveX: 19 };
 const cornerProgram = {
   start: () => presetCruise(25),
   drive: cruise(25, CORNER, 0.14),
-  road: { mu: 1, curve: 1 / CORNER.R, curveX: CORNER.curveX } as never,
+  road: { mu: TIRE.muDry, curve: 1 / CORNER.R, curveX: CORNER.curveX },
 };
 const diffBeats: Beat[] = [
   {
@@ -285,10 +286,7 @@ const diffBeats: Beat[] = [
 
 // ───────────────────────────── 6. suspension over a bump ─────────────────────────────
 const BUMP_AT = 18;
-const bumpRoad = (at: number) => {
-  const b = bump(at);
-  return { mu: 1, height: (s: number) => b(s), bumpAt: at } as never;
-};
+const bumpRoad = (at: number): RoadSpec => ({ mu: TIRE.muDry, bumpAt: at });
 const suspensionBeats: Beat[] = [
   {
     id: 'susp-parts',
@@ -414,7 +412,7 @@ const coolingBeats: Beat[] = [
     text: 'Stopped in hot traffic, little air passes through the radiator. When the coolant passes 102 degrees, the electric fans switch on and pull air through it.',
     duration: 6,
     view: 'cooling-circuit',
-    program: { start: warmAt(102.2), drive: idleInPark, road: { mu: 1, ambientC: 38 } },
+    program: { start: warmAt(102.2), drive: idleInPark, road: { mu: TIRE.muDry, ambientC: 38 } },
     timeScale: 1,
     readouts: ['coolantC', 'fan'],
   },

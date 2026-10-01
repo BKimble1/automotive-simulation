@@ -5,11 +5,17 @@
  *
  *   high / medium   render → ambient occlusion (N8AO) → subtle bloom → AgX tone mapping →
  *                   vignette, with MSAA on the scene target (SMAA when recording)
- *   low             direct render with AgX tone mapping (software renderers, weak devices)
+ *   low             render → AgX tone mapping → FXAA: one cheap full-screen pass, so edges are
+ *                   smoothed deliberately even on weak devices (the context itself is created
+ *                   without antialiasing; every tier owns its edge quality)
+ *
+ * Every tier draws the same scene, the same mechanisms and the same colours (all tone mapped
+ * with AgX): only pixel ratio, shadow resolution, ambient occlusion, bloom, edge smoothing,
+ * body detail and particle density change, and they change live (quality.ts).
  */
-import { EffectComposer, EffectPass, RenderPass, BloomEffect, ToneMappingEffect, ToneMappingMode, VignetteEffect, SMAAEffect, SMAAPreset } from 'postprocessing';
+import { EffectComposer, EffectPass, RenderPass, BloomEffect, ToneMappingEffect, ToneMappingMode, VignetteEffect, SMAAEffect, SMAAPreset, FXAAEffect } from 'postprocessing';
 import { N8AOPostPass } from 'n8ao';
-import { AgXToneMapping, Color, HalfFloatType, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, type Texture } from 'three';
+import { Color, HalfFloatType, Mesh, NoToneMapping, PCFSoftShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer, type Material, type Object3D, type Texture } from 'three';
 import { buildEnvironment } from './env';
 import { FrameMonitor, FrameStats, TIERS, initialTier, useQuality, type Tier } from './quality';
 import { CAPTURE, frameTime } from './time';
@@ -92,23 +98,35 @@ export class Stage {
     return this.tier;
   }
 
-  private applyTier(t: Tier) {
-    this.tier = t;
-    const spec = TIERS[t];
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, spec.dprMax));
+  /** Shadow resolution for the lights in the scene (call again when lights are added). */
+  applyLights() {
+    const spec = TIERS[this.tier];
     this.scene.traverse((o) => {
-      const l = o as unknown as { isLight?: boolean; castShadow?: boolean; shadow?: { mapSize: { set(a: number, b: number): void }; map: { dispose(): void } | null } };
-      if (l.isLight && l.castShadow && l.shadow) {
+      const l = o as unknown as { isLight?: boolean; castShadow?: boolean; shadow?: { mapSize: { x: number; set(a: number, b: number): void }; map: { dispose(): void } | null } };
+      if (l.isLight && l.castShadow && l.shadow && l.shadow.mapSize.x !== spec.shadowMap) {
         l.shadow.mapSize.set(spec.shadowMap, spec.shadowMap);
         l.shadow.map?.dispose();
         l.shadow.map = null;
       }
     });
+  }
+
+  private applyTier(t: Tier) {
+    this.tier = t;
+    const spec = TIERS[t];
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, spec.dprMax));
+    this.applyLights();
     this.composer?.dispose();
     this.composer = null;
     this.ao = null;
-    if (spec.ao || spec.bloom) {
-      this.renderer.toneMapping = NoToneMapping;
+    // every tier tone maps in the effect pass, so colours match across tiers
+    this.renderer.toneMapping = NoToneMapping;
+    if (!spec.ao && !spec.bloom) {
+      const composer = new EffectComposer(this.renderer, { frameBufferType: HalfFloatType, multisampling: 0 });
+      composer.addPass(new RenderPass(this.scene, this.camera));
+      composer.addPass(new EffectPass(this.camera, new ToneMappingEffect({ mode: ToneMappingMode.AGX }), new FXAAEffect()));
+      this.composer = composer;
+    } else {
       const msaa = CAPTURE ? 0 : spec.msaa;
       const composer = new EffectComposer(this.renderer, { frameBufferType: HalfFloatType, multisampling: msaa });
       composer.addPass(new RenderPass(this.scene, this.camera));
@@ -131,11 +149,14 @@ export class Stage {
       if (!msaa) effects.push(new SMAAEffect({ preset: SMAAPreset.HIGH }));
       composer.addPass(new EffectPass(this.camera, ...effects));
       this.composer = composer;
-    } else {
-      this.renderer.toneMapping = AgXToneMapping;
-      this.renderer.toneMappingExposure = 1;
     }
     this.resize(this.width, this.height);
+  }
+
+  /** What is drawn now: CSS size, drawing-buffer size and pixel ratio (they must agree). */
+  get sizes() {
+    const c = this.renderer.domElement;
+    return { css: [this.width, this.height], buffer: [c.width, c.height], dpr: this.renderer.getPixelRatio(), tier: this.tier, composer: !!this.composer };
   }
 
   resize(w: number, h: number) {
@@ -162,23 +183,60 @@ export class Stage {
     this.stats.programs = this.renderer.info.programs?.length ?? 0;
   }
 
-  /** Compile every material in the scene before it is first drawn (no hitch mid-move). */
-  async prewarm(scene: Scene = this.scene) {
-    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Scene, c: PerspectiveCamera) => Promise<unknown> };
-    // hidden objects are compiled too: force them visible for the compile
-    const hidden: { visible: boolean }[] = [];
+  /**
+   * Compile the programs a scene needs before it is first drawn (no hitch mid-move). The
+   * displayed scene is never altered: hidden parts are compiled through stand-ins (below).
+   */
+  async prewarm(scene: Scene = this.scene, opts: { onlyVisible?: boolean } = {}) {
+    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Object3D, c: PerspectiveCamera, t?: Scene | null) => Promise<unknown> };
+    if (r.compileAsync) await r.compileAsync(scene, this.camera);
+    else this.renderer.compile(scene, this.camera);
+    if (opts.onlyVisible) return;
+    // the hidden parts: compile their materials on stand-ins in a scene of their own
+    const mats: Material[] = [];
     scene.traverse((o) => {
-      if (!o.visible) {
-        hidden.push(o);
-        o.visible = true;
+      if (o.visible) return;
+      o.traverse((c) => {
+        const m = (c as Mesh).material;
+        if (m) for (const x of Array.isArray(m) ? m : [m]) mats.push(x);
+      });
+    });
+    await this.compileMaterials(mats);
+  }
+
+  /**
+   * Compile materials on stand-in meshes (the real geometry of a mesh that uses each one, so the
+   * program variant is the one the scene will need) in a scene that is never displayed, lit by
+   * the displayed scene's lights. Nothing visible changes while this runs.
+   */
+  async compileMaterials(materials: Material[]) {
+    const wanted = new Set(materials);
+    const stand = new Scene();
+    const used = new Set<Material>();
+    this.scene.traverse((o) => {
+      const mesh = o as Mesh;
+      if (!mesh.isMesh) return;
+      const pair = o.userData?.pair as Record<string, unknown> | undefined;
+      const mats = o.userData?.mats as Record<string, unknown> | undefined;
+      const cands: unknown[] = [mesh.material, ...(pair ? Object.values(pair) : []), ...(mats ? Object.values(mats) : [])];
+      for (const m of cands) {
+        if (!m || !(m as Material).isMaterial || !wanted.has(m as Material) || used.has(m as Material)) continue;
+        used.add(m as Material);
+        const p = new Mesh(mesh.geometry, m as Material);
+        p.castShadow = mesh.castShadow;
+        p.receiveShadow = mesh.receiveShadow;
+        p.renderOrder = mesh.renderOrder;
+        p.matrixAutoUpdate = false;
+        p.matrixWorld.copy(mesh.matrixWorld);
+        p.frustumCulled = false;
+        stand.add(p);
       }
     });
-    try {
-      if (r.compileAsync) await r.compileAsync(scene, this.camera);
-      else this.renderer.compile(scene, this.camera);
-    } finally {
-      for (const o of hidden) o.visible = false;
-    }
+    if (!stand.children.length) return;
+    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Object3D, c: PerspectiveCamera, t?: Scene | null) => Promise<unknown> };
+    if (r.compileAsync) await r.compileAsync(stand, this.camera, this.scene);
+    else this.renderer.compile(stand, this.camera, this.scene);
+    stand.clear();
   }
 
   /** Test hook: simulate a lost context (and restore it). */

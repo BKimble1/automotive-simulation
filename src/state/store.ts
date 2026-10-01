@@ -24,6 +24,8 @@ export interface AppState {
   lab: string | null;
   scenario: string | null;
   sound: boolean;
+  /** The browser refused to play the narration until the visitor taps (autoplay policy). */
+  soundBlocked: boolean;
   captions: boolean;
   legend: boolean;
   reducedMotion: boolean;
@@ -52,6 +54,7 @@ export const useApp = create<AppState>((set, get) => ({
   lab: params.get('lab'),
   scenario: params.get('scenario'),
   sound: false,
+  soundBlocked: false,
   captions: true,
   legend: false,
   reducedMotion: typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
@@ -98,7 +101,9 @@ export interface Readouts {
   rpm: number;
   kmh: number;
   gear: string;
+  /** The selector position in effect, and the one the driver asked for (they differ while refused). */
   selector: string;
+  selectorWanted: string;
   throttle: number;
   brakeBar: number;
   torque: number;
@@ -128,10 +133,14 @@ export interface Readouts {
   rotorC: number[];
   abs: string[];
   absCycles: number;
+  /** Each caliper's pressure, bar (ABS modulates them separately). */
+  caliperBar: number[];
   stopDistance: number;
   heave: number;
   steerDeg: number;
   roadWheelDeg: number;
+  /** Left and right front road-wheel angles, degrees (the inner wheel turns more). */
+  wheelAngleDeg: number[];
   /** Per-cylinder stroke names and pressure (bar), for the engine lessons. */
   strokes: string[];
   pressures: number[];
@@ -142,6 +151,9 @@ export interface Readouts {
   elements: string[];
   applying: string | null;
   releasing: string | null;
+  /** Slip speed across each shift element, rpm (0 while it holds), and the eight shafts' speeds. */
+  slipRpm: Record<'A' | 'B' | 'C' | 'D' | 'E', number>;
+  shaftRpm: number[];
   statorLocked: boolean;
   starterAmps: number;
   turbineRpm: number;
@@ -156,6 +168,7 @@ export const useReadouts = create<Readouts>(() => ({
   kmh: 0,
   gear: 'P',
   selector: 'P',
+  selectorWanted: 'P',
   throttle: 0,
   brakeBar: 0,
   torque: 0,
@@ -185,10 +198,12 @@ export const useReadouts = create<Readouts>(() => ({
   rotorC: [25, 25, 25, 25],
   abs: ['off', 'off', 'off', 'off'],
   absCycles: 0,
+  caliperBar: [0, 0, 0, 0],
   stopDistance: 0,
   heave: 0,
   steerDeg: 0,
   roadWheelDeg: 0,
+  wheelAngleDeg: [0, 0],
   strokes: ['', '', '', ''],
   pressures: [1, 1, 1, 1],
   burns: [0, 0, 0, 0],
@@ -198,6 +213,8 @@ export const useReadouts = create<Readouts>(() => ({
   elements: [],
   applying: null,
   releasing: null,
+  slipRpm: { A: 0, B: 0, C: 0, D: 0, E: 0 },
+  shaftRpm: [0, 0, 0, 0, 0, 0, 0, 0],
   statorLocked: true,
   starterAmps: 0,
   turbineRpm: 0,
@@ -213,10 +230,24 @@ export interface PlayerState {
   t: number;
   duration: number;
   playing: boolean;
+  /** Playing, but waiting for the beat's subject (its view, its assets, a sought state). */
+  holding: boolean;
   beat: number;
   beats: { title: string; text: string; start: number; chapter?: string; readouts?: string[]; timeScale: number; pace?: number }[];
   caption: string;
   ended: boolean;
 }
 
-export const usePlayer = create<PlayerState>(() => ({ id: null, title: '', t: 0, duration: 0, playing: false, beat: -1, beats: [], caption: '', ended: false }));
+export const usePlayer = create<PlayerState>(() => ({ id: null, title: '', t: 0, duration: 0, playing: false, holding: false, beat: -1, beats: [], caption: '', ended: false }));
+
+/** The live run (a lab, a scenario, a fault case, the workbench): what it is and what it is doing. */
+export interface RunState {
+  id: string | null;
+  /** none · scripted (a driver script is running) · manual (the visitor drives) · paused · ended */
+  status: 'none' | 'scripted' | 'manual' | 'paused' | 'ended';
+  /** Simulated seconds since the run started, and its length (null: open-ended). */
+  t: number;
+  duration: number | null;
+}
+
+export const useRun = create<RunState>(() => ({ id: null, status: 'none', t: 0, duration: null }));

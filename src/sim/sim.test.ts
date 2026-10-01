@@ -22,7 +22,8 @@ import {
   EXHAUST_PEAK,
 } from './engine';
 import { DIFF, PLANETARY, SHIFT_TABLE, converterTorqueRatio, diffSpeeds, gearRatio, planetaryMode, planetaryRatio, planetarySpeeds, cornerWheelSpeeds } from './drivetrain';
-import { Car, cloneState, presetCold, presetCruise, presetIdle, STEP } from './car';
+import { Car, cloneState, makeRoad, presetCold, presetCruise, presetIdle, STEP } from './car';
+import { initRun } from './run';
 import { AbsChannel, masterPressure } from './systems';
 
 const DEG = Math.PI / 180;
@@ -187,17 +188,14 @@ describe('differential', () => {
 });
 
 describe('suspension', () => {
-  const bump = (s: number, side: -1 | 1) => {
-    void side;
-    const x = s - 6;
-    return x > 0 && x < 0.6 ? 0.05 * Math.sin((Math.PI * x) / 0.6) ** 2 : 0;
-  };
+  // a 50 mm bump, 0.6 m long, its crest 6.3 m along the path
+  const bump = makeRoad({ mu: TIRE.muDry, bumpAt: 6.3, bumpHeight: 0.05, bumpLength: 0.6 });
   function run(worn: number) {
     const car = new Car(presetCruise(30, 2));
     car.inputs.ignition = true;
     car.inputs.selector = 'D';
     car.inputs.throttle = 0.08;
-    car.road = { mu: TIRE.muDry, height: bump };
+    car.road = bump;
     car.faults.wornDamper = worn;
     const heave: number[] = [];
     for (let k = 0; k < 400; k++) {
@@ -268,7 +266,7 @@ describe('brakes and ABS', () => {
   test('on a slippery road ABS stops shorter than locked wheels, and keeps steering possible', () => {
     const stop = (abs: boolean) => {
       const car = new Car(presetCruise(50));
-      car.road = { mu: 0.15 };
+      car.road = makeRoad({ mu: 0.15 });
       car.faults.absDisabled = !abs;
       car.inputs.ignition = true;
       car.inputs.selector = 'D';
@@ -302,8 +300,9 @@ describe('engine start, cooling and electrical faults', () => {
   });
   test('a weak battery cranks slowly and starts late', () => {
     const start = (weak: boolean) => {
-      const car = new Car(presetCold());
-      car.faults.weakBattery = weak;
+      const car = new Car();
+      // an aged battery: higher internal resistance, and it starts the run partly discharged
+      initRun(car, { id: 'test', start: presetCold, faults: { weakBattery: weak } });
       car.inputs.ignition = true;
       car.inputs.start = true;
       car.runTo(0.4);

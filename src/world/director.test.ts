@@ -86,16 +86,30 @@ describe('animation director', () => {
     expect(r.director.state).toBe('transitioning');
   });
 
-  it('pauses and resumes without moving', () => {
+  it('pauses and resumes without moving; nothing it is asked releases the pause', () => {
     const r = rig();
     r.director.request(VIEWS.hero);
     r.step();
     r.director.request(VIEWS['sys-power']);
     for (let i = 0; i < 20; i++) r.step();
-    r.director.pause();
+    r.director.setPaused(true);
     expect(r.director.state).toBe('paused');
-    r.director.resume();
+    // the world gives a paused director no time: the move holds where it is
+    const p0 = r.cam.position.clone();
+    for (let i = 0; i < 30; i++) r.step(0);
+    expect(r.cam.position.distanceTo(p0)).toBeLessThan(1e-9);
+    r.director.setPaused(false);
     expect(r.director.state).toBe('transitioning');
+    runUntilSettled(r);
+    // a view asked for while paused moves there (a paused navigation) and arrives still paused
+    r.director.setPaused(true);
+    r.director.request(VIEWS['sys-brakes']);
+    expect(r.director.pausedNavigation).toBe(true);
+    expect(r.director.state).toBe('transitioning');
+    runUntilSettled(r);
+    expect(r.director.paused).toBe(true);
+    expect(r.director.state).toBe('paused');
+    expect(r.director.pausedNavigation).toBe(false);
   });
 
   it('never takes the camera into the body or under the floor, between any two views', () => {

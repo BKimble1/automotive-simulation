@@ -97,7 +97,9 @@ export class Flow {
     this.centre.divideScalar(Math.max(1, def.points.length));
     this.pace = def.pace ?? 1;
     this.spread = def.spread ?? 0;
-    this.count = Math.max(4, Math.round(this.length * lang.density * density));
+    // particles for the densest tier are made once; a tier draws a share of them
+    this.max = Math.max(4, Math.round(this.length * lang.density));
+    this.count = this.max;
     this.pts = new Float32Array((LUT + 1) * 3);
     this.tans = new Float32Array((LUT + 1) * 3);
     for (let i = 0; i <= LUT; i++) {
@@ -108,22 +110,32 @@ export class Flow {
       _t.toArray(this.tans, i * 3);
     }
     // each particle's fixed place in the stream and a small sideways jitter
-    this.offsets = new Float32Array(this.count * 3);
+    this.offsets = new Float32Array(this.max * 3);
     let seed = 1;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    for (let k = 0; k < this.count; k++) {
-      this.offsets[k * 3] = (k + rnd() * 0.6) / this.count;
+    for (let k = 0; k < this.max; k++) {
+      this.offsets[k * 3] = (k + rnd() * 0.6) / this.max;
       this.offsets[k * 3 + 1] = rnd() * 2 - 1;
       this.offsets[k * 3 + 2] = rnd() * 2 - 1;
     }
     this.mat = new MeshBasicMaterial({ color: new Color(lang.color), transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
-    this.mesh = new InstancedMesh(geometryFor(lang.style, lang.size * (def.scale ?? 1)), this.mat, this.count);
+    this.mesh = new InstancedMesh(geometryFor(lang.style, lang.size * (def.scale ?? 1)), this.mat, this.max);
     this.mesh.name = `flow-${def.id}`;
     this.mesh.frustumCulled = false;
     this.mesh.renderOrder = 8;
     this.mesh.visible = false;
     parent.add(this.mesh);
+    this.setDensity(density);
   }
+
+  /** Draw this share of the particles (spread evenly along the stream: every n-th). */
+  setDensity(density: number) {
+    this.stride = Math.max(1, Math.round(1 / Math.max(0.1, Math.min(1, density))));
+    this.count = Math.ceil(this.max / this.stride);
+    this.mesh.count = this.count;
+  }
+  private max: number;
+  private stride = 1;
 
   /**
    * Place the particles: `phase` is the integral of the flow rate (from the model); `opacity`
@@ -138,7 +150,8 @@ export class Flow {
     const style = LANGUAGE[this.kind].style;
     // seen from further away the particles grow (up to a limit), so a wide shot still reads
     const grow = eye ? Math.min(3.2, Math.max(0.85, eye.distanceTo(this.centre) / 1.6)) : 1;
-    for (let k = 0; k < this.count; k++) {
+    for (let j = 0; j < this.count; j++) {
+      const k = Math.min(this.max - 1, j * this.stride);
       let u = this.offsets[k * 3] + travel;
       u -= Math.floor(u);
       const f = u * LUT;
@@ -161,7 +174,7 @@ export class Flow {
       if (style === 'puff') sc *= 0.7 + 0.6 * u;
       _q.setFromUnitVectors(UP, _t);
       _m.compose(_p, _q, _s.set(sc, sc, sc));
-      this.mesh.setMatrixAt(k, _m);
+      this.mesh.setMatrixAt(j, _m);
     }
     this.mesh.instanceMatrix.needsUpdate = true;
   }
@@ -187,5 +200,9 @@ export class Flows {
   }
   get(id: string) {
     return this.flows.get(id);
+  }
+  /** A quality change: every flow draws this share of its particles. */
+  setDensity(density: number) {
+    for (const f of this.flows.values()) f.setDensity(density);
   }
 }

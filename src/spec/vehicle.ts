@@ -15,6 +15,8 @@
  * on the centreline, halfway between the axles. The driver sits on the left (−z).
  */
 
+import { DERIVED_RATIOS } from '../sim/geartrain';
+
 export const NAME = 'S-1';
 
 /** Body and package (design: a mid-size four-door sport sedan). */
@@ -156,8 +158,9 @@ export const VALVES = {
  * the kind modern eight-speeds use).
  */
 export const GEARBOX = {
-  ratios: [4.71, 3.14, 2.11, 1.67, 1.29, 1.0, 0.84, 0.67] as const,
-  reverse: -3.3,
+  /** Ratios of 1st … 8th and reverse, derived from the gearsets' tooth counts (sim/geartrain.ts). */
+  ratios: DERIVED_RATIOS.forward as readonly number[],
+  reverse: DERIVED_RATIOS.reverse,
   /** Final drive (ring and pinion). */
   finalDrive: 3.15,
   /** Efficiency of the gearbox and final drive together (typical). */
