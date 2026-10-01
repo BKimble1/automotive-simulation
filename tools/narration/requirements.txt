@@ -1,0 +1,47 @@
+# FAB / ONE narration pipeline: exact pins for Python 3.11 (CPU only).
+# Install with ./setup.sh (creates .venv and runs pip install -r requirements.txt).
+# The model files themselves are pinned by sha256 in model-lock.json.
+
+# --- direct dependencies ---
+onnxruntime==1.30.0      # runs Kokoro (CPU)
+onnx==1.23.0             # reads/rewrites the graph (narr/derive.py)
+numpy==2.4.6             # arrays
+soundfile==0.14.0        # WAV read/write (bundles libsndfile)
+imageio-ffmpeg==0.6.0    # static ffmpeg 7.0.2 with libmp3lame: MP3 encode/decode, loudness
+misaki==0.9.4            # English G2P rules + British lexicon (installed without extras: no spaCy)
+phonemizer-fork==3.3.2   # espeak-ng wrapper used by misaki's fallback
+espeakng-loader==0.2.4   # bundles the espeak-ng library and data
+num2words==0.5.14        # numbers to words (misaki and our normaliser)
+cryptography==50.0.1     # verifies the npm registry signature in fetch_model.py
+
+# --- transitive dependencies (pinned for reproducibility) ---
+addict==2.4.0
+attrs==26.1.0
+babel==2.18.0
+cffi==2.1.1
+cloudpickle==3.1.2
+csvw==4.1.0
+dlinfo==2.0.0
+docopt==0.6.2
+flatbuffers==25.12.19
+isodate==0.7.2
+joblib==1.6.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+language-tags==1.3.1
+ml_dtypes==0.6.0
+packaging==26.3
+protobuf==7.36.2
+pycparser==3.0
+pyparsing==3.3.3
+python-dateutil==2.9.0.post0
+rdflib==7.6.0
+referencing==0.37.0
+regex==2026.9.10
+rfc3986==1.5.0
+rpds-py==2026.6.3
+segments==2.4.0
+six==1.17.0
+termcolor==3.3.0
+typing_extensions==4.16.0
+uritemplate==4.2.0

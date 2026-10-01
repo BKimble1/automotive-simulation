@@ -1,0 +1,265 @@
+{
+  "format": 1,
+  "about": "Audio-only pronunciation dictionary for FAB / ONE narration. Applied to each cue's text before G2P; captions are never changed. Keys are whole words or phrases (matched on word boundaries, longest key first; spaces in a key match any run of whitespace). A key containing an uppercase letter matches case-sensitively, otherwise case-insensitively (override with \"caseSensitive\"). An alphabetic key also matches its inflections -s, -es, -'s, -s', -ed, -ing; phoneme entries then get misaki's suffix rules (e.g. resist -> resists, die -> dies). Each entry has exactly one of: \"say\" = a respelling substituted into the audio text and then read normally, or \"phonemes\" = Kokoro v1.0 / misaki British phonemes used verbatim (a string, or an object keyed by NOUN / VERB / ADJ / DEFAULT for noun-verb pairs). Symbols: A=eɪ I=aɪ Q=əʊ W=aʊ Y=ɔɪ ʤ ʧ, ᵊ = light schwa, a = TRAP, ɑː = PALM, ɒ = LOT, ɔː = THOUGHT, ɜː = NURSE, ː = long, ˈ primary and ˌ secondary stress (placed just before the stressed vowel). Optional \"asr\" lists transcriptions the automatic ASR check should accept for this entry (QA only; it never changes the audio). Where the audio should say different WORDS from the caption (e.g. 'deep ultraviolet' for 'DUV'), write those words in the script instead, so captions and speech match.",
+  "entries": {
+    "FAB / ONE": {
+      "say": "Fab One",
+      "note": "the app's name; the slash is not read"
+    },
+    "nm": {
+      "say": "nanometres",
+      "note": "unit after a number ('193 nm'); plural even for 1 nm, so prefer writing the word"
+    },
+    "photolithography": {
+      "phonemes": "fˌQtQlɪθˈɒɡɹəfi",
+      "note": "FOH-toh-lith-OG-ruh-fee (same as misaki gold; pinned)"
+    },
+    "lithography": {
+      "phonemes": "lɪθˈɒɡɹəfi",
+      "note": "lith-OG-ruh-fee"
+    },
+    "lithographic": {
+      "phonemes": "lˌɪθəɡɹˈafɪk",
+      "note": "lith-uh-GRAF-ik"
+    },
+    "photoresist": {
+      "phonemes": "fˌQtQɹɪzˈɪst",
+      "note": "FOH-toh-ri-ZIST",
+      "asr": [
+        "photo resist"
+      ]
+    },
+    "resist": {
+      "phonemes": "ɹɪzˈɪst",
+      "note": "noun and verb both ri-ZIST; also matches resists / resist's"
+    },
+    "reticle": {
+      "phonemes": "ɹˈɛtɪkᵊl",
+      "note": "RET-i-kul"
+    },
+    "silicon dioxide": {
+      "phonemes": "sˈɪlɪkᵊn dIˈɒksId",
+      "note": "SIL-i-kun dy-OK-side"
+    },
+    "silicon nitride": {
+      "phonemes": "sˈɪlɪkᵊn nˈItɹId",
+      "note": "SIL-i-kun NY-tride"
+    },
+    "polysilicon": {
+      "phonemes": "pˌɒlisˈɪlɪkᵊn",
+      "note": "POL-ee-SIL-i-kun (not in misaki's lexicon; espeak would be the fallback)",
+      "asr": [
+        "poly silicon",
+        "polysilicone",
+        "poly silicone"
+      ]
+    },
+    "implantation": {
+      "phonemes": "ˌɪmplɑːntˈAʃᵊn",
+      "note": "im-plahn-TAY-shun (British BATH vowel)"
+    },
+    "implant": {
+      "phonemes": {
+        "NOUN": "ˈɪmplɑːnt",
+        "VERB": "ɪmplˈɑːnt",
+        "DEFAULT": "ˈɪmplɑːnt"
+      },
+      "note": "noun IM-plahnt (default: the usual reading in fab narration), verb im-PLAHNT after to/can/will or before a determiner"
+    },
+    "CMOS": {
+      "phonemes": "sˈiːmɒs",
+      "note": "see-moss",
+      "asr": [
+        "see moss",
+        "sea moss",
+        "seamoss",
+        "c moss",
+        "see mos",
+        "c mos"
+      ]
+    },
+    "NMOS": {
+      "phonemes": "ˈɛnmɒs",
+      "note": "en-moss",
+      "asr": [
+        "en moss",
+        "n moss",
+        "enmoss",
+        "n mos",
+        "and moss"
+      ]
+    },
+    "PMOS": {
+      "phonemes": "pˈiːmɒs",
+      "note": "pee-moss",
+      "asr": [
+        "pee moss",
+        "p moss",
+        "pmoss",
+        "p mos"
+      ]
+    },
+    "DUV": {
+      "phonemes": "dˌiː jˌuː vˈiː",
+      "note": "letters D U V, matching the caption. Write 'deep ultraviolet' in the script where those words should be heard.",
+      "asr": [
+        "d u v",
+        "dee you vee"
+      ]
+    },
+    "EUV": {
+      "phonemes": "ˌiː jˌuː vˈiː",
+      "note": "letters E U V, matching the caption. Write 'extreme ultraviolet' in the script where those words should be heard.",
+      "asr": [
+        "e u v",
+        "euv"
+      ]
+    },
+    "FOUP": {
+      "phonemes": "fˈuːp",
+      "note": "foop (front-opening unified pod)",
+      "asr": [
+        "foop",
+        "fupe",
+        "foob"
+      ]
+    },
+    "CMP": {
+      "phonemes": "sˌiː ˌɛm pˈiː",
+      "note": "letters C M P",
+      "asr": [
+        "c m p",
+        "see em pee"
+      ]
+    },
+    "TMAH": {
+      "phonemes": "tˌiː ˌɛm ˌA ˈAʧ",
+      "note": "letters T M A H (British 'aitch'); the developer tetramethylammonium hydroxide",
+      "asr": [
+        "t m a h",
+        "tma h",
+        "tmah"
+      ]
+    },
+    "HMDS": {
+      "phonemes": "ˌAʧ ˌɛm dˌiː ˈɛs",
+      "note": "letters H M D S (British 'aitch'); the adhesion primer",
+      "asr": [
+        "h m d s",
+        "hmd s"
+      ]
+    },
+    "PEB": {
+      "phonemes": "pˌiː ˌiː bˈiː",
+      "note": "letters P E B (post-exposure bake)",
+      "asr": [
+        "p e b",
+        "pe b",
+        "pee b"
+      ]
+    },
+    "CD-SEM": {
+      "phonemes": "sˌiː dˌiː sˈɛm",
+      "note": "see-dee-SEM",
+      "asr": [
+        "c d sem",
+        "cd sem",
+        "cdsem",
+        "see dee sem"
+      ]
+    },
+    "anneal": {
+      "phonemes": "ənˈiːl",
+      "note": "uh-NEEL; also annealed / annealing / anneals"
+    },
+    "dopant": {
+      "phonemes": "dˈQpᵊnt",
+      "note": "DOH-punt (espeak says DOP-unt)"
+    },
+    "wafer": {
+      "phonemes": "wˈAfə",
+      "note": "WAY-fuh"
+    },
+    "die": {
+      "phonemes": "dˈI",
+      "note": "dye (one chip site on the wafer)"
+    },
+    "dies": {
+      "phonemes": "dˈIz",
+      "note": "dyes (plural used in the fab; not 'dice')"
+    },
+    "scanner": {
+      "phonemes": "skˈanə",
+      "note": "SKAN-uh"
+    },
+    "excimer": {
+      "phonemes": "ˈɛksɪmə",
+      "note": "EK-si-muh (espeak stresses the second syllable)"
+    },
+    "argon fluoride": {
+      "phonemes": "ˈɑːɡɒn flˈɔːɹId",
+      "note": "AR-gon FLOR-ide"
+    },
+    "nanometre": {
+      "phonemes": "nˈanQmˌiːtə",
+      "note": "NAN-oh-mee-tuh (British spelling and stress)"
+    },
+    "nanometres": {
+      "phonemes": "nˈanQmˌiːtəz",
+      "note": "NAN-oh-mee-tuhz"
+    },
+    "nanometer": {
+      "phonemes": "nˈanQmˌiːtə",
+      "note": "American spelling, same British reading"
+    },
+    "nanometers": {
+      "phonemes": "nˈanQmˌiːtəz",
+      "note": "American spelling, same British reading"
+    },
+    "193": {
+      "say": "one ninety-three",
+      "note": "the ArF wavelength as lithographers say it ('one-ninety-three nanometre'); the caption keeps the digits"
+    },
+    "13.5": {
+      "say": "thirteen point five",
+      "note": "the EUV wavelength"
+    },
+    "VDD": {
+      "phonemes": "vˌiː dˌiː dˈiː",
+      "note": "letters V D D",
+      "asr": [
+        "v d d",
+        "vd d",
+        "v dd"
+      ]
+    },
+    "GND": {
+      "say": "ground",
+      "note": "the ground rail"
+    },
+    "inverter": {
+      "phonemes": "ɪnvˈɜːtə",
+      "note": "in-VUR-tuh"
+    },
+    "ultraviolet": {
+      "phonemes": "ˌʌltɹəvˈIələt",
+      "note": "UL-truh-VY-uh-lut (espeak says uul-)"
+    },
+    "plasma": {
+      "phonemes": "plˈazmə",
+      "note": "PLAZ-muh, with no linking r before a vowel ('plasma etch')"
+    },
+    "ultrapure": {
+      "phonemes": "ˌʌltɹəpjˈʊə",
+      "note": "UL-truh-pure (espeak fallback gave a wrong first vowel)"
+    },
+    "implanter": {
+      "phonemes": "ɪmplˈɑːntə",
+      "note": "im-PLAHN-ter, like the verb"
+    },
+    "implanted": {
+      "phonemes": "ɪmplˈɑːntɪd",
+      "note": "im-PLAHN-tid (the adjective takes the verb's stress)"
+    }
+  }
+}

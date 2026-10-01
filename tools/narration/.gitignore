@@ -1,0 +1,7 @@
+# Local-only state for the narration pipeline (never commit):
+# the Python venv, the downloaded npm tarball, the extracted model/voices,
+# per-cue WAV caches and audition WAVs.
+.venv/
+.cache/
+__pycache__/
+*.pyc

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+release/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.DS_Store
+captures/
+src/__debug__/
+vitest.debug.config.ts

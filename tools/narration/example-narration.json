@@ -1,0 +1,27 @@
+{
+  "_about": "Example narration script for build_narration.py (the app's real script will live in src/content/narration.json). Cue text is the exact caption; pronunciations.json only changes what is spoken.",
+  "version": "example-1",
+  "voice": "bm_george",
+  "speed": 1.0,
+  "segments": [
+    {
+      "id": "intro",
+      "leadIn": 0.3,
+      "cues": [
+        { "id": "title", "text": "This is FAB / ONE.", "pauseAfter": 0.5 },
+        { "id": "premise", "text": "We follow one silicon wafer through a simplified CMOS process, from bare substrate to a working inverter." }
+      ],
+      "tail": 0.8
+    },
+    {
+      "id": "litho-expose",
+      "leadIn": 0.2,
+      "cues": [
+        { "id": "light", "text": "In the scanner, 193-nanometre deep ultraviolet light passes through the reticle." },
+        { "id": "shrink", "text": "The pattern is shrunk four times and projected onto the photoresist.", "pauseAfter": 0.45 },
+        { "id": "latent", "text": "Nothing is etched yet. The exposed resist holds only a hidden, latent image." }
+      ],
+      "tail": 0.8
+    }
+  ]
+}

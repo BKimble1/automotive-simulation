@@ -1,0 +1,36 @@
+FAB / ONE narration pipeline: third-party notices
+=================================================
+
+What ships with the app
+-----------------------
+Only the generated MP3 files and JSON manifests in public/narration/. The speech
+is output of Kokoro-82M v1.0 (hexgrad, Apache-2.0); attribution is recorded in
+every manifest.json ("licenses") and in Kokoro-82M-Apache-2.0.txt. No model file,
+voice file or tool binary is distributed.
+
+Build-time only (tools/narration/.venv, tools/narration/.cache; never committed)
+-------------------------------------------------------------------------------
+  Kokoro-82M v1.0 ONNX + voices   Apache-2.0      Kokoro-82M-Apache-2.0.txt
+  expo-kokoro 1.1.9 (npm)         MIT             expo-kokoro-MIT.txt
+  misaki 0.9.4                    Apache-2.0      misaki-Apache-2.0.txt
+  espeak-ng 1.52 (espeakng-loader 0.2.4 bundles the library and data)
+                                  GPL-3.0-or-later
+  phonemizer-fork 3.3.2           GPL-3.0-or-later
+  onnxruntime 1.30.0              MIT
+  onnx 1.23.0                     Apache-2.0
+  numpy, soundfile, num2words, cryptography and their dependencies:
+                                  BSD / MIT / LGPL / Apache-2.0 (see each package's metadata)
+  imageio-ffmpeg 0.6.0            BSD-2-Clause; the bundled static FFmpeg 7.0.2 build is
+                                  GPL (it includes libmp3lame, LGPL)
+The GPL tools are run as separate programs/libraries on the build machine to
+produce phonemes and audio files; the app does not contain or link them.
+
+QA only (optional, fetch_model.py --asr)
+----------------------------------------
+  Moonshine tiny ONNX, from @moonshine-ai/moonshine-js 0.1.29 (npm)
+                                  MIT (English model)  Moonshine-tiny-MIT.txt
+  tokenizer.json from useful-moonshine-onnx 20251121 (PyPI)
+                                  MIT             useful-moonshine-onnx-MIT.txt
+
+Provenance of every file (registry URLs, integrity values, registry signatures,
+sha256 of each extracted file) is in ../model-lock.json.

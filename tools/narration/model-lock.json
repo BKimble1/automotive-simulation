@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "package": "expo-kokoro",
+  "version": "1.1.9",
+  "packageLicense": "MIT",
+  "registry": "https://registry.npmjs.org",
+  "tarball": "https://registry.npmjs.org/expo-kokoro/-/expo-kokoro-1.1.9.tgz",
+  "integrity": "sha512-otFjoa5x5dBDcq8KqAacytbCSzX9o+Agqglh3N96Gak6LwrPtXD8DsxB8/XfNbWuwfNmzCq13oozzLK3OeXQng==",
+  "shasum": "eaa20057647a0f7f46550043c41409e3c3f30cf6",
+  "tarballSha256": "d4a82900083abcb04903d933527aff37f37c6f01ef79871e5b45448ad07128af",
+  "tarballBytes": 88986591,
+  "registrySignature": {
+    "method": "ECDSA P-256 / SHA-256 over '<name>@<version>:<dist.integrity>', public key from https://registry.npmjs.org/-/npm/v1/keys",
+    "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+    "verified": true,
+    "keyExpires": null
+  },
+  "retrievedAt": "2026-09-23",
+  "lastVerifiedAt": "2026-10-01",
+  "model": {
+    "name": "Kokoro-82M v1.0 (quantized ONNX export)",
+    "author": "hexgrad",
+    "license": "Apache-2.0",
+    "file": ".cache/model/expo-kokoro-1.1.9/build/kokoro-quantized.onnx",
+    "sha256": "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478",
+    "bytes": 92361116,
+    "believedToMatch": "onnx-community/Kokoro-82M-v1.0-ONNX onnx/model_quantized.onnx (same byte size)"
+  },
+  "voices": [
+    "bm_daniel",
+    "bm_fable",
+    "bm_george",
+    "bm_lewis"
+  ],
+  "missingVoices": [],
+  "files": [
+    {
+      "path": "package/build/kokoro-quantized.onnx",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/kokoro-quantized.onnx",
+      "bytes": 92361116,
+      "sha256": "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478"
+    },
+    {
+      "path": "package/build/tokenizer.json",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/tokenizer.json",
+      "bytes": 4119,
+      "sha256": "566c78f4973a7119bdb6bae0e9ec661ddea273cb814b4a904cf070bac18e0ce8"
+    },
+    {
+      "path": "package/LICENSE",
+      "dest": ".cache/model/expo-kokoro-1.1.9/LICENSE",
+      "bytes": 1067,
+      "sha256": "fadca6a2acb876eca532f0a373e9c0f9614f272eff8c679c7fc3fdb6920ab62a"
+    },
+    {
+      "path": "package/README.md",
+      "dest": ".cache/model/expo-kokoro-1.1.9/README.md",
+      "bytes": 150,
+      "sha256": "d510f513de0bef9735ce0c5cd927fc2630cfbd27cb5fba6e64194e7b93f58873"
+    },
+    {
+      "path": "package/package.json",
+      "dest": ".cache/model/expo-kokoro-1.1.9/package.json",
+      "bytes": 2375,
+      "sha256": "feb63889fb8715c970f812dc2bd112e0d2100998a73e677e7639c65168dda551"
+    },
+    {
+      "path": "package/build/voices/bm_george.bin",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/voices/bm_george.bin",
+      "bytes": 522240,
+      "sha256": "c4b235a4c1f2cd3b939fed08b899ce9385638b763f7b73a59616c4fc9bd6c9bc"
+    },
+    {
+      "path": "package/build/voices/bm_fable.bin",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/voices/bm_fable.bin",
+      "bytes": 522240,
+      "sha256": "f889083196807b4adb15e9204252165f503b8d33d3982e681c52443c49d798f1"
+    },
+    {
+      "path": "package/build/voices/bm_lewis.bin",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/voices/bm_lewis.bin",
+      "bytes": 522240,
+      "sha256": "b8f671cef828c30e66fdf0b0756a76bba58f6bb3398cbbf27058642acbcedb97"
+    },
+    {
+      "path": "package/build/voices/bm_daniel.bin",
+      "dest": ".cache/model/expo-kokoro-1.1.9/build/voices/bm_daniel.bin",
+      "bytes": 522240,
+      "sha256": "6b3194bbceffb746733cbc22c8f593dd44e401a71d53895a2dca891bc595a1e8"
+    }
+  ],
+  "upstreamComparison": {
+    "performed": false,
+    "reason": "huggingface.co and github.com downloads are blocked (HTTP 403) by this environment's egress proxy, so the file hashes could not be compared with hexgrad/Kokoro-82M or onnx-community/Kokoro-82M-v1.0-ONNX. Only the model byte size was compared.",
+    "todo": "When huggingface.co is reachable, compare model.sha256 with the LFS sha256 of onnx-community/Kokoro-82M-v1.0-ONNX onnx/model_quantized.onnx and each voice file with voices/<voice>.bin there."
+  },
+  "notes": [
+    "kokoro-quantized.onnx is 92361116 bytes, the same size as onnx-community/Kokoro-82M-v1.0-ONNX onnx/model_quantized.onnx (size quoted in the task brief). Only the size could be compared.",
+    "expo-kokoro's own code is MIT (Dane Madsen). The model weights and voice styles it bundles are Kokoro-82M v1.0 by hexgrad, Apache-2.0. See LICENSES/."
+  ],
+  "asr": {
+    "purpose": "optional QA only: transcribe each narration cue and compute a word error rate. Never bundled with the app.",
+    "model": {
+      "name": "Moonshine tiny (English), quantized ONNX",
+      "author": "Useful Sensors / Moonshine AI",
+      "license": "MIT"
+    },
+    "npm": {
+      "package": "@moonshine-ai/moonshine-js",
+      "version": "0.1.29",
+      "packageLicense": "MIT",
+      "registry": "https://registry.npmjs.org",
+      "tarball": "https://registry.npmjs.org/@moonshine-ai/moonshine-js/-/moonshine-js-0.1.29.tgz",
+      "integrity": "sha512-Gx1B3mJcbM68ihSy/LyJEuEkGq7sYMqTb04zNdcIeidU0URVlSmXP0GyiQOTTAqDZQXlIC7k+bky+FdXk0UPlg==",
+      "shasum": "f1d06d922ab0dcb775b4f2dac2c2eea7ea72f5cb",
+      "tarballSha256": "864e17a00ed494857c71693e835306fa038e0f82002c76e3056d67d574e1c2d8",
+      "tarballBytes": 21514347,
+      "registrySignature": {
+        "method": "ECDSA P-256 / SHA-256 over '<name>@<version>:<dist.integrity>', public key from https://registry.npmjs.org/-/npm/v1/keys",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U",
+        "verified": true,
+        "keyExpires": null
+      },
+      "files": [
+        {
+          "path": "package/dist/model/tiny/quantized/encoder_model.onnx",
+          "dest": ".cache/asr/moonshine-js-0.1.29/dist/model/tiny/quantized/encoder_model.onnx",
+          "bytes": 7937661,
+          "sha256": "c6fc4b7bc5af75c0591fd157a1f3829b533d18e9769a888fd95a62e470dd4f4a"
+        },
+        {
+          "path": "package/dist/model/tiny/quantized/decoder_model_merged.onnx",
+          "dest": ".cache/asr/moonshine-js-0.1.29/dist/model/tiny/quantized/decoder_model_merged.onnx",
+          "bytes": 20243286,
+          "sha256": "eed87831c3a6103534aae7d47a5d485025c659a1323901513961c39fe8a1a367"
+        },
+        {
+          "path": "package/LICENSE",
+          "dest": ".cache/asr/moonshine-js-0.1.29/LICENSE",
+          "bytes": 13358,
+          "sha256": "37fc5d9a86547a0dd64a07cff439ba2a6b79cc8f6555a05121fed32866591159"
+        },
+        {
+          "path": "package/README.md",
+          "dest": ".cache/asr/moonshine-js-0.1.29/README.md",
+          "bytes": 4843,
+          "sha256": "e12190d23fd86668116570f5d4ec7c0c5ebe747b34db470117cd5b61afcc02cc"
+        }
+      ]
+    },
+    "pypi": {
+      "package": "useful-moonshine-onnx",
+      "version": "20251121",
+      "license": "MIT",
+      "wheel": "https://files.pythonhosted.org/packages/73/44/f6151edd6defc96b25664579c037274109ff4d93191b561e0a321d82eda4/useful_moonshine_onnx-20251121-py3-none-any.whl",
+      "sha256": "b4189b0d7dc8064d567fd0b5d5ce78634be290b0a3a3274ab80ad11c46d531a2",
+      "files": [
+        {
+          "path": "moonshine_onnx/assets/tokenizer.json",
+          "dest": ".cache/asr/useful-moonshine-onnx-20251121/moonshine_onnx/assets/tokenizer.json",
+          "bytes": 1985533,
+          "sha256": "b68b995a58b3373db6c4f46864a9db50cd1333d086150ffa2c1096581ede9c10"
+        },
+        {
+          "path": "useful_moonshine_onnx-20251121.dist-info/LICENSE",
+          "dest": ".cache/asr/useful-moonshine-onnx-20251121/useful_moonshine_onnx-20251121.dist-info/LICENSE",
+          "bytes": 1071,
+          "sha256": "29f60769d1779eb7e196d96b8d2dd471d0263cf8200c79e55c0c00183971ee1b"
+        }
+      ]
+    },
+    "retrievedAt": "2026-09-23"
+  }
+}
