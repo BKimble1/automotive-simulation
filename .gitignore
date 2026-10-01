@@ -8,3 +8,5 @@ playwright-report/
 captures/
 src/__debug__/
 vitest.debug.config.ts
+test-results/
+playwright-report/
