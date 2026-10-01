@@ -250,6 +250,8 @@ test.describe('V2: camera and continuity', () => {
 
   test('intermediate frames of transitions are drawn, never blank, with the subject in the picture when it arrives', async ({ page }, info) => {
     only(['desktop', 'phone'])(null, info);
+    // every sampled frame is drawn and read back at full size on a software renderer
+    test.setTimeout(420_000);
     const errors = await open(page, 'mode=explore');
     await frames(page, 30);
     for (const [place, part] of [[{ system: 'power', part: 'piston' }, 'piston-1'], [{ system: 'brakes', part: 'brake-caliper' }, 'caliper-FL'], [{ system: 'driveline', part: 'differential' }, 'diff-carrier']] as const) {
@@ -682,6 +684,16 @@ test.describe('V2: layout and endurance', () => {
         const c = (window as unknown as { __count: Record<string, number> }).__count;
         return { geometries: r.memory.geometries, textures: r.memory.textures, programs: r.programs?.length ?? 0, ...c, simT: window.__fab.counters.frames / 30 } as Record<string, number>;
       });
+    // the film: a seek, 400 frames of play, one drawn frame. The stops are fixed and warmed up
+    // below, so a part first drawn late in a step is not mistaken for something accumulating.
+    const FILM_STOPS = [130, 175, 220, 265, 310];
+    const filmStop = async (t: number) => {
+      await go(page, { mode: 'watch' });
+      await page.evaluate((t) => window.__fab.seek(t), t);
+      await frames(page, 400);
+      await page.evaluate(() => window.__fabAdvance(1, true));
+    };
+    let n = 0;
     const cycle = async () => {
       for (const system of ['power', 'brakes', 'driveline', null]) {
         await go(page, { mode: 'explore', system, part: null });
@@ -705,10 +717,7 @@ test.describe('V2: layout and endurance', () => {
       await page.keyboard.up(' ');
       await go(page, { mode: 'simulate', scenario: 'overheat' });
       await frames(page, 150);
-      await go(page, { mode: 'watch' });
-      await page.evaluate(() => window.__fab.seek(120 + Math.random() * 200));
-      await frames(page, 400);
-      await page.evaluate(() => window.__fabAdvance(1, true));
+      await filmStop(FILM_STOPS[n++ % FILM_STOPS.length]);
       await go(page, { mode: 'intro' });
       await frames(page, 60);
     };
@@ -724,6 +733,7 @@ test.describe('V2: layout and endurance', () => {
       }
       await frames(page, 45);
     }
+    for (const t of FILM_STOPS) await filmStop(t);
     await cycle();
     await cycle();
     const warm = await measure();
@@ -753,7 +763,7 @@ test.describe('V2: real time', () => {
     // interval, capped at 1/15 s (a stall never jumps the film), and nothing else moves it
     const r = await page.evaluate(
       () =>
-        new Promise<{ advance: number; expected: number; frames: number; held: boolean }>((resolve) => {
+        new Promise<{ advance: number; expected: number; frames: number; held: boolean; wall: number }>((resolve) => {
           const p = window.__fab.player;
           const t0 = p.t;
           let expected = 0;
@@ -767,8 +777,9 @@ test.describe('V2: real time', () => {
             frames++;
             if (window.__fabStores.usePlayer.getState().holding) held = true;
             expected += Math.min(1 / 15, raw);
-            if (now - start < 3000) requestAnimationFrame(loop);
-            else resolve({ advance: p.t - t0, expected, frames, held });
+            // at least 3 s and 8 frames (a busy machine draws fewer frames a second)
+            if (now - start < 3000 || frames < 8) requestAnimationFrame(loop);
+            else resolve({ advance: p.t - t0, expected, frames, held, wall: (now - start) / 1000 });
           };
           requestAnimationFrame((now) => {
             last = now;
@@ -776,9 +787,10 @@ test.describe('V2: real time', () => {
           });
         }),
     );
-    expect(r.frames).toBeGreaterThan(3);
+    expect(r.frames).toBeGreaterThanOrEqual(8);
     if (!r.held) expect(Math.abs(r.advance - r.expected)).toBeLessThan(0.25);
-    expect(r.advance).toBeLessThanOrEqual(3.2);
+    // never ahead of the wall clock
+    expect(r.advance).toBeLessThanOrEqual(r.wall + 0.2);
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     const p0 = await page.evaluate(() => window.__fab.player.t);
     await page.waitForTimeout(1500);
