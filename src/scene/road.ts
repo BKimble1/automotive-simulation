@@ -8,10 +8,20 @@
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Group } from 'three';
 
 const VS = /* glsl */ `
+uniform vec3 uCar;
+uniform float uBumpAt;
 varying vec2 vLocal;
 void main() {
   vLocal = position.xy;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  // the speed bump is real: the surface rises where the model's road profile does (drivers.ts
+  // bump(): 70 mm over 0.7 m, a raised cosine), so the tyres meet it where they are lifted
+  vec2 loc = vec2(position.x, -position.y);
+  float c = cos(uCar.z), s = sin(uCar.z);
+  float along = uCar.x + loc.x * c + loc.y * s;
+  float d = along - uBumpAt;
+  vec3 p = position;
+  if (abs(d) < 0.35) p.z += 0.07 * 0.5 * (1.0 + cos(3.14159265 * d / 0.35));
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
 }`;
 
 const FS = /* glsl */ `
@@ -85,7 +95,8 @@ export class Road {
         uFar: { value: new Color('#0b0c0e') },
       },
     });
-    this.mesh = new Mesh(new PlaneGeometry(40, 40, 1, 1), this.mat);
+    // fine along the car (for the bump), coarse across
+    this.mesh = new Mesh(new PlaneGeometry(40, 40, 480, 8), this.mat);
     this.mesh.rotation.x = -Math.PI / 2;
     this.mesh.position.y = 0.0015;
     this.mesh.renderOrder = -8;

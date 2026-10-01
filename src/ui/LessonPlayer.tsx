@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useApp, usePlayer } from '../state/store';
 import type { World } from '../world/world';
 import { CloseIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon, ReplayIcon } from './icons';
+import { ReadoutChips } from './Readouts';
 
 const fmt = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 
@@ -55,6 +56,7 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
           <h2 className="lesson__title">{step?.title ?? p.title}</h2>
         </div>
         <p className="lesson__text">{step?.text}</p>
+        {step && <ReadoutChips ids={step.readouts ?? []} timeScale={step.timeScale} />}
         <div className="lesson__controls">
           <button className="pbtn" onClick={() => seek(p.beats[Math.max(0, p.beat - 1)]?.start ?? 0)} aria-label="Previous step">
             <PrevIcon />

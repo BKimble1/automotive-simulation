@@ -3,7 +3,7 @@
  * a second, never per frame); panels read only these stores. The address (query string) follows
  * the visitor, so a refresh or a shared link opens the same place:
  *
- *   ?mode=watch[&t=120]   ?mode=explore[&system=power][&part=piston]
+ *   ?mode=watch[&t=120]   ?mode=explore[&system=power][&part=piston][&lesson=braking]
  *   ?mode=engineer[&lab=gears]   ?mode=simulate[&scenario=overheat]
  */
 import { create } from 'zustand';
@@ -39,7 +39,7 @@ export interface AppState {
 
 const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
 const modeParam = params.get('mode');
-const initialMode: Mode = modeParam === 'watch' || modeParam === 'explore' || modeParam === 'engineer' || modeParam === 'simulate' ? modeParam : params.get('system') || params.get('part') ? 'explore' : params.get('lab') ? 'engineer' : params.get('scenario') ? 'simulate' : 'intro';
+const initialMode: Mode = modeParam === 'watch' || modeParam === 'explore' || modeParam === 'engineer' || modeParam === 'simulate' ? modeParam : params.get('system') || params.get('part') || params.get('lesson') ? 'explore' : params.get('lab') ? 'engineer' : params.get('scenario') ? 'simulate' : 'intro';
 
 export const useApp = create<AppState>((set, get) => ({
   ready: false,
@@ -48,7 +48,7 @@ export const useApp = create<AppState>((set, get) => ({
   mode: initialMode,
   system: params.get('system'),
   part: params.get('part'),
-  lesson: null,
+  lesson: params.get('lesson'),
   lab: params.get('lab'),
   scenario: params.get('scenario'),
   sound: false,
@@ -78,10 +78,11 @@ export const useApp = create<AppState>((set, get) => ({
 export function syncAddress() {
   const write = (s: AppState) => {
     const q = new URLSearchParams(window.location.search);
-    for (const k of ['mode', 'system', 'part', 'lab', 'scenario', 't']) q.delete(k);
+    for (const k of ['mode', 'system', 'part', 'lesson', 'lab', 'scenario', 't']) q.delete(k);
     if (s.mode !== 'intro') q.set('mode', s.mode);
     if (s.mode === 'explore' && s.system) q.set('system', s.system);
     if (s.mode === 'explore' && s.part) q.set('part', s.part);
+    if (s.mode === 'explore' && s.lesson) q.set('lesson', s.lesson);
     if (s.mode === 'engineer' && s.lab) q.set('lab', s.lab);
     if (s.mode === 'simulate' && s.scenario) q.set('scenario', s.scenario);
     const qs = q.toString();
@@ -89,7 +90,7 @@ export function syncAddress() {
     if (url !== `${window.location.pathname}${window.location.search}${window.location.hash}`) window.history.replaceState(null, '', url);
   };
   useApp.subscribe((s, prev) => {
-    if (s.mode !== prev.mode || s.system !== prev.system || s.part !== prev.part || s.lab !== prev.lab || s.scenario !== prev.scenario) write(s);
+    if (s.mode !== prev.mode || s.system !== prev.system || s.part !== prev.part || s.lesson !== prev.lesson || s.lab !== prev.lab || s.scenario !== prev.scenario) write(s);
   });
 }
 
@@ -142,6 +143,11 @@ export interface Readouts {
   applying: string | null;
   releasing: string | null;
   statorLocked: boolean;
+  starterAmps: number;
+  turbineRpm: number;
+  /** Each wheel's speed as road speed, km/h, and its travel from rest, mm. */
+  wheelKmh: number[];
+  wheelTravelMm: number[];
   t: number;
 }
 
@@ -193,6 +199,10 @@ export const useReadouts = create<Readouts>(() => ({
   applying: null,
   releasing: null,
   statorLocked: true,
+  starterAmps: 0,
+  turbineRpm: 0,
+  wheelKmh: [0, 0, 0, 0],
+  wheelTravelMm: [0, 0, 0, 0],
   t: 0,
 }));
 
@@ -204,7 +214,7 @@ export interface PlayerState {
   duration: number;
   playing: boolean;
   beat: number;
-  beats: { title: string; text: string; start: number; chapter?: string }[];
+  beats: { title: string; text: string; start: number; chapter?: string; readouts?: string[]; timeScale: number }[];
   caption: string;
   ended: boolean;
 }

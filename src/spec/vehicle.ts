@@ -272,7 +272,7 @@ export const COOLING = {
   /** Coolant plus metal thermal capacity, J/K. */
   heatCapacity: 42000,
   /** Radiator conductance at full coolant flow, W/K: still air, ram air at 100 km/h, fan alone. */
-  radiatorUA: 300,
+  radiatorUA: 90,
   radiatorUARam: 1500,
   radiatorUAFan: 700,
   /** Share of fuel energy that reaches the coolant (typical gasoline engine). */

@@ -96,7 +96,7 @@ export function buildSystems(rig: Rig, parent: Object3D): SystemsParts {
     const upperHose = [thermo, V(1.7, DECK_Y + 0.07, -0.26), V(1.85, radY1 - 0.04, -0.3), V(radX - 0.02, radY1 - 0.04, -radZ - 0.03)];
     const lowerHose = [V(radX - 0.02, radY0 + 0.05, radZ + 0.03), V(1.85, radY0 + 0.04, 0.25), V(1.72, CRANK_Y + 0.08, 0.12), wpIn];
     rig.part(root, 'radiator-hoses', 'coolant-hose', C, [['hose', merge([tube(upperHose, 0.019, { radial: 12 }), tube(lowerHose, 0.019, { radial: 12 })])]]);
-    rig.part(root, 'expansion-tank', 'expansion-tank', C, [['polymer', rbox(0.15, 0.13, 0.11, 0.03, 1.72, 0.72, 0.52), '#d9dad6'], ['fluidCoolant', rbox(0.13, 0.06, 0.09, 0.02, 1.72, 0.69, 0.52)]]);
+    rig.part(root, 'expansion-tank', 'expansion-tank', C, [['polymer', rbox(0.15, 0.13, 0.11, 0.03, 1.72, 0.72, 0.52), '#9a9c98'], ['fluidCoolant', rbox(0.13, 0.06, 0.09, 0.02, 1.72, 0.69, 0.52)]]);
     const heaterIn = V(0.82, 0.68, -0.14);
     const heaterOut = V(0.82, 0.66, -0.06);
     const heaterHoses = [

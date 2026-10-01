@@ -47,6 +47,8 @@ export interface Beat {
   focusCyl?: number;
   /** Extra channel targets for this beat on top of its view's. */
   channels?: Record<string, number>;
+  /** Live readouts shown with the caption (ids from ui/readouts.ts). */
+  readouts?: string[];
 }
 
 export interface Sequence {

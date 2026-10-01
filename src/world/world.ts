@@ -28,7 +28,7 @@ import { Flows } from '../scene/viz/flows';
 import { ArrowSet } from '../scene/viz/arrows';
 import { EngineViz } from '../scene/viz/engineViz';
 import { Car, presetIdle, type CarState } from '../sim/car';
-import { units } from '../spec/vehicle';
+import { TIRE, units } from '../spec/vehicle';
 import { Clocks } from './clocks';
 import { AnimationDirector } from './director';
 import { Looks } from './looks';
@@ -291,7 +291,7 @@ export class World {
       duration: p.duration,
       playing: p.playing,
       beat: p.index,
-      beats: p.beats.map((b) => ({ title: b.beat.title, text: b.beat.text, start: b.start, chapter: b.beat.chapter })),
+      beats: p.beats.map((b) => ({ title: b.beat.title, text: b.beat.text, start: b.start, chapter: b.beat.chapter, readouts: b.beat.readouts, timeScale: typeof b.beat.timeScale === 'number' ? b.beat.timeScale : (b.beat.timeScale?.to ?? 1) })),
       caption: p.caption(),
       ended: p.ended,
     });
@@ -402,6 +402,19 @@ export class World {
     set('brakeMaster', ph.brake, s.linePa);
     set('refrigerant', s.t * 0.25, running ? 1 : 0);
     set('cabinAir', s.t * 0.5, 1);
+    // the gearbox's shift elements: lit while applied, fading in and out through a change
+    const elOn = ch.get('flow:elements');
+    if (elOn > 0.002) {
+      const el = this.model.elements();
+      const sh = s.shift;
+      for (const e of ['A', 'B', 'C', 'D', 'E'] as const) {
+        const v = el.engaged.includes(e) ? 1 : el.applying === e ? sh : el.releasing === e ? 1 - sh : 0;
+        for (const m of this.car.drivetrain.elements[e].meshes) {
+          const u = m.userData.pair?.u;
+          if (u) u.uHighlight.value = v * elOn * 0.95;
+        }
+      }
+    }
     // the converter's fluid circulates as fast as the impeller outruns the turbine
     const dtm = s.t - this.convT;
     this.convT = s.t;
@@ -499,6 +512,10 @@ export class World {
       applying: el.applying,
       releasing: el.releasing,
       statorLocked: this.model.statorLocked,
+      starterAmps: s.starterAmps,
+      turbineRpm: units.radToRpm(s.omegaT),
+      wheelKmh: s.wheelOmega.map((w) => units.msToKmh(w * TIRE.rollingRadius)),
+      wheelTravelMm: s.wheelZ.map((z) => z * 1000),
       t: s.t,
     });
     if (this.player.seq) {

@@ -248,6 +248,98 @@ export const VIEWS: Record<string, View> = {
     channels: { 'show:road': 1, 'arrow:tyre': 0.8 },
     requires: ['car'],
   },
+
+  // ─────────── the hero lessons ───────────
+  'crank-throws': {
+    id: 'crank-throws',
+    shot: { id: 'crank-throws', target: V((XC[0] + XC[3]) / 2, CRANK_Y + 0.04, 0), az: 2.25, el: 0.2, dist: 1.25, fov: 30, ox: 0.04, subject: { w: 0.62, h: 0.42 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.7], dist: [0.8, 1.3] } },
+    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL', 'doorFR'], 0.85), ...isolate(['engine']), ...ghostParts(ENGINE_CASINGS, 0.94), ...hideAll(FRONT_DRIVE), ...hideAll(['timing-chain', 'chain-guides', 'chain-tensioner']), studio: 0.7, dim: 0.75, 'flow:combustion': 0.6, 'hl:crankshaft': 0.5, ...labels('cyl1', 'cyl2', 'cyl3', 'cyl4') },
+    focus: ['engine'],
+    requires: ['car'],
+  },
+  'gear-elements': {
+    id: 'gear-elements',
+    shot: { id: 'gear-elements', target: V(0.79, TRANS.axisY + 0.01, 0.0), az: 3.22, el: 0.28, dist: 1.25, fov: 30, ox: 0.04, subject: { w: 0.62, h: 0.36 }, orbit: { az: [-0.5, 0.5], el: [0.0, 0.7], dist: [0.8, 1.4] } },
+    channels: { ...all(1), 'cut:transmission': 1, ...isolate(['transmission', 'engine', 'driveline'], ['wheels']), ...ghostParts(['engine'], 0.85), ...hideAll(['converter-impeller', 'converter-turbine', 'converter-stator', 'lockup-clutch']), studio: 0.75, dim: 0.75, 'flow:elements': 1, ...labels('el-A', 'el-B', 'el-C', 'el-D', 'el-E') },
+    tint: { 'shift-element-A': '#f0a23c', 'shift-element-B': '#f0a23c', 'shift-element-C': '#f0a23c', 'shift-element-D': '#f0a23c', 'shift-element-E': '#f0a23c' },
+    focus: ['transmission'],
+    requires: ['car'],
+  },
+  'corner-top': {
+    id: 'corner-top',
+    shot: { id: 'corner-top', target: V(-0.3, 0.3, 0), az: 2.75, el: 1.0, dist: 9.0, fov: 30, ox: 0.04, subject: { w: 5.0, h: 2.6 }, orbit: false },
+    channels: { ...all(0.9), ...isolate(['driveline', 'wheels', 'transmission', 'engine'], ['suspension', 'brakes', 'steering']), 'show:road': 1, 'flow:torque': 1, studio: 0.45, 'arrow:tyre': 0.7 },
+    focus: ['driveline', 'wheels'],
+    requires: ['car'],
+  },
+  'suspension-front': {
+    id: 'suspension-front',
+    shot: { id: 'suspension-front', target: V(BODY.xFront - 0.02, 0.4, -0.6), az: 1.82, el: 0.14, dist: 2.1, fov: 30, ox: 0.04, subject: { w: 1.0, h: 0.8 }, orbit: false },
+    channels: { ...bodyGhost(['fenderL', 'bumperFront', 'hood', 'doorFL', 'shell'], 0.93), ...isolate(['suspension', 'steering', 'wheels', 'brakes'], ['engine']), 'show:road': 1, studio: 0.5, dim: 0.5, 'hl:suspension': 0.35, ...labels('spring', 'damper', 'upper-arm', 'lower-arm') },
+    focus: ['suspension', 'wheels', 'steering', 'brakes'],
+    requires: ['car'],
+  },
+  'ride-side': {
+    id: 'ride-side',
+    shot: { id: 'ride-side', target: V(0.0, 0.62, 0), az: 2.95, el: 0.07, dist: 8.2, fov: 28, ox: 0.04, subject: { w: 5.0, h: 1.6 }, orbit: false },
+    channels: { 'show:road': 1, studio: 0.35 },
+    requires: ['car'],
+  },
+  'braking-side': {
+    id: 'braking-side',
+    shot: { id: 'braking-side', target: V(0.1, 0.55, 0), az: 2.62, el: 0.14, dist: 8.4, fov: 28, ox: 0.04, subject: { w: 5.0, h: 1.7 }, orbit: false },
+    channels: { 'show:road': 1, 'arrow:tyre': 1, studio: 0.35 },
+    requires: ['car'],
+  },
+  'brake-hydraulics': {
+    id: 'brake-hydraulics',
+    shot: { id: 'brake-hydraulics', target: V(0.6, 0.48, -0.05), az: 2.35, el: 0.62, dist: 4.6, fov: 30, ox: 0.04, subject: { w: 3.2, h: 1.4 }, orbit: false },
+    channels: { ...all(0.94), ...isolate(['brakes', 'wheels'], ['engine', 'transmission', 'suspension']), 'flow:brakeMaster': 1, 'flow:brake0': 1, 'flow:brake1': 1, 'flow:brake2': 1, 'flow:brake3': 1, 'show:road': 0.6, studio: 0.6, dim: 0.6, 'hl:brakes': 0.45, ...labels('master-cylinder', 'booster', 'abs-unit') },
+    focus: ['brakes', 'wheels'],
+    requires: ['car'],
+  },
+  'brake-corner': {
+    id: 'brake-corner',
+    shot: { id: 'brake-corner', target: V(BODY.xFront, 0.33, -0.74), az: 2.8, el: 0.16, dist: 1.35, fov: 30, ox: 0.04, subject: { w: 0.8, h: 0.72 }, orbit: false },
+    channels: { ...bodyGhost(['fenderL', 'doorFL', 'bumperFront', 'hood', 'shell'], 0.92), ...isolate(['brakes', 'wheels', 'suspension', 'steering']), 'ghost:wheel-FL': 0.6, 'ghost:tyre-FL': 0.7, 'show:road': 1, heat: 1, 'flow:brake0': 1, studio: 0.5, dim: 0.5, 'hl:brakes': 0.4, ...labels('caliper', 'disc') },
+    focus: ['brakes', 'wheels'],
+    requires: ['car'],
+  },
+  'cooling-circuit': {
+    id: 'cooling-circuit',
+    shot: { id: 'cooling-circuit', target: V(1.5, 0.52, 0.02), az: 2.05, el: 0.45, dist: 2.7, fov: 30, ox: 0.04, subject: { w: 1.5, h: 0.85 }, orbit: false },
+    channels: { ...bodyGhost(PANELS_FRONT, 0.94), ...bodyGhost(['shell'], 0.5), ...isolate(['engine', 'cooling', 'lubrication'], ['hvac']), ...ghostParts(['engine-block', 'cylinder-head', 'cam-cover', 'timing-cover', 'intake-manifold'], 0.8), heat: 1, studio: 0.6, dim: 0.6, 'flow:coolantEngine': 1, 'flow:coolantRadiator': 1, 'flow:coolantBypass': 1, 'flow:radiatorAir': 1, ...labels('radiator', 'thermostat', 'water-pump', 'fan') },
+    focus: ['cooling', 'engine'],
+    requires: ['car'],
+  },
+  'oil-circuit': {
+    id: 'oil-circuit',
+    shot: { id: 'oil-circuit', target: V((XC[0] + XC[3]) / 2, CRANK_Y + 0.1, 0), az: 2.45, el: 0.22, dist: 1.7, fov: 30, ox: 0.04, subject: { w: 0.8, h: 0.62 }, orbit: false },
+    channels: { ...bodyGhost(PANELS_FRONT, 1), ...bodyGhost(['shell', 'doorFL', 'doorFR'], 0.85), ...isolate(['engine', 'lubrication']), ...ghostParts(ENGINE_CASINGS, 0.92), ...ghostParts(['oil-pan'], 0.85), ...hideAll(FRONT_DRIVE), studio: 0.7, dim: 0.75, 'flow:oilMain': 1, 'flow:oilMains': 1, 'flow:oilHead': 1, 'flow:oilReturn': 1, ...labels('oil-pump', 'oil-pan') },
+    focus: ['lubrication', 'engine'],
+    requires: ['car'],
+  },
+  charging: {
+    id: 'charging',
+    shot: { id: 'charging', target: V(1.42, 0.62, 0.32), az: 1.2, el: 0.5, dist: 2.3, fov: 30, ox: 0.04, subject: { w: 1.2, h: 0.75 }, orbit: false },
+    channels: { ...bodyGhost(PANELS_FRONT, 0.94), ...bodyGhost(['shell'], 0.5), ...isolate(['engine', 'electrical', 'control'], ['cooling']), ...ghostParts(['engine-block', 'cylinder-head', 'cam-cover', 'intake-manifold', 'timing-cover'], 0.75), studio: 0.6, dim: 0.6, 'hl:alternator': 0.5, 'hl:battery': 0.5, 'flow:chargeCurrent': 1, 'flow:ecuPower': 0.6, ...labels('alternator', 'battery') },
+    focus: ['electrical', 'control'],
+    requires: ['car'],
+  },
+  network: {
+    id: 'network',
+    shot: { id: 'network', target: V(0.75, 0.6, 0.05), az: 2.3, el: 0.62, dist: 4.4, fov: 30, ox: 0.04, subject: { w: 3.0, h: 1.3 }, orbit: false },
+    channels: { ...all(0.94), ...isolate(['control', 'electrical'], ['engine', 'transmission', 'brakes', 'cabin']), studio: 0.6, dim: 0.7, 'hl:control': 0.6, 'flow:can': 1, 'flow:ecuPower': 0.5, ...labels('ecu-ecm', 'ecu-tcm', 'ecu-abs', 'ecu-bcm', 'ecu-cluster') },
+    focus: ['control', 'electrical'],
+    requires: ['car'],
+  },
+  exploded: {
+    id: 'exploded',
+    shot: { id: 'exploded', target: V(0.0, 0.75, 0), az: 2.4, el: 0.34, dist: 11.5, fov: 30, ox: 0.04, drift: 0.035, subject: { w: 7.4, h: 2.6 }, orbit: { az: null, el: [0.05, 1.1], dist: [0.7, 1.4] } },
+    channels: { 'explode:explode': 1, studio: 0.5 },
+    free: true,
+    requires: ['car'],
+  },
 };
 
 export const SYSTEM_VIEWS: Record<string, string> = {
