@@ -753,11 +753,11 @@ test.describe('V2: real time', () => {
     expect(r.frames).toBeGreaterThan(3);
     if (!r.held) expect(Math.abs(r.advance - r.expected)).toBeLessThan(0.25);
     expect(r.advance).toBeLessThanOrEqual(3.2);
-    await page.getByRole('button', { name: 'Pause' }).click();
+    await page.getByRole('button', { name: 'Pause', exact: true }).click();
     const p0 = await page.evaluate(() => window.__fab.player.t);
     await page.waitForTimeout(1500);
     expect(await page.evaluate(() => window.__fab.player.t)).toBe(p0);
-    await page.getByRole('button', { name: 'Play' }).click();
+    await page.getByRole('button', { name: 'Play', exact: true }).click();
     await page.waitForTimeout(1500);
     expect(await page.evaluate(() => window.__fab.player.t)).toBeGreaterThan(p0);
     expect(errors).toEqual([]);

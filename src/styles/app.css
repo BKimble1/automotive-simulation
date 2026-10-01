@@ -1916,6 +1916,17 @@ kbd {
     display: none;
   }
 }
+@media (max-width: 400px) {
+  /* narrow phones: the pedal names fit their pads (the accelerator's is the longest) */
+  .pads.pads {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.25fr);
+  }
+  .pad__label {
+    left: 8px;
+    font-size: 11px;
+    letter-spacing: 0.01em;
+  }
+}
 @media (max-width: 760px) {
   .pads {
     left: calc(8px + var(--safe-l));
@@ -1944,12 +1955,13 @@ kbd {
 .chart__run {
   position: relative;
 }
+/* (measured from inside the 1 px border: a 32 px button reaches 46 px) */
 .ibtn::after,
 .ex-back::after,
 .pbtn:not(.pbtn--wide)::after {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: -8px;
 }
 .tab::after {
   content: '';
