@@ -1658,3 +1658,249 @@ html.virt *::after {
     padding: 2px 6px;
   }
 }
+
+/* ───────────────────────── the driving workbench ───────────────────────── */
+.run-state {
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+}
+.run-state--live {
+  color: #0b0c0e;
+  background: var(--ok);
+  border-color: transparent;
+}
+.ex-row--feature {
+  width: 100%;
+  margin: 4px 0 10px;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+}
+.wb-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin: 6px 0 4px;
+}
+.wb-start {
+  flex: 0 0 auto;
+  min-width: 84px;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+  font: 650 14px/1 var(--font);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+}
+.wb-start small {
+  font-size: 10px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.wb-start--on {
+  border-color: var(--accent-line);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+.wb-start:focus-visible,
+.wb-selector button:focus-visible,
+.pad:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.wb-selector {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.wb-selector button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-3);
+  font: 700 15px/1 var(--font-wide);
+  cursor: pointer;
+}
+.wb-selector button[aria-pressed='true'] {
+  background: var(--accent-strong);
+  color: #fff;
+}
+.wb-selector button.wb-sel--wanted {
+  box-shadow: inset 0 0 0 1px var(--warn);
+  color: var(--warn);
+}
+.wb-msg {
+  min-height: 1.4em;
+  margin: 2px 0 6px !important;
+  font-size: 12.5px;
+  color: var(--warn) !important;
+}
+.wb-gauges {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.7fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.wb-gauge {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.wb-gauge span {
+  font: 600 20px/1.05 var(--font);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.wb-gauge--big span {
+  font-size: 30px;
+}
+.wb-gauge small {
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.wb-warn {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wb-warn li {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-transform: capitalize;
+  color: #1b1200;
+  background: var(--warn);
+}
+.wb-more dd {
+  font-variant-numeric: tabular-nums;
+}
+kbd {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid var(--line-2);
+  font: 600 10.5px/1.5 var(--font);
+  text-align: center;
+  color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.04);
+}
+.wb-keys {
+  font-size: 11.5px;
+  line-height: 1.8;
+}
+/* the pads: steering on the left, brake and accelerator on the right, at the foot of the view */
+.pads {
+  position: absolute;
+  left: calc(16px + var(--safe-l));
+  right: calc(var(--panel-w) + 40px + var(--safe-r));
+  bottom: calc(16px + var(--safe-b));
+  height: 104px;
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  z-index: 11;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pad {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--line-2);
+  background: rgba(16, 17, 20, 0.72);
+  cursor: grab;
+  touch-action: none;
+}
+.pad--on {
+  border-color: var(--accent-line);
+}
+.pad__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  background: linear-gradient(to top, rgba(139, 125, 255, 0.42), rgba(139, 125, 255, 0.12));
+  pointer-events: none;
+}
+.pad--brake .pad__fill {
+  background: linear-gradient(to top, rgba(204, 121, 167, 0.5), rgba(204, 121, 167, 0.12));
+}
+.pad--steer .pad__fill {
+  left: 50%;
+  width: 3px;
+  margin-left: -1.5px;
+  transform-origin: 50% 50%;
+  background: var(--accent);
+  border-radius: 2px;
+  inset: 12px auto 12px 50%;
+}
+.pad__label {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font: 650 12px/1 var(--font);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.pad--steer .pad__label {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.pad__key {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  .pad__key,
+  .wb-keys {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .pads {
+    left: calc(8px + var(--safe-l));
+    right: calc(8px + var(--safe-r));
+    bottom: calc(8px + var(--safe-b));
+    height: 92px;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+  .panel.wb {
+    bottom: calc(110px + var(--safe-b)) !important;
+    max-height: 36vh !important;
+  }
+  .wb-gauge--big span {
+    font-size: 24px;
+  }
+}

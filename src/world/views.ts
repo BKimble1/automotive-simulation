@@ -267,6 +267,13 @@ export const VIEWS: Record<string, View> = {
     focus: ['transmission'],
     requires: ['car'],
   },
+  'drive-chase': {
+    id: 'drive-chase',
+    shot: { id: 'drive-chase', target: V(0.4, 0.62, 0), az: -2.32, el: 0.2, dist: 7.6, fov: 30, subject: { w: 5.2, h: 2.0 }, orbit: { az: [-1.2, 1.2], el: [0.04, 0.9], dist: [0.6, 1.5] } },
+    channels: { 'show:road': 1, studio: 0.55 },
+    requires: ['car'],
+    free: true,
+  },
   'corner-top': {
     id: 'corner-top',
     shot: { id: 'corner-top', target: V(-0.3, 0.3, 0), az: 2.75, el: 1.0, dist: 9.0, fov: 30, ox: 0.04, subject: { w: 5.0, h: 2.6 }, orbit: false },

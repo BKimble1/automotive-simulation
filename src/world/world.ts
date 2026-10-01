@@ -39,7 +39,7 @@ import { Flows } from '../scene/viz/flows';
 import { ArrowSet } from '../scene/viz/arrows';
 import { EngineViz } from '../scene/viz/engineViz';
 import { disposeTree } from '../scene/dispose';
-import { Car, presetIdle, type CarState, type Faults } from '../sim/car';
+import { Car, makeRoad, presetIdle, type CarState, type Faults } from '../sim/car';
 import { initRun, type RunSpec } from '../sim/run';
 import { TIRE, units } from '../spec/vehicle';
 import { Clocks } from './clocks';
@@ -50,6 +50,7 @@ import { SequencePlayer, type Sequence } from './sequence';
 import { SeekCache } from './seekCache';
 import { SimJobs } from './jobs';
 import { KEEP_OUT, VIEWS, type View } from './views';
+import { Driver } from './driver';
 import { FLOW_DEFS } from './flowDefs';
 import { LabelLayer } from '../scene/labels';
 import { labelDefs } from './labelDefs';
@@ -114,6 +115,8 @@ export class World {
   guided = false;
   /** The visitor's pause: the one owner. */
   paused = false;
+  /** The driving workbench's controls (they drive the live run when it has no script). */
+  driver: Driver;
   /** Set when the world is gone: background work that finishes later does nothing. */
   disposed = false;
   /** The graphics context came back and the scene's programs are being rebuilt. */
@@ -142,6 +145,7 @@ export class World {
     this.camera = new CameraDirector(this.stage.camera);
     this.player = new SequencePlayer(this.model);
     this.jobs = new SimJobs();
+    this.driver = new Driver(this.model);
     this.director = new AnimationDirector(this.camera, this.channels, {
       ready: (groups) => groups.every((g) => this.readyGroups.has(g)),
       focus: (a, tint) => {
@@ -405,11 +409,19 @@ export class World {
     this.live = spec;
     this.liveEnded = false;
     this.guided = false;
+    this.driver.reset();
     if (!spec) return;
     initRun(this.model, spec);
     this.roadOpts = roadOptsOf(this.model.road.spec);
     this.clocks.timeScale = spec.timeScale ?? 1;
     this.publishRun();
+  }
+
+  /** Change the road under a live run (the workbench's surface and bump choices); nothing else changes. */
+  setRoad(spec: import('../sim/car').RoadSpec) {
+    this.model.road = makeRoad(spec);
+    if (this.live) this.live = { ...this.live, road: spec };
+    this.roadOpts = roadOptsOf(spec);
   }
 
   /** Start the live run again from its beginning (replay). */
@@ -507,6 +519,8 @@ export class World {
       if (target !== null && !this.seekPending) alpha = this.model.advanceTo(target);
     } else if (this.live) {
       const l = this.live;
+      // a run without a script is driven by the visitor, through the workbench's controls
+      if (!l.drive) this.driver.update(this.paused ? 0 : c.realDt);
       if (l.loop && s0.t - this.model.programT0 > l.loop) this.setLive(l);
       let mdt = c.mechanicalDt;
       if (l.duration !== undefined) mdt = Math.min(mdt, Math.max(0, this.model.programT0 + l.duration - this.model.s.t));

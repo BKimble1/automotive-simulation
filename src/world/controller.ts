@@ -12,7 +12,7 @@ import { SYSTEM_VIEWS } from './views';
 import { viewFor } from './partViews';
 import { BY_ID } from '../content/registry';
 import { LAB_BY_ID } from '../content/labs';
-import { FAULT_BY_ID, SCENARIO_BY_ID } from '../content/scenarios';
+import { FAULT_BY_ID, SCENARIO_BY_ID, WORKBENCH, presetParked } from '../content/scenarios';
 import { runScenario } from '../ui/simulate/run';
 import type { World } from './world';
 
@@ -25,6 +25,9 @@ export const IDLE_RUN: RunSpec = {
     inp.selector = 'P';
   },
 };
+
+/** The workbench's run: no driver script (the visitor drives), the dry test road. */
+export const DRIVE_RUN: RunSpec = { id: 'drive', start: presetParked, drive: null, inputs: { ignition: false, selector: 'P' } };
 
 export function attachController(world: World): () => void {
   const apply = (s: AppState, prev: AppState | null) => {
@@ -91,6 +94,12 @@ export function attachController(world: World): () => void {
       case 'simulate': {
         if (modeChanged) world.stopSequence();
         if (modeChanged || s.scenario !== prev?.scenario) {
+          if (s.scenario === WORKBENCH.id) {
+            // the workbench: parked, engine off; the visitor drives
+            world.setLive(DRIVE_RUN);
+            world.request(WORKBENCH.view, { instant: first });
+            break;
+          }
           const sc = s.scenario ? (SCENARIO_BY_ID[s.scenario] ?? FAULT_BY_ID[s.scenario]) : null;
           if (sc) runScenario(world, s.scenario!, sc.program);
           else world.setLive(IDLE_RUN);

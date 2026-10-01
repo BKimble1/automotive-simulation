@@ -328,6 +328,30 @@ export const FAULTS: FaultCase[] = [
   },
 ];
 
+/** Parked, warm, engine off: where the driving workbench starts (and Reset returns to). */
+export function presetParked(): CarState {
+  const s = presetIdle();
+  s.engine = 'off';
+  s.omegaE = 0;
+  s.omegaT = 0;
+  s.coolantC = 62;
+  s.oilC = 60;
+  s.thermostat = 0;
+  s.oilBar = 0;
+  s.volts = 12.6;
+  s.ecuPowered = false;
+  s.throttleEff = 0;
+  return s;
+}
+
+/** The driving workbench: no script; the visitor drives (world/driver.ts). */
+export const WORKBENCH = {
+  id: 'drive',
+  title: 'Drive it yourself',
+  summary: 'Start the engine, select Drive, accelerate, steer, brake and reverse: the same model answers every control.',
+  view: 'drive-chase',
+};
+
 export const SCENARIO_BY_ID = Object.fromEntries(SCENARIOS.map((s) => [s.id, s]));
 export const FAULT_BY_ID = Object.fromEntries(FAULTS.map((f) => [f.id, f]));
 export { NO_FAULTS };

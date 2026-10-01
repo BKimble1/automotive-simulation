@@ -494,6 +494,8 @@ const RW = TIRE.rollingRadius;
 /** Inertia of the turbine, gearbox internals and driveshaft (at the turbine), kg·m². */
 const DRIVE_INERTIA = 0.09;
 const ENGINE_OFF_DECAY = 6;
+/** The no-slip coupling's stiffness near standstill, N per m/s of slip (stable: K·h·(R²/Iw + 1/m) < 1). */
+const NO_SLIP_K = 5000;
 const TWO_PI = 2 * Math.PI;
 const wrapBig = (a: number) => (a > 1e4 || a < -1e4 ? a % TWO_PI : a);
 
@@ -522,6 +524,8 @@ export class Car {
   private abs = [new AbsChannel(), new AbsChannel(), new AbsChannel(), new AbsChannel()];
   private ripple: ((theta: number) => number) | null = null;
   private gts: GeartrainSpeeds = { shaft: zeros(8), planet: zeros(4), slip: { A: 0, B: 0, C: 0, D: 0, E: 0 } };
+  /** Scratch: each tyre's ∂Fx/∂ω this step (derived; nothing carries between steps). */
+  private kSlip = [0, 0, 0, 0];
 
   constructor(state?: CarState) {
     this.s = state ? cloneState(state) : initialState();
@@ -717,8 +721,10 @@ export class Car {
     // fuel and spark: the ECU fires a cylinder when it is powered and has found from the crank
     // and cam sensors where each piston is (about two revolutions of cranking), below the limiter
     const fuelling = (s.engine === 'running' || (s.engine === 'cranking' && s.crankRevs > 2 && s.ecuPowered && rpm > 120)) && s.ecuPowered;
-    if (rpm > ENGINE.limiterRpm) s.limiter = true;
-    else if (rpm < ENGINE.limiterRpm - 150) s.limiter = false;
+    // the rev limiter: lower with no gear engaged (P or N), as engine controllers do
+    const limit = s.selector === 'P' || s.selector === 'N' ? ENGINE.limiterNeutralRpm : ENGINE.limiterRpm;
+    if (rpm > limit) s.limiter = true;
+    else if (rpm < limit - 150) s.limiter = false;
     let share = 0;
     for (let i = 0; i < 4; i++) {
       const on = fuelling && !s.limiter && f.misfireCyl !== i ? 1 : 0;
@@ -913,6 +919,8 @@ export class Car {
     const mu = this.road.mu * P.muScale;
     const fxs = [0, 0, 0, 0];
     const fys = [0, 0, 0, 0];
+    /** ∂Fx/∂ω of each tyre (N per rad/s): the wheel steps semi-implicitly with it (below). */
+    const kSlip = this.kSlip;
     for (let i = 0; i < 4; i++) {
       const wh = WHEELS[i];
       const xr = cfg.xr[i];
@@ -924,16 +932,25 @@ export class Car {
       // wheel frame: heading (cos d, −sin d), right (sin d, cos d)
       const vl = vx * cd - vz * sd;
       const vt = vx * sd + vz * cd;
-      const kappa = slipRatio(s.wheelOmega[i], vl);
       const speed = Math.hypot(vl, vt);
       const alpha = speed > 0.3 ? Math.atan2(vt, Math.max(0.5, Math.abs(vl))) : 0;
       const fz = Math.max(0, s.fz[i]);
-      const tf = tireForces(kappa, alpha, fz, mu);
-      // near standstill the slip formulation is stiff: damp the force toward rest
+      // near standstill the slip ratio is undefined: the tread and the road move together (a
+      // stiff no-slip coupling), up to the grip available; above walking pace the slip model
+      const w = Math.min(1, Math.max(0, (speed - 0.4) / 1.1));
+      const longF = (om: number) => {
+        const t = tireForces(slipRatio(om, vl), alpha, fz, mu);
+        const noSlip = Math.max(-mu * fz, Math.min(mu * fz, NO_SLIP_K * (om * RW - vl)));
+        return { fx: w * t.fx + (1 - w) * noSlip, t };
+      };
+      const om = s.wheelOmega[i];
+      const here = longF(om);
+      const tf = here.t;
+      const kappa = slipRatio(om, vl);
+      kSlip[i] = Math.max(0, (longF(om + 0.05).fx - longF(om - 0.05).fx) / 0.1);
       const low = Math.min(1, speed / 0.6);
-      let fl = tf.fx;
+      const fl = here.fx;
       const ft = tf.fy * low;
-      if (speed < 0.6 && Math.abs(s.wheelOmega[i] * RW - vl) < 0.05) fl *= low;
       s.slip[i] = kappa;
       s.slipAngle[i] = alpha;
       s.gripUse[i] = tf.usage;
@@ -947,7 +964,11 @@ export class Car {
     // ── wheel spin dynamics (front free, rear through the open differential)
     // A brake is friction: it opposes the wheel's rotation; a wheel at rest stays at rest while
     // the other torques on it are within the brake's grip (no creeping, no chatter).
+    // each wheel steps semi-implicitly against its tyre: its inertia is taken as Iw + h·k·R
+    // (k = ∂Fx/∂ω), which keeps the stiff tyre stable at the 1 ms step at any speed (an explicit
+    // step chatters below about 11 km/h); the force on the body is the one evaluated this step
     const Iw = MASS.wheelInertia;
+    const Ieff = (i: number) => Iw + h * kSlip[i] * RW;
     const withBrake = (w0: number, tNet: number, tBrake: number, I: number): number => {
       if (Math.abs(w0) < 1e-6 && Math.abs(tNet) <= tBrake) return 0;
       const dir = Math.abs(w0) < 1e-6 ? Math.sign(tNet) : Math.sign(w0);
@@ -956,7 +977,7 @@ export class Car {
       if (tBrake > 0 && Math.sign(w1) !== dir && Math.abs(w0) > 1e-6) return 0;
       return w1;
     };
-    for (const i of [0, 1]) s.wheelOmega[i] = withBrake(s.wheelOmega[i], -s.fx[i] * RW, brakeT[i], Iw);
+    for (const i of [0, 1]) s.wheelOmega[i] = withBrake(s.wheelOmega[i], -s.fx[i] * RW, brakeT[i], Ieff(i));
     {
       // Open differential: the carrier (with the drivetrain's reflected inertia Id) passes a
       // torque Tc to the side gears, half to each wheel. With ωc = (ωL + ωR)/2:
@@ -972,7 +993,7 @@ export class Car {
         s.wheelOmega[2] = 0;
         s.wheelOmega[3] = 0;
       } else {
-        for (const i of [2, 3]) s.wheelOmega[i] = withBrake(s.wheelOmega[i], Tc / 2 - s.fx[i] * RW, brakeT[i], Iw);
+        for (const i of [2, 3]) s.wheelOmega[i] = withBrake(s.wheelOmega[i], Tc / 2 - s.fx[i] * RW, brakeT[i], Ieff(i));
       }
     }
     // with the converter locked, the engine follows the turbine

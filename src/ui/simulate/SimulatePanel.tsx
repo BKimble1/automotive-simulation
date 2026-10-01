@@ -5,7 +5,8 @@
  */
 import { useEffect, useState } from 'react';
 import { useApp, useReadouts } from '../../state/store';
-import { FAULTS, FAULT_BY_ID, SCENARIOS, SCENARIO_BY_ID, type FaultCase } from '../../content/scenarios';
+import { FAULTS, FAULT_BY_ID, SCENARIOS, SCENARIO_BY_ID, WORKBENCH, type FaultCase } from '../../content/scenarios';
+import { Workbench } from './Workbench';
 import { BY_ID } from '../../content/registry';
 import { NO_FAULTS } from '../../sim/car';
 import type { World } from '../../world/world';
@@ -208,13 +209,23 @@ export function SimulatePanel({ world }: { world: World }) {
   const go = useApp((s) => s.go);
   const sc = id ? SCENARIO_BY_ID[id] : null;
   const fault = id ? FAULT_BY_ID[id] : null;
+  if (id === WORKBENCH.id)
+    return (
+      <aside className="panel panel--right eng sim wb pe" data-occludes="right" aria-label="Drive it yourself">
+        <Workbench world={world} />
+      </aside>
+    );
   return (
     <aside className="panel panel--right eng sim pe" data-occludes="right" aria-label="Simulate">
       {!sc && !fault ? (
         <>
           <h2>Simulate</h2>
-          <p>Drive the car through everyday situations, or diagnose a fault the way a technician would.</p>
-          <h3>Drive</h3>
+          <p>Drive the car yourself, watch it in everyday situations, or diagnose a fault the way a technician would.</p>
+          <button className="ex-row ex-row--feature" onClick={() => go({ scenario: WORKBENCH.id })}>
+            <span className="ex-row__name">{WORKBENCH.title}</span>
+            <span className="ex-row__fn">{WORKBENCH.summary}</span>
+          </button>
+          <h3>Watch it drive</h3>
           <ul className="ex-list">
             {SCENARIOS.map((s) => (
               <li key={s.id}>

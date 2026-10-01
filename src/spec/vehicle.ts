@@ -106,8 +106,9 @@ export const ENGINE = {
   firingOrder: [1, 3, 4, 2] as const,
   idleRpm: 750,
   redlineRpm: 6800,
-  /** Fuel cut-off (rev limiter). */
+  /** Fuel cut-off (rev limiter), and the lower one with no gear engaged (P or N) (typical). */
   limiterRpm: 7000,
+  limiterNeutralRpm: 4500,
   /** Peak torque and power (design). */
   peakTorque: 255,
   peakTorqueRpm: 4400,
