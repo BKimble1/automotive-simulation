@@ -784,3 +784,248 @@ html.virt *::after {
   background: var(--accent-soft);
   font-weight: 600;
 }
+
+/* ───────────────────────── film chapters ───────────────────────── */
+.lesson__chapter {
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chapters {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 2px;
+  max-height: 34vh;
+  overflow: auto;
+}
+.chapters button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  padding: 7px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+.chapters button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
+}
+.chapters button[aria-current='true'] {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.chapters .num {
+  color: var(--ink-3);
+}
+
+/* ───────────────────────── explore ───────────────────────── */
+.ex {
+  width: min(360px, 34vw);
+  padding: 12px 12px 16px;
+}
+.ex h2 {
+  font-size: 20px;
+  margin: 4px 2px 6px;
+}
+.ex p {
+  margin: 0 2px 10px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.ex-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+}
+.ex-search input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ex-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.ex-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.ex-row:hover,
+.ex-row:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+}
+.ex-row__name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.ex-row__count {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+.ex-row__fn {
+  grid-column: 1 / -1;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ex-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 6px;
+}
+.ex-back {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.ex-crumbs ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 0;
+  font-size: 12px;
+}
+.ex-crumbs li + li::before {
+  content: '›';
+  color: var(--ink-3);
+  margin: 0 5px;
+}
+.ex-crumbs li button {
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.ex-crumbs li button:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+.ex-depth {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin: 0 2px 8px;
+}
+.ex-aka {
+  color: var(--ink-3) !important;
+  font-size: 12.5px !important;
+}
+.ex-fn {
+  color: var(--ink) !important;
+  font-size: 14px !important;
+}
+.ex-lessons {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 6px;
+}
+.pbtn--wide {
+  width: 100%;
+  height: auto !important;
+  border-radius: 9px !important;
+  padding: 9px 12px;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ex-facts {
+  margin: 8px 2px 4px;
+  display: grid;
+  gap: 9px;
+}
+.ex-facts dt {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 2px;
+}
+.ex-facts dd {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.ex-facts ul {
+  margin: 0;
+  padding-left: 16px;
+}
+.ex-compare {
+  font-size: 13px !important;
+  border-left: 2px solid var(--accent-line);
+  padding-left: 10px;
+}
+.ex-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ex-link {
+  border: 1px solid var(--line-2);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-2);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.ex-link:hover {
+  color: var(--ink);
+  border-color: var(--accent-line);
+}

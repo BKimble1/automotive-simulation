@@ -1,0 +1,704 @@
+{
+  "version": "film-2",
+  "voice": "bm_george",
+  "speed": 1.0,
+  "model": {
+    "package": "expo-kokoro",
+    "version": "1.1.9",
+    "sha256": "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478",
+    "name": "Kokoro-82M v1.0",
+    "license": "Apache-2.0",
+    "engine": "float-conv",
+    "engineSha256": "2e83328bed32c73a02614d7405cc78a8f9e5ad9588c5f179e34569c99cdc949d"
+  },
+  "generatedAt": "2026-10-01T07:13:09Z",
+  "audio": {
+    "codec": "mp3",
+    "sampleRate": 24000,
+    "channels": 1,
+    "bitrateKbps": 64,
+    "loudnessLufs": -18.0,
+    "truePeakCeilingDb": -1.5,
+    "fileBase": "segment file names are relative to this manifest",
+    "timing": "startMs/endMs are sample positions of each cue clip in the segment (clip = speech plus 40 ms before and ~80 ms after); durationMs is the decoded length of the MP3. Measured with ffmpeg decoding, which honours the LAME gapless header (encoder delay and padding removed)."
+  },
+  "segments": [
+    {
+      "id": "film-intro",
+      "file": "film-intro.mp3",
+      "bytes": 119616,
+      "sha256": "a269fb39ec38a8ccc39dd48368e10188435705ab68238a9019ba0151d6bdacde",
+      "durationMs": 14860,
+      "cues": [
+        {
+          "id": "film-intro-1",
+          "text": "This is a modern petrol sedan: an engine at the front, drive to the rear wheels, and about 1,560 kilograms to move.",
+          "startMs": 300,
+          "endMs": 9990
+        },
+        {
+          "id": "film-intro-2",
+          "text": "In the next few minutes, we follow how it turns fuel into motion.",
+          "startMs": 10340,
+          "endMs": 14360
+        }
+      ]
+    },
+    {
+      "id": "film-xray",
+      "file": "film-xray.mp3",
+      "bytes": 66816,
+      "sha256": "7a8d8aa075f43212b13e6a45550089b310ca2bcc23716ddc9add58142bd7d49d",
+      "durationMs": 8260,
+      "cues": [
+        {
+          "id": "film-xray-1",
+          "text": "Under the paint, ten systems work together.",
+          "startMs": 300,
+          "endMs": 3240
+        },
+        {
+          "id": "film-xray-2",
+          "text": "We start where every journey starts: with a button on the dashboard.",
+          "startMs": 3590,
+          "endMs": 7760
+        }
+      ]
+    },
+    {
+      "id": "press",
+      "file": "press.mp3",
+      "bytes": 79872,
+      "sha256": "86122a1eda81a7bce00c025a1c5e02578f7b4ba2c4c38e35ce9e471dd192dcc2",
+      "durationMs": 9890,
+      "cues": [
+        {
+          "id": "press-1",
+          "text": "With the brake pedal held, one press of the start button wakes the car’s control units and asks the engine control unit to start the engine.",
+          "startMs": 300,
+          "endMs": 9390
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "file": "battery.mp3",
+      "bytes": 70848,
+      "sha256": "bfe0008df697c7b54eda0aa67f02a31570ea693d2e676cbc63dc8b34f9587cfb",
+      "durationMs": 8780,
+      "cues": [
+        {
+          "id": "battery-1",
+          "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+          "startMs": 300,
+          "endMs": 5000
+        },
+        {
+          "id": "battery-2",
+          "text": "Its voltage dips while the starter works.",
+          "startMs": 5350,
+          "endMs": 8280
+        }
+      ]
+    },
+    {
+      "id": "crank",
+      "file": "crank.mp3",
+      "bytes": 75072,
+      "sha256": "48f56b9baf6f045f801cbcdf4ce807b6ce0b201d40a10dfc836262a240f02a71",
+      "durationMs": 9290,
+      "cues": [
+        {
+          "id": "crank-1",
+          "text": "The starter’s small pinion meshes with the ring gear on the flexplate and spins the crankshaft at about 200 rpm.",
+          "startMs": 300,
+          "endMs": 8790
+        }
+      ]
+    },
+    {
+      "id": "first-fire",
+      "file": "first-fire.mp3",
+      "bytes": 88896,
+      "sha256": "68e30bdb7ee50e2e7b09818d28f8eff04b874c148eb37dc90c03b2a14d4c21c3",
+      "durationMs": 11020,
+      "cues": [
+        {
+          "id": "first-fire-1",
+          "text": "Once the crankshaft and camshaft sensors show where each piston is, the injectors spray fuel and the plugs fire.",
+          "startMs": 300,
+          "endMs": 7670
+        },
+        {
+          "id": "first-fire-2",
+          "text": "The engine starts turning on its own.",
+          "startMs": 8020,
+          "endMs": 10520
+        }
+      ]
+    },
+    {
+      "id": "intake",
+      "file": "intake.mp3",
+      "bytes": 78144,
+      "sha256": "03f6c031f1ab6e4bfe843da8f2ffa92df79fa3c0fde7a1306b09b3b6bb3208dd",
+      "durationMs": 9690,
+      "cues": [
+        {
+          "id": "intake-1",
+          "text": "The piston moves down with the intake valves open, drawing air into the cylinder.",
+          "startMs": 300,
+          "endMs": 5660
+        },
+        {
+          "id": "intake-2",
+          "text": "During this stroke the injector sprays in the fuel.",
+          "startMs": 6010,
+          "endMs": 9190
+        }
+      ]
+    },
+    {
+      "id": "compression",
+      "file": "compression.mp3",
+      "bytes": 82176,
+      "sha256": "56a591fbb90bc6fa74a4042abbd392ca0e05e8dee2a3108d61261b65ffc75fa3",
+      "durationMs": 10180,
+      "cues": [
+        {
+          "id": "compression-1",
+          "text": "Both valves close and the rising piston squeezes the mixture to a thirteenth of its volume.",
+          "startMs": 300,
+          "endMs": 6360
+        },
+        {
+          "id": "compression-2",
+          "text": "Just before the top, the spark plug fires.",
+          "startMs": 6710,
+          "endMs": 9680
+        }
+      ]
+    },
+    {
+      "id": "power",
+      "file": "power.mp3",
+      "bytes": 92352,
+      "sha256": "9affd7aaaa2e22e81a2464762cb92c30aa00ea1d5c9ad2a801afc3fb3b124adb",
+      "durationMs": 11470,
+      "cues": [
+        {
+          "id": "power-1",
+          "text": "The flame spreads and the pressure rises sharply.",
+          "startMs": 300,
+          "endMs": 3580
+        },
+        {
+          "id": "power-2",
+          "text": "The hot gas drives the piston down, and the connecting rod turns its push into rotation of the crankshaft.",
+          "startMs": 3930,
+          "endMs": 10970
+        }
+      ]
+    },
+    {
+      "id": "exhaust",
+      "file": "exhaust.mp3",
+      "bytes": 100800,
+      "sha256": "b4035eb1d4c148a32e1af54277bcc7071685320dc567d9dbd1d7bc24652d85fc",
+      "durationMs": 12510,
+      "cues": [
+        {
+          "id": "exhaust-1",
+          "text": "The exhaust valves open and the rising piston pushes the burnt gas out.",
+          "startMs": 300,
+          "endMs": 5320
+        },
+        {
+          "id": "exhaust-2",
+          "text": "The camshafts turn at half crankshaft speed, so each valve opens once every two revolutions.",
+          "startMs": 5670,
+          "endMs": 12010
+        }
+      ]
+    },
+    {
+      "id": "firing-1342",
+      "file": "firing-1342.mp3",
+      "bytes": 87744,
+      "sha256": "00e79058f5ccfdb6a4e7ee2697dafa83513c9431ab518d002c078e49902a20bb",
+      "durationMs": 10890,
+      "cues": [
+        {
+          "id": "firing-1342-1",
+          "text": "Watch the flames: cylinder 1, then 3, then 4, then 2.",
+          "startMs": 300,
+          "endMs": 4530
+        },
+        {
+          "id": "firing-1342-2",
+          "text": "Pistons 1 and 4 move together, as do 2 and 3, so the engine stays balanced.",
+          "startMs": 4880,
+          "endMs": 10390
+        }
+      ]
+    },
+    {
+      "id": "idle-speed",
+      "file": "idle-speed.mp3",
+      "bytes": 77952,
+      "sha256": "450246aacbd252b1370fa9004c3f16bfd90a78dca2bc4e4e189686107e4a9f89",
+      "durationMs": 9670,
+      "cues": [
+        {
+          "id": "idle-speed-1",
+          "text": "At an idle of 750 revolutions a minute, that is 25 power strokes every second; at 6,000, two hundred.",
+          "startMs": 300,
+          "endMs": 9170
+        }
+      ]
+    },
+    {
+      "id": "torque-path",
+      "file": "torque-path.mp3",
+      "bytes": 82944,
+      "sha256": "74a7f7b60fe8bbd867e0007f0122dd1023774ebdaf29549a6788ff395fdd837e",
+      "durationMs": 10290,
+      "cues": [
+        {
+          "id": "torque-path-1",
+          "text": "In Drive, torque flows from the crankshaft through the torque converter and the gearbox, along the driveshaft to the differential, and out to the rear wheels.",
+          "startMs": 300,
+          "endMs": 9790
+        }
+      ]
+    },
+    {
+      "id": "converter",
+      "file": "converter.mp3",
+      "bytes": 115392,
+      "sha256": "26744342b8c92fbb9759869ccc65eb3e76bd4748af5a18842ce22df3a14fbd60",
+      "durationMs": 14350,
+      "cues": [
+        {
+          "id": "converter-1",
+          "text": "The engine spins the impeller, in blue, which flings fluid into the amber turbine that drives the gearbox.",
+          "startMs": 300,
+          "endMs": 7410
+        },
+        {
+          "id": "converter-2",
+          "text": "While the car is slow, the stator turns the fluid back to help the impeller, multiplying the torque.",
+          "startMs": 7760,
+          "endMs": 13850
+        }
+      ]
+    },
+    {
+      "id": "upshift",
+      "file": "upshift.mp3",
+      "bytes": 104256,
+      "sha256": "236f824c40a7e05717e7920d11c39af196770e5d2c5b97dcf2e802fa66b94169",
+      "durationMs": 12960,
+      "cues": [
+        {
+          "id": "upshift-1",
+          "text": "At about 3,700 rpm the gearbox control unit changes up: clutch C releases while clutch E applies, in about a third of a second, and the engine speed falls.",
+          "startMs": 300,
+          "endMs": 12460
+        }
+      ]
+    },
+    {
+      "id": "differential",
+      "file": "differential.mp3",
+      "bytes": 88896,
+      "sha256": "84392854135641aa8659ab37cebc9e3a4db62d6398b4cb74d8ec6db9883a69c8",
+      "durationMs": 11020,
+      "cues": [
+        {
+          "id": "differential-1",
+          "text": "At the rear axle, the pinion turns the ring gear at a 3.15 to 1 reduction, and the differential shares the torque between the two half shafts.",
+          "startMs": 300,
+          "endMs": 10520
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "file": "contact.mp3",
+      "bytes": 76608,
+      "sha256": "8877d93fa494d1b552e97933b686803040bbb288e043849bb107a20b033f778c",
+      "durationMs": 9500,
+      "cues": [
+        {
+          "id": "contact-1",
+          "text": "Each rear tyre grips the road over a patch about the size of a hand and pushes backward on it.",
+          "startMs": 300,
+          "endMs": 6220
+        },
+        {
+          "id": "contact-2",
+          "text": "The road pushes the car forward.",
+          "startMs": 6570,
+          "endMs": 9000
+        }
+      ]
+    },
+    {
+      "id": "away",
+      "file": "away.mp3",
+      "bytes": 91776,
+      "sha256": "f71905e308f913c8f829223507a24cfe602f2920eec8fc61cdbc5aeb308d70db",
+      "durationMs": 11390,
+      "cues": [
+        {
+          "id": "away-1",
+          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+          "startMs": 300,
+          "endMs": 10890
+        }
+      ]
+    },
+    {
+      "id": "diff-straight",
+      "file": "diff-straight.mp3",
+      "bytes": 73728,
+      "sha256": "00a39b124ca2fb5afc075dc7929d1caac4fcd56d6a2c424128b11a3afd50a447",
+      "durationMs": 9130,
+      "cues": [
+        {
+          "id": "diff-straight-1",
+          "text": "Driving straight, both rear wheels turn at the same speed.",
+          "startMs": 300,
+          "endMs": 3880
+        },
+        {
+          "id": "diff-straight-2",
+          "text": "The spider gears ride round with the carrier without turning on their pin.",
+          "startMs": 4230,
+          "endMs": 8630
+        }
+      ]
+    },
+    {
+      "id": "corner-path",
+      "file": "corner-path.mp3",
+      "bytes": 87360,
+      "sha256": "15c782c4337ef9aae003d730087830727c9c8f74d4959c46145dc41351bf3eb9",
+      "durationMs": 10840,
+      "cues": [
+        {
+          "id": "corner-path-1",
+          "text": "In a corner the outer wheel has farther to go.",
+          "startMs": 300,
+          "endMs": 3470
+        },
+        {
+          "id": "corner-path-2",
+          "text": "On this 12-metre turn it travels about 14 percent farther than the inner wheel, in the same time.",
+          "startMs": 3820,
+          "endMs": 10340
+        }
+      ]
+    },
+    {
+      "id": "diff-corner",
+      "file": "diff-corner.mp3",
+      "bytes": 84288,
+      "sha256": "322f064e74ffd430ac1e011b7a42e2d2603a206c6d62cf7b42e38dec241ca749",
+      "durationMs": 10460,
+      "cues": [
+        {
+          "id": "diff-corner-1",
+          "text": "Now the spider gears turn on their pin: the outer side gear speeds up and the inner one slows by the same amount, while both still receive the same torque.",
+          "startMs": 300,
+          "endMs": 9960
+        }
+      ]
+    },
+    {
+      "id": "susp-parts",
+      "file": "susp-parts.mp3",
+      "bytes": 87360,
+      "sha256": "39e907a8ef1471e080a0639fae453227a3e6527b3c7b63eb754f8addf14a9862",
+      "durationMs": 10840,
+      "cues": [
+        {
+          "id": "susp-parts-1",
+          "text": "Each front wheel hangs on two wishbones.",
+          "startMs": 300,
+          "endMs": 3270
+        },
+        {
+          "id": "susp-parts-2",
+          "text": "A coil spring carries the car’s weight, and the damper inside it controls how fast the wheel can move.",
+          "startMs": 3620,
+          "endMs": 10340
+        }
+      ]
+    },
+    {
+      "id": "susp-bump",
+      "file": "susp-bump.mp3",
+      "bytes": 67776,
+      "sha256": "dfc3bc92a66e8103fc1e363edf0d3bd78f82d849be7bcae7ab222793bae92a56",
+      "durationMs": 8400,
+      "cues": [
+        {
+          "id": "susp-bump-1",
+          "text": "The wheel rises over the bump and the spring compresses, storing the energy instead of passing the jolt to the body.",
+          "startMs": 300,
+          "endMs": 7900
+        }
+      ]
+    },
+    {
+      "id": "susp-worn",
+      "file": "susp-worn.mp3",
+      "bytes": 67968,
+      "sha256": "8f804bc88ae3c7c9ec4740fe3f3d4dbaa60160e32b780ce3646c0e2a52dbc6b1",
+      "durationMs": 8410,
+      "cues": [
+        {
+          "id": "susp-worn-1",
+          "text": "With worn front dampers the same bump leaves the wheels bouncing, and each bounce loosens the tyre’s grip on the road.",
+          "startMs": 300,
+          "endMs": 7910
+        }
+      ]
+    },
+    {
+      "id": "brake-system",
+      "file": "brake-system.mp3",
+      "bytes": 82176,
+      "sha256": "75a0260d01ddec7b37d7d8b6c822b8b3f17ade0ece8f72d2971ee3dde2faa93d",
+      "durationMs": 10190,
+      "cues": [
+        {
+          "id": "brake-system-1",
+          "text": "Press the pedal and the booster multiplies the push.",
+          "startMs": 300,
+          "endMs": 3840
+        },
+        {
+          "id": "brake-system-2",
+          "text": "The master cylinder turns it into fluid pressure, carried to a caliper at each wheel.",
+          "startMs": 4190,
+          "endMs": 9690
+        }
+      ]
+    },
+    {
+      "id": "lockup",
+      "file": "lockup.mp3",
+      "bytes": 115200,
+      "sha256": "1e46c35c09e871ce058d06e78a240ac4f40becbc459d89fba315f325cbe72144",
+      "durationMs": 14320,
+      "cues": [
+        {
+          "id": "lockup-1",
+          "text": "In an emergency stop on a wet road without ABS, the wheels lock.",
+          "startMs": 300,
+          "endMs": 4870
+        },
+        {
+          "id": "lockup-2",
+          "text": "A sliding tyre grips less and cannot steer: the car needs about 65 metres to stop from 80 km/h.",
+          "startMs": 5220,
+          "endMs": 13820
+        }
+      ]
+    },
+    {
+      "id": "with-abs",
+      "file": "with-abs.mp3",
+      "bytes": 103872,
+      "sha256": "43b2da7308aa6025ac7fde0e2fd484f35e76fce6ffbb30cdf923d0d2a0767209",
+      "durationMs": 12910,
+      "cues": [
+        {
+          "id": "with-abs-1",
+          "text": "With ABS, each wheel’s pressure is released and re-applied many times a second, keeping the tyre just short of locking.",
+          "startMs": 300,
+          "endMs": 7890
+        },
+        {
+          "id": "with-abs-2",
+          "text": "The car stops in about 46 metres, and can still steer.",
+          "startMs": 8240,
+          "endMs": 12410
+        }
+      ]
+    },
+    {
+      "id": "thermostat-opens",
+      "file": "thermostat-opens.mp3",
+      "bytes": 110976,
+      "sha256": "80b682231f9346d92592c59a4fe794cefc68ec37602bf52103cc65e0df36bf46",
+      "durationMs": 13790,
+      "cues": [
+        {
+          "id": "thermostat-opens-1",
+          "text": "Under load the coolant passes 88 degrees.",
+          "startMs": 300,
+          "endMs": 3530
+        },
+        {
+          "id": "thermostat-opens-2",
+          "text": "The wax in the thermostat melts and expands, opening the way to the radiator, where the air carries the heat away.",
+          "startMs": 3880,
+          "endMs": 11260
+        },
+        {
+          "id": "thermostat-opens-3",
+          "text": "Time is sped up here.",
+          "startMs": 11610,
+          "endMs": 13290
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "file": "fan.mp3",
+      "bytes": 91776,
+      "sha256": "42336b1f2a0df7b3e4394ef959714d76401db093302a18c4dc93191b44273235",
+      "durationMs": 11390,
+      "cues": [
+        {
+          "id": "fan-1",
+          "text": "Stopped in hot traffic, little air passes through the radiator.",
+          "startMs": 300,
+          "endMs": 4330
+        },
+        {
+          "id": "fan-2",
+          "text": "When the coolant passes 102 degrees, the electric fans switch on and pull air through it.",
+          "startMs": 4680,
+          "endMs": 10890
+        }
+      ]
+    },
+    {
+      "id": "oil",
+      "file": "oil.mp3",
+      "bytes": 99072,
+      "sha256": "e4dd5c25de0e1d7aaa48ac4be74814d4da28715d30ebc3308155ea1887ed8b59",
+      "durationMs": 12310,
+      "cues": [
+        {
+          "id": "oil-1",
+          "text": "Meanwhile the oil pump draws oil from the pan and pushes it through the filter to every bearing, the camshafts and the chain.",
+          "startMs": 300,
+          "endMs": 8230
+        },
+        {
+          "id": "oil-2",
+          "text": "The parts never touch: they ride on a film of oil.",
+          "startMs": 8580,
+          "endMs": 11810
+        }
+      ]
+    },
+    {
+      "id": "charging",
+      "file": "charging.mp3",
+      "bytes": 80832,
+      "sha256": "8e6930e7c9f5e46e1e2c0d2263e29e450637e8e6e3ed273e0bbdb6676da02388",
+      "durationMs": 10010,
+      "cues": [
+        {
+          "id": "charging-1",
+          "text": "Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about 14 volts.",
+          "startMs": 300,
+          "endMs": 9510
+        }
+      ]
+    },
+    {
+      "id": "can",
+      "file": "can.mp3",
+      "bytes": 109248,
+      "sha256": "51bfd6d56b18fbb3c4e266c50b28577ae741f1476489aa46fed6166a31c1cf60",
+      "durationMs": 13570,
+      "cues": [
+        {
+          "id": "can-1",
+          "text": "The control units share information over a two-wire data network called CAN.",
+          "startMs": 300,
+          "endMs": 5630
+        },
+        {
+          "id": "can-2",
+          "text": "The engine unit broadcasts engine speed and torque; the gearbox, brakes and instruments listen and answer.",
+          "startMs": 5980,
+          "endMs": 13070
+        }
+      ]
+    },
+    {
+      "id": "explode",
+      "file": "explode.mp3",
+      "bytes": 99072,
+      "sha256": "676a21ffaee5d485abe691bba5040cbd59881086b278d1587a8b118cb32c71c7",
+      "durationMs": 12300,
+      "cues": [
+        {
+          "id": "explode-1",
+          "text": "Taken apart, it is a few hundred major parts in ten systems: the body, the engine and its air, fuel and cooling, the driveline, the chassis, the brakes, the electrics and the cabin.",
+          "startMs": 300,
+          "endMs": 11800
+        }
+      ]
+    },
+    {
+      "id": "reassemble",
+      "file": "reassemble.mp3",
+      "bytes": 62784,
+      "sha256": "c3d9c2b739c3dc66ec1e802a0a36912187f843d84f37d58d4ce138b0ccb40cb7",
+      "durationMs": 7770,
+      "cues": [
+        {
+          "id": "reassemble-1",
+          "text": "Each one depends on the others.",
+          "startMs": 300,
+          "endMs": 2630
+        },
+        {
+          "id": "reassemble-2",
+          "text": "Together they turn a few grams of fuel into motion, every second.",
+          "startMs": 2980,
+          "endMs": 7270
+        }
+      ]
+    }
+  ],
+  "licenses": [
+    {
+      "component": "Kokoro-82M v1.0 model weights and voice styles (generated this audio)",
+      "author": "hexgrad",
+      "license": "Apache-2.0",
+      "source": "https://huggingface.co/hexgrad/Kokoro-82M (ONNX export bundled in the npm package expo-kokoro@1.1.9)",
+      "text": "tools/narration/LICENSES/Kokoro-82M-Apache-2.0.txt"
+    },
+    {
+      "component": "expo-kokoro 1.1.9 (npm package that ships the ONNX export)",
+      "author": "Dane Madsen",
+      "license": "MIT",
+      "text": "tools/narration/LICENSES/expo-kokoro-MIT.txt"
+    },
+    {
+      "component": "misaki 0.9.4 (English G2P rules and British lexicon; build time only)",
+      "author": "hexgrad",
+      "license": "Apache-2.0",
+      "text": "tools/narration/LICENSES/misaki-Apache-2.0.txt"
+    },
+    {
+      "component": "espeak-ng 1.52.0 via espeakng-loader and phonemizer-fork (fallback G2P; build time only, not distributed)",
+      "license": "GPL-3.0-or-later"
+    },
+    {
+      "component": "FFmpeg with LAME (MP3 encoding; build time only, not distributed)",
+      "license": "GPL (static build from imageio-ffmpeg); LAME is LGPL-2.0"
+    }
+  ]
+}

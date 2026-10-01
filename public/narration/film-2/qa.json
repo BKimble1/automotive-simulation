@@ -1,0 +1,5304 @@
+{
+ "version": "film-2",
+ "generatedAt": "2026-10-01T07:13:09Z",
+ "voice": "bm_george",
+ "speed": 1.0,
+ "fingerprint": {
+  "engine": "float-conv",
+  "engineSha256": "2e83328bed32c73a02614d7405cc78a8f9e5ad9588c5f179e34569c99cdc949d",
+  "sourceSha256": "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478",
+  "onnxruntime": "1.30.0",
+  "threads": 4,
+  "g2p": {
+   "g2p": "2026-09-23.1",
+   "misaki": "0.9.4",
+   "phonemizer-fork": "3.3.2",
+   "espeakng-loader": "0.2.4",
+   "espeak-ng": "1.52.0",
+   "num2words": "0.5.14"
+  }
+ },
+ "thresholds": {
+  "rateDeviation": 0.25,
+  "rateMinPhonemesPerS": 9.0,
+  "rateMaxPhonemesPerS": 17.0,
+  "longInternalSilenceS": 0.8,
+  "onsetBurstDb": 12.0,
+  "pitchJumpsPerMin": 30.0,
+  "asrWer": 0.25,
+  "minCueS": 0.6
+ },
+ "hardFlags": [
+  "clipping",
+  "decode-mismatch",
+  "no-phonemes-for-word"
+ ],
+ "summary": {
+  "segments": 34,
+  "cues": 57,
+  "audioSeconds": 372.66,
+  "modelAudioSeconds": 374.75,
+  "synthSeconds": 93.35,
+  "rtf": 0.249,
+  "cacheHits": 57,
+  "medianPhonemesPerS": 10.19,
+  "medianSpeechWpm": 168.9,
+  "flags": 4,
+  "hardFlags": 0,
+  "bytes": 3003648,
+  "asrWer": 0.023
+ },
+ "segments": [
+  {
+   "id": "film-intro",
+   "file": "film-intro.mp3",
+   "durationMs": 14860,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.2,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.7
+   },
+   "encoded": {
+    "bytes": 119616,
+    "decodedSamples": 356640,
+    "sourceSamples": 356640,
+    "durationMs": 14860,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 622,
+     "bytes": 119616,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1056
+    },
+    "decodedPeakDbfs": -2.3
+   },
+   "decodedPeakDbfs": -2.3,
+   "flags": [],
+   "cues": [
+    {
+     "id": "film-intro-1",
+     "text": "This is a modern petrol sedan: an engine at the front, drive to the rear wheels, and about 1,560 kilograms to move.",
+     "startMs": 300,
+     "endMs": 9990,
+     "audioText": "This is a modern petrol sedan: an engine at the front, drive to the rear wheels, and about one thousand five hundred and sixty kilograms to move.",
+     "phonemes": "ðˌɪs ɪz ɐ mˈɒdᵊn pˈɛtɹᵊl siːdˈan: ɐn ˈɛnʤɪn at ðə fɹˈʌnt, dɹˈIv tə ðə ɹˈɪə wˈiːlz, and əbˈWt wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd and sˈɪksti kˈɪləɡɹamz tə mˈuːv.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 152,
+     "chunks": 1,
+     "synthS": 2.325,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.125,
+       "depthDb": -68.7,
+       "t": 2.335
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -68.7,
+       "t": 3.86
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -66.2,
+       "t": 5.635
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 9.69,
+      "peakDbfs": -1.71,
+      "clippedSamples": 0,
+      "dcOffset": -0.00027,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.12,
+      "longestInternalSilenceS": 0.37,
+      "pauses": [
+       [
+        2.05,
+        0.37
+       ],
+       [
+        3.62,
+        0.34
+       ],
+       [
+        5.34,
+        0.37
+       ],
+       [
+        7.52,
+        0.2
+       ]
+      ],
+      "speechSpanS": 9.52,
+      "f0MedianHz": 141.1,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.374,
+      "burstDb": 6.3,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.3,
+      "spikes": 0,
+      "hfShareDb": -27.6,
+      "words": 27,
+      "wpm": 167.2,
+      "speechWpm": 170.2,
+      "rawPeakDbfs": -5.21,
+      "phonemesPerS": 10.71
+     },
+     "asr": {
+      "hypothesis": "This is a modern petrol sedan, an engine at the front, drive to the rear wheels, and about one thousand five hundred and sixty kilograms to move.",
+      "reference": "this is a modern petrol sedan an engine at the front drive to the rear wheels about one thousand five hundred sixty kilograms to move",
+      "errors": 0,
+      "refWords": 25,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "film-intro-2",
+     "text": "In the next few minutes, we follow how it turns fuel into motion.",
+     "startMs": 10340,
+     "endMs": 14360,
+     "audioText": "In the next few minutes, we follow how it turns fuel into motion.",
+     "phonemes": "ɪn ðə nˈɛkst fjˈuː mˈɪnɪts, wiː fˈɒlQ hˌW ɪt tˈɜːnz fjˈuːəl ˈɪntuː mˈQʃᵊn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 74,
+     "chunks": 1,
+     "synthS": 0.993,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.495,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -69.4,
+       "t": 1.36
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.02,
+      "peakDbfs": -2.87,
+      "clippedSamples": 0,
+      "dcOffset": -0.00021,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.32,
+      "pauses": [
+       [
+        1.13,
+        0.32
+       ]
+      ],
+      "speechSpanS": 3.89,
+      "f0MedianHz": 142.8,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.409,
+      "burstDb": 5.6,
+      "burstAtS": 2.25,
+      "onsetBurstDb": 5.4,
+      "spikes": 0,
+      "hfShareDb": -29.3,
+      "words": 13,
+      "wpm": 194.0,
+      "speechWpm": 200.5,
+      "rawPeakDbfs": -6.37,
+      "phonemesPerS": 11.83
+     },
+     "asr": {
+      "hypothesis": "In the next few minutes, we follow how it turns fuel into motion.",
+      "reference": "in the next few minutes we follow how it turns fuel into motion",
+      "errors": 0,
+      "refWords": 13,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "film-xray",
+   "file": "film-xray.mp3",
+   "durationMs": 8260,
+   "loudness": {
+    "inputLufs": -21.4,
+    "inputTruePeakDb": -5.5,
+    "gainDb": 3.4,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.1
+   },
+   "encoded": {
+    "bytes": 66816,
+    "decodedSamples": 198240,
+    "sourceSamples": 198240,
+    "durationMs": 8260,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 347,
+     "bytes": 66816,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1056
+    },
+    "decodedPeakDbfs": -2.62
+   },
+   "decodedPeakDbfs": -2.62,
+   "flags": [],
+   "cues": [
+    {
+     "id": "film-xray-1",
+     "text": "Under the paint, ten systems work together.",
+     "startMs": 300,
+     "endMs": 3240,
+     "audioText": "Under the paint, ten systems work together.",
+     "phonemes": "ˈʌndə ðə pˈAnt, tˈɛn sˈɪstɪmz wˈɜːk təɡˈɛðə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 44,
+     "chunks": 1,
+     "synthS": 0.829,
+     "cached": true,
+     "modelLeadS": 0.26,
+     "modelTailS": 0.47,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.4,
+       "t": 1.055
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.94,
+      "peakDbfs": -2.93,
+      "clippedSamples": 0,
+      "dcOffset": -0.00021,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.25,
+      "pauses": [
+       [
+        0.9,
+        0.25
+       ]
+      ],
+      "speechSpanS": 2.79,
+      "f0MedianHz": 150.2,
+      "f0RangeSemitones": 7.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.33,
+      "burstDb": 4.5,
+      "burstAtS": 1.2,
+      "onsetBurstDb": 3.1,
+      "spikes": 0,
+      "hfShareDb": -28.8,
+      "words": 7,
+      "wpm": 142.9,
+      "speechWpm": 150.5,
+      "rawPeakDbfs": -6.33,
+      "phonemesPerS": 10.39
+     },
+     "asr": {
+      "hypothesis": "Under the paint, ten systems work together.",
+      "reference": "under the paint ten systems work together",
+      "errors": 0,
+      "refWords": 7,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "film-xray-2",
+     "text": "We start where every journey starts: with a button on the dashboard.",
+     "startMs": 3590,
+     "endMs": 7760,
+     "audioText": "We start where every journey starts: with a button on the dashboard.",
+     "phonemes": "wˌiː stˈɑːt wˌɛː ˈɛvəɹi ʤˈɜːni stˈɑːts: wɪð ɐ bˈʌtᵊn ˌɒn ðə dˈaʃbɔːd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 69,
+     "chunks": 1,
+     "synthS": 1.06,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.505,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.125,
+       "depthDb": -69.1,
+       "t": 2.395
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.17,
+      "peakDbfs": -2.09,
+      "clippedSamples": 0,
+      "dcOffset": -0.00021,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.31,
+      "pauses": [
+       [
+        2.18,
+        0.31
+       ]
+      ],
+      "speechSpanS": 4.03,
+      "f0MedianHz": 143.9,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.35,
+      "burstDb": 6.7,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.7,
+      "spikes": 0,
+      "hfShareDb": -28.1,
+      "words": 12,
+      "wpm": 172.7,
+      "speechWpm": 178.7,
+      "rawPeakDbfs": -5.49,
+      "phonemesPerS": 10.17
+     },
+     "asr": {
+      "hypothesis": "We start where every journey starts, with a button on the dashboard.",
+      "reference": "we start where every journey starts with a button on the dashboard",
+      "errors": 0,
+      "refWords": 12,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "press",
+   "file": "press.mp3",
+   "durationMs": 9890,
+   "loudness": {
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -6.0,
+    "gainDb": 3.8,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.2
+   },
+   "encoded": {
+    "bytes": 79872,
+    "decodedSamples": 237360,
+    "sourceSamples": 237360,
+    "durationMs": 9890,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 415,
+     "bytes": 79872,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1104
+    },
+    "decodedPeakDbfs": -2.67
+   },
+   "decodedPeakDbfs": -2.67,
+   "flags": [],
+   "cues": [
+    {
+     "id": "press-1",
+     "text": "With the brake pedal held, one press of the start button wakes the car’s control units and asks the engine control unit to start the engine.",
+     "startMs": 300,
+     "endMs": 9390,
+     "audioText": "With the brake pedal held, one press of the start button wakes the car’s control units and asks the engine control unit to start the engine.",
+     "phonemes": "wˌɪð ðə bɹˈAk pˈɛdᵊl hˈɛld, wˈʌn pɹˈɛs ɒv ðə stˈɑːt bˈʌtᵊn wˈAks ðə kˈɑːz kəntɹˈQl jˈuːnɪts and ˈɑːsks ði ˈɛnʤɪn kəntɹˈQl jˈuːnɪt tə stˈɑːt ði ˈɛnʤɪn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 150,
+     "chunks": 1,
+     "synthS": 2.213,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -69.2,
+       "t": 1.56
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 9.09,
+      "peakDbfs": -2.2,
+      "clippedSamples": 0,
+      "dcOffset": -0.00022,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.38,
+      "pauses": [
+       [
+        1.33,
+        0.33
+       ],
+       [
+        3.25,
+        0.25
+       ],
+       [
+        5.25,
+        0.38
+       ],
+       [
+        7.56,
+        0.25
+       ]
+      ],
+      "speechSpanS": 8.95,
+      "f0MedianHz": 140.7,
+      "f0RangeSemitones": 8.6,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.371,
+      "burstDb": 7.2,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 7.2,
+      "spikes": 0,
+      "hfShareDb": -26.9,
+      "words": 26,
+      "wpm": 171.6,
+      "speechWpm": 174.3,
+      "rawPeakDbfs": -6.0,
+      "phonemesPerS": 11.06
+     },
+     "asr": {
+      "hypothesis": "With the brake pedal held, one press of the start button wakes the car's control units and asks the engine control unit to start the engine.",
+      "reference": "with the brake pedal held one press of the start button wakes the cars control units asks the engine control unit to start the engine",
+      "errors": 0,
+      "refWords": 25,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "battery",
+   "file": "battery.mp3",
+   "durationMs": 8780,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -5.7,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.0
+   },
+   "encoded": {
+    "bytes": 70848,
+    "decodedSamples": 210720,
+    "sourceSamples": 210720,
+    "durationMs": 8780,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 368,
+     "bytes": 70848,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 672
+    },
+    "decodedPeakDbfs": -2.45
+   },
+   "decodedPeakDbfs": -2.45,
+   "flags": [],
+   "cues": [
+    {
+     "id": "battery-1",
+     "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+     "startMs": 300,
+     "endMs": 5000,
+     "audioText": "The twelve-volt battery sends about two hundred amps to the starter motor.",
+     "phonemes": "ðə twˌɛlvvˈQlt bˈatəɹi sˈɛndz əbˈWt tˈuː hˈʌndɹəd ˈamps tə ðə stˈɑːtə mˈQtə.",
+     "dictionary": [
+      "12-volt"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 76,
+     "chunks": 1,
+     "synthS": 1.227,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.525,
+     "pauses": [],
+     "unpunctuatedGaps": [
+      [
+       1.545,
+       0.15
+      ]
+     ],
+     "qa": {
+      "durationS": 4.7,
+      "peakDbfs": -2.06,
+      "clippedSamples": 0,
+      "dcOffset": -0.0003,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.25,
+      "pauses": [
+       [
+        1.36,
+        0.25
+       ],
+       [
+        3.3,
+        0.2
+       ]
+      ],
+      "speechSpanS": 4.56,
+      "f0MedianHz": 141.6,
+      "f0RangeSemitones": 9.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.373,
+      "burstDb": 6.0,
+      "burstAtS": 0.25,
+      "onsetBurstDb": 6.0,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 12,
+      "wpm": 153.2,
+      "speechWpm": 157.9,
+      "rawPeakDbfs": -5.76,
+      "phonemesPerS": 11.4
+     },
+     "asr": {
+      "hypothesis": "The twelve volt battery sends about 200 amps to the starter motor.",
+      "reference": "the twelve volt battery sends about two hundred amps to the starter motor",
+      "errors": 0,
+      "refWords": 13,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "battery-2",
+     "text": "Its voltage dips while the starter works.",
+     "startMs": 5350,
+     "endMs": 8280,
+     "audioText": "Its voltage dips while the starter works.",
+     "phonemes": "ˌɪts vˈQltɪʤ dˈɪps wˌIl ðə stˈɑːtə wˈɜːks.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 42,
+     "chunks": 1,
+     "synthS": 0.797,
+     "cached": true,
+     "modelLeadS": 0.26,
+     "modelTailS": 0.455,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.93,
+      "peakDbfs": -2.56,
+      "clippedSamples": 0,
+      "dcOffset": -0.00034,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.23,
+      "pauses": [
+       [
+        1.27,
+        0.23
+       ]
+      ],
+      "speechSpanS": 2.78,
+      "f0MedianHz": 144.6,
+      "f0RangeSemitones": 8.8,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.359,
+      "burstDb": 5.5,
+      "burstAtS": 0.25,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 7,
+      "wpm": 143.3,
+      "speechWpm": 151.1,
+      "rawPeakDbfs": -6.26,
+      "phonemesPerS": 9.71
+     },
+     "asr": {
+      "hypothesis": "Its voltage dips while the starter works.",
+      "reference": "its voltage dips while the starter works",
+      "errors": 0,
+      "refWords": 7,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "crank",
+   "file": "crank.mp3",
+   "durationMs": 9290,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -4.5,
+    "gainDb": 3.0,
+    "outputLufs": -18.6,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 75072,
+    "decodedSamples": 222960,
+    "sourceSamples": 222960,
+    "durationMs": 9290,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 390,
+     "bytes": 75072,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1104
+    },
+    "decodedPeakDbfs": -1.85
+   },
+   "decodedPeakDbfs": -1.85,
+   "flags": [],
+   "cues": [
+    {
+     "id": "crank-1",
+     "text": "The starter’s small pinion meshes with the ring gear on the flexplate and spins the crankshaft at about 200 rpm.",
+     "startMs": 300,
+     "endMs": 8790,
+     "audioText": "The starter’s small pinion meshes with the ring gear on the flexplate and spins the crankshaft at about two hundred R P M.",
+     "phonemes": "ðə stˈɑːtəz smˈɔːl pˈɪnjən mˈɛʃɪz wɪð ðə ɹˈɪŋ ɡˈɪə ˌɒn ðə flˈɛksplAt and spˈɪnz ðə kɹˈaŋkʃɑːft at əbˈWt tˈuː hˈʌndɹəd ˈɑː pˈiː ˈɛm.",
+     "dictionary": [
+      "rpm"
+     ],
+     "espeakWords": [
+      "flexplate"
+     ],
+     "g2pWarnings": [
+      "espeak fallback: flexplate -> flˈɛksplAt"
+     ],
+     "tokens": 131,
+     "chunks": 1,
+     "synthS": 1.995,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.51,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 8.49,
+      "peakDbfs": -1.63,
+      "clippedSamples": 0,
+      "dcOffset": -0.00019,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.44,
+      "pauses": [
+       [
+        1.56,
+        0.25
+       ],
+       [
+        4.13,
+        0.44
+       ],
+       [
+        5.96,
+        0.31
+       ]
+      ],
+      "speechSpanS": 8.34,
+      "f0MedianHz": 140.4,
+      "f0RangeSemitones": 8.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.338,
+      "burstDb": 5.7,
+      "burstAtS": 4.6,
+      "onsetBurstDb": 5.1,
+      "spikes": 0,
+      "hfShareDb": -26.8,
+      "words": 23,
+      "wpm": 162.5,
+      "speechWpm": 165.5,
+      "rawPeakDbfs": -4.63,
+      "phonemesPerS": 10.31
+     },
+     "asr": {
+      "hypothesis": "The starters small pinion meshes with the ring gear on the flex plate and spins the crankshaft at about 200 rpm.",
+      "reference": "the starters small pinion meshes with the ring gear on the flexplate spins the crankshaft at about two hundred rpm",
+      "errors": 0,
+      "refWords": 20,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "first-fire",
+   "file": "first-fire.mp3",
+   "durationMs": 11020,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.5,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.0
+   },
+   "encoded": {
+    "bytes": 88896,
+    "decodedSamples": 264480,
+    "sourceSamples": 264480,
+    "durationMs": 11020,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 462,
+     "bytes": 88896,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1056
+    },
+    "decodedPeakDbfs": -2.57
+   },
+   "decodedPeakDbfs": -2.57,
+   "flags": [],
+   "cues": [
+    {
+     "id": "first-fire-1",
+     "text": "Once the crankshaft and camshaft sensors show where each piston is, the injectors spray fuel and the plugs fire.",
+     "startMs": 300,
+     "endMs": 7670,
+     "audioText": "Once the crankshaft and camshaft sensors show where each piston is, the injectors spray fuel and the plugs fire.",
+     "phonemes": "wˈʌns ðə kɹˈaŋkʃɑːft and kˈamʃɑːft sˈɛnsəz ʃˈQ wˌɛː ˈiːʧ pˈɪstᵊn ɪz, ði ɪnʤˈɛktəz spɹˈA fjˈuːəl and ðə plˈʌɡz fˈIə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 115,
+     "chunks": 1,
+     "synthS": 1.877,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -67.8,
+       "t": 4.235
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.37,
+      "peakDbfs": -2.45,
+      "clippedSamples": 0,
+      "dcOffset": -0.0002,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.43,
+      "pauses": [
+       [
+        3.92,
+        0.43
+       ],
+       [
+        5.93,
+        0.31
+       ]
+      ],
+      "speechSpanS": 7.23,
+      "f0MedianHz": 138.6,
+      "f0RangeSemitones": 8.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.347,
+      "burstDb": 6.8,
+      "burstAtS": 4.35,
+      "onsetBurstDb": 6.0,
+      "spikes": 0,
+      "hfShareDb": -28.3,
+      "words": 19,
+      "wpm": 154.7,
+      "speechWpm": 157.7,
+      "rawPeakDbfs": -5.95,
+      "phonemesPerS": 10.65
+     },
+     "asr": {
+      "hypothesis": "Once the crankshaft and camshaft sensors show where each piston is, the injectors spray fuel and the plugs fire.",
+      "reference": "once the crankshaft camshaft sensors show where each piston is the injectors spray fuel the plugs fire",
+      "errors": 0,
+      "refWords": 17,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "first-fire-2",
+     "text": "The engine starts turning on its own.",
+     "startMs": 8020,
+     "endMs": 10520,
+     "audioText": "The engine starts turning on its own.",
+     "phonemes": "ði ˈɛnʤɪn stˈɑːts tˈɜːnɪŋ ˌɒn ɪts ˈQn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 38,
+     "chunks": 1,
+     "synthS": 0.723,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.475,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.5,
+      "peakDbfs": -2.0,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.11,
+      "pauses": [],
+      "speechSpanS": 2.36,
+      "f0MedianHz": 145.2,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.433,
+      "burstDb": 5.2,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.2,
+      "spikes": 0,
+      "hfShareDb": -29.1,
+      "words": 7,
+      "wpm": 168.0,
+      "speechWpm": 178.0,
+      "rawPeakDbfs": -5.5,
+      "phonemesPerS": 10.17
+     },
+     "asr": {
+      "hypothesis": "The engine starts turning on its own.",
+      "reference": "the engine starts turning on its own",
+      "errors": 0,
+      "refWords": 7,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "intake",
+   "file": "intake.mp3",
+   "durationMs": 9690,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -4.8,
+    "gainDb": 3.3,
+    "outputLufs": -18.2,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 78144,
+    "decodedSamples": 232560,
+    "sourceSamples": 232560,
+    "durationMs": 9690,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 406,
+     "bytes": 78144,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 720
+    },
+    "decodedPeakDbfs": -1.99
+   },
+   "decodedPeakDbfs": -1.99,
+   "flags": [],
+   "cues": [
+    {
+     "id": "intake-1",
+     "text": "The piston moves down with the intake valves open, drawing air into the cylinder.",
+     "startMs": 300,
+     "endMs": 5660,
+     "audioText": "The piston moves down with the intake valves open, drawing air into the cylinder.",
+     "phonemes": "ðə pˈɪstᵊn mˈuːvz dˌWn wɪð ði ˈɪntAk vˈalvz ˈQpᵊn, dɹˈɔːɪŋ ˈɛː ˈɪntuː ðə sˈɪlɪndə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 82,
+     "chunks": 1,
+     "synthS": 1.449,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.515,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -68.0,
+       "t": 3.32
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.36,
+      "peakDbfs": -2.48,
+      "clippedSamples": 0,
+      "dcOffset": -0.00017,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.36,
+      "pauses": [
+       [
+        1.38,
+        0.17
+       ],
+       [
+        3.08,
+        0.36
+       ]
+      ],
+      "speechSpanS": 5.23,
+      "f0MedianHz": 136.5,
+      "f0RangeSemitones": 7.6,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.37,
+      "burstDb": 6.6,
+      "burstAtS": 0.2,
+      "onsetBurstDb": 6.6,
+      "spikes": 0,
+      "hfShareDb": -28.9,
+      "words": 14,
+      "wpm": 156.7,
+      "speechWpm": 160.6,
+      "rawPeakDbfs": -5.78,
+      "phonemesPerS": 10.13
+     },
+     "asr": {
+      "hypothesis": "The piston moves down with the intake valves open, drawing air into the cylinder.",
+      "reference": "the piston moves down with the intake valves open drawing air into the cylinder",
+      "errors": 0,
+      "refWords": 14,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "intake-2",
+     "text": "During this stroke the injector sprays in the fuel.",
+     "startMs": 6010,
+     "endMs": 9190,
+     "audioText": "During this stroke the injector sprays in the fuel.",
+     "phonemes": "djˈʊəɹɪŋ ðɪs stɹˈQk ði ɪnʤˈɛktə spɹˈAz ɪn ðə fjˈuːəl.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 53,
+     "chunks": 1,
+     "synthS": 0.89,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.47,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.18,
+      "peakDbfs": -1.53,
+      "clippedSamples": 0,
+      "dcOffset": -0.0003,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.29,
+      "pauses": [
+       [
+        0.92,
+        0.29
+       ]
+      ],
+      "speechSpanS": 3.04,
+      "f0MedianHz": 141.6,
+      "f0RangeSemitones": 7.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.371,
+      "burstDb": 4.8,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 4.8,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 9,
+      "wpm": 169.8,
+      "speechWpm": 177.6,
+      "rawPeakDbfs": -4.83,
+      "phonemesPerS": 12.5
+     },
+     "asr": {
+      "hypothesis": "During this stroke, the injector sprays in the fuel.",
+      "reference": "during this stroke the injector sprays in the fuel",
+      "errors": 0,
+      "refWords": 9,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "compression",
+   "file": "compression.mp3",
+   "durationMs": 10180,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.4,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.9
+   },
+   "encoded": {
+    "bytes": 82176,
+    "decodedSamples": 244320,
+    "sourceSamples": 244320,
+    "durationMs": 10180,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 427,
+     "bytes": 82176,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1056
+    },
+    "decodedPeakDbfs": -2.37
+   },
+   "decodedPeakDbfs": -2.37,
+   "flags": [],
+   "cues": [
+    {
+     "id": "compression-1",
+     "text": "Both valves close and the rising piston squeezes the mixture to a thirteenth of its volume.",
+     "startMs": 300,
+     "endMs": 6360,
+     "audioText": "Both valves close and the rising piston squeezes the mixture to a thirteenth of its volume.",
+     "phonemes": "bˈQθ vˈalvz klˈQz and ðə ɹˈIzɪŋ pˈɪstᵊn skwˈiːzɪz ðə mˈɪksʧə tə ɐ θˌɜːtˈiːnθ ɒv ɪts vˈɒljuːm.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 93,
+     "chunks": 1,
+     "synthS": 1.52,
+     "cached": true,
+     "modelLeadS": 0.29,
+     "modelTailS": 0.52,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.06,
+      "peakDbfs": -1.89,
+      "clippedSamples": 0,
+      "dcOffset": -0.00029,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.34,
+      "pauses": [
+       [
+        1.31,
+        0.3
+       ],
+       [
+        3.93,
+        0.34
+       ]
+      ],
+      "speechSpanS": 5.93,
+      "f0MedianHz": 139.4,
+      "f0RangeSemitones": 7.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.36,
+      "burstDb": 6.2,
+      "burstAtS": 4.3,
+      "onsetBurstDb": 5.0,
+      "spikes": 0,
+      "hfShareDb": -29.4,
+      "words": 16,
+      "wpm": 158.4,
+      "speechWpm": 161.9,
+      "rawPeakDbfs": -5.39,
+      "phonemesPerS": 10.62
+     },
+     "asr": {
+      "hypothesis": "Both valves close and the rising piston squeezes the mixture to a thirteenth of its volume.",
+      "reference": "both valves close the rising piston squeezes the mixture to a thirteenth of its volume",
+      "errors": 0,
+      "refWords": 15,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "compression-2",
+     "text": "Just before the top, the spark plug fires.",
+     "startMs": 6710,
+     "endMs": 9680,
+     "audioText": "Just before the top, the spark plug fires.",
+     "phonemes": "ʤˈʌst bɪfˈɔː ðə tˈɒp, ðə spˈɑːk plˈʌɡ fˈIəz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 44,
+     "chunks": 1,
+     "synthS": 0.804,
+     "cached": true,
+     "modelLeadS": 0.25,
+     "modelTailS": 0.475,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 1.315
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.97,
+      "peakDbfs": -2.15,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.12,
+      "longestInternalSilenceS": 0.23,
+      "pauses": [
+       [
+        1.17,
+        0.23
+       ]
+      ],
+      "speechSpanS": 2.8,
+      "f0MedianHz": 154.1,
+      "f0RangeSemitones": 8.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.238,
+      "burstDb": 6.1,
+      "burstAtS": 0.1,
+      "onsetBurstDb": 6.1,
+      "spikes": 0,
+      "hfShareDb": -28.1,
+      "words": 8,
+      "wpm": 161.6,
+      "speechWpm": 171.4,
+      "rawPeakDbfs": -5.65,
+      "phonemesPerS": 9.64
+     },
+     "asr": {
+      "hypothesis": "Just before the top, the spark plagued fires.",
+      "reference": "just before the top the spark plug fires",
+      "errors": 1,
+      "refWords": 8,
+      "wer": 0.125,
+      "diffs": [
+       [
+        "plug",
+        "plagued"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "power",
+   "file": "power.mp3",
+   "durationMs": 11470,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.0,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 92352,
+    "decodedSamples": 275280,
+    "sourceSamples": 275280,
+    "durationMs": 11470,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 480,
+     "bytes": 92352,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 624
+    },
+    "decodedPeakDbfs": -1.99
+   },
+   "decodedPeakDbfs": -1.99,
+   "flags": [],
+   "cues": [
+    {
+     "id": "power-1",
+     "text": "The flame spreads and the pressure rises sharply.",
+     "startMs": 300,
+     "endMs": 3580,
+     "audioText": "The flame spreads and the pressure rises sharply.",
+     "phonemes": "ðə flˈAm spɹˈɛdz and ðə pɹˈɛʃə ɹˈIzɪz ʃˈɑːpli.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 46,
+     "chunks": 1,
+     "synthS": 0.913,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.47,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.28,
+      "peakDbfs": -2.68,
+      "clippedSamples": 0,
+      "dcOffset": -0.00034,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.29,
+      "pauses": [
+       [
+        1.1,
+        0.29
+       ]
+      ],
+      "speechSpanS": 3.14,
+      "f0MedianHz": 142.7,
+      "f0RangeSemitones": 7.3,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.345,
+      "burstDb": 5.0,
+      "burstAtS": 1.45,
+      "onsetBurstDb": 4.5,
+      "spikes": 0,
+      "hfShareDb": -28.8,
+      "words": 8,
+      "wpm": 146.3,
+      "speechWpm": 152.9,
+      "rawPeakDbfs": -6.18,
+      "phonemesPerS": 10.19
+     },
+     "asr": {
+      "hypothesis": "The flame spreads and the pressure rises sharply.",
+      "reference": "the flame spreads the pressure rises sharply",
+      "errors": 0,
+      "refWords": 7,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "power-2",
+     "text": "The hot gas drives the piston down, and the connecting rod turns its push into rotation of the crankshaft.",
+     "startMs": 3930,
+     "endMs": 10970,
+     "audioText": "The hot gas drives the piston down, and the connecting rod turns its push into rotation of the crankshaft.",
+     "phonemes": "ðə hˈɒt ɡˈas dɹˈIvz ðə pˈɪstᵊn dˌWn, and ðə kənˈɛktɪŋ ɹˈɒd tˈɜːnz ɪts pˈʊʃ ˈɪntuː ɹQtˈAʃᵊn ɒv ðə kɹˈaŋkʃɑːft.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 109,
+     "chunks": 1,
+     "synthS": 1.681,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.525,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.3,
+       "t": 2.51
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.04,
+      "peakDbfs": -1.5,
+      "clippedSamples": 0,
+      "dcOffset": -0.00027,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.38,
+      "pauses": [
+       [
+        2.21,
+        0.38
+       ],
+       [
+        4.77,
+        0.28
+       ]
+      ],
+      "speechSpanS": 6.9,
+      "f0MedianHz": 143.0,
+      "f0RangeSemitones": 5.7,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.371,
+      "burstDb": 6.8,
+      "burstAtS": 2.85,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -28.8,
+      "words": 19,
+      "wpm": 161.9,
+      "speechWpm": 165.2,
+      "rawPeakDbfs": -5.0,
+      "phonemesPerS": 10.72
+     },
+     "asr": {
+      "hypothesis": "The hot gas drives the piston down and the connecting rod turns its push into rotation of the crankshaft.",
+      "reference": "the hot gas drives the piston down the connecting rod turns its push into rotation of the crankshaft",
+      "errors": 0,
+      "refWords": 18,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "exhaust",
+   "file": "exhaust.mp3",
+   "durationMs": 12510,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -4.7,
+    "gainDb": 3.2,
+    "outputLufs": -18.3,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 100800,
+    "decodedSamples": 300240,
+    "sourceSamples": 300240,
+    "durationMs": 12510,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 524,
+     "bytes": 100800,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1008
+    },
+    "decodedPeakDbfs": -1.84
+   },
+   "decodedPeakDbfs": -1.84,
+   "flags": [],
+   "cues": [
+    {
+     "id": "exhaust-1",
+     "text": "The exhaust valves open and the rising piston pushes the burnt gas out.",
+     "startMs": 300,
+     "endMs": 5320,
+     "audioText": "The exhaust valves open and the rising piston pushes the burnt gas out.",
+     "phonemes": "ði ɪɡzˈɔːst vˈalvz ˈQpᵊn and ðə ɹˈIzɪŋ pˈɪstᵊn pˈʊʃɪz ðə bˈɜːnt ɡˈas ˈWt.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 73,
+     "chunks": 1,
+     "synthS": 1.283,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.52,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.02,
+      "peakDbfs": -3.3,
+      "clippedSamples": 0,
+      "dcOffset": -0.00034,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.35,
+      "pauses": [
+       [
+        0.72,
+        0.15
+       ],
+       [
+        1.84,
+        0.35
+       ]
+      ],
+      "speechSpanS": 4.87,
+      "f0MedianHz": 143.7,
+      "f0RangeSemitones": 9.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.377,
+      "burstDb": 6.5,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.5,
+      "spikes": 0,
+      "hfShareDb": -28.9,
+      "words": 13,
+      "wpm": 155.4,
+      "speechWpm": 160.2,
+      "rawPeakDbfs": -6.5,
+      "phonemesPerS": 10.06
+     },
+     "asr": {
+      "hypothesis": "The exhaust valves open and the rising piston pushes the burnt gas out.",
+      "reference": "the exhaust valves open the rising piston pushes the burnt gas out",
+      "errors": 0,
+      "refWords": 12,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "exhaust-2",
+     "text": "The camshafts turn at half crankshaft speed, so each valve opens once every two revolutions.",
+     "startMs": 5670,
+     "endMs": 12010,
+     "audioText": "The camshafts turn at half crankshaft speed, so each valve opens once every two revolutions.",
+     "phonemes": "ðə kˈamʃɑːfts tˈɜːn at hˈɑːf kɹˈaŋkʃɑːft spˈiːd, sˌQ ˈiːʧ vˈalv ˈQpᵊnz wˈʌns ˈɛvəɹi tˈuː ɹˌɛvəljˈuːʃᵊnz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 104,
+     "chunks": 1,
+     "synthS": 1.458,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.535,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -68.8,
+       "t": 2.87
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.34,
+      "peakDbfs": -1.5,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.39,
+      "pauses": [
+       [
+        2.58,
+        0.39
+       ]
+      ],
+      "speechSpanS": 6.19,
+      "f0MedianHz": 140.2,
+      "f0RangeSemitones": 8.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.372,
+      "burstDb": 6.5,
+      "burstAtS": 3.05,
+      "onsetBurstDb": 6.1,
+      "spikes": 0,
+      "hfShareDb": -28.5,
+      "words": 15,
+      "wpm": 142.0,
+      "speechWpm": 145.4,
+      "rawPeakDbfs": -4.7,
+      "phonemesPerS": 10.66
+     },
+     "asr": {
+      "hypothesis": "The camshafts turn at half-crankshaft speed, so each valve opens once every two revolutions.",
+      "reference": "the camshafts turn at half crankshaft speed so each valve opens once every two revolutions",
+      "errors": 0,
+      "refWords": 15,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "firing-1342",
+   "file": "firing-1342.mp3",
+   "durationMs": 10890,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -4.9,
+    "gainDb": 3.4,
+    "outputLufs": -18.3,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 87744,
+    "decodedSamples": 261360,
+    "sourceSamples": 261360,
+    "durationMs": 10890,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 456,
+     "bytes": 87744,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 720
+    },
+    "decodedPeakDbfs": -1.79
+   },
+   "decodedPeakDbfs": -1.79,
+   "flags": [],
+   "cues": [
+    {
+     "id": "firing-1342-1",
+     "text": "Watch the flames: cylinder 1, then 3, then 4, then 2.",
+     "startMs": 300,
+     "endMs": 4530,
+     "audioText": "Watch the flames: cylinder one, then three, then four, then two.",
+     "phonemes": "wˈɒʧ ðə flˈAmz: sˈɪlɪndə wˈʌn, ðˈɛn θɹˈiː, ðˈɛn fˈɔː, ðˈɛn tˈuː.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 64,
+     "chunks": 1,
+     "synthS": 1.232,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.15,
+       "depthDb": -69.0,
+       "t": 1.245
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.075,
+       "depthDb": -4.6,
+       "t": 2.12
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.075,
+       "depthDb": -9.9,
+       "t": 2.845
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.075,
+       "depthDb": -2.5,
+       "t": 3.47
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.23,
+      "peakDbfs": -1.49,
+      "clippedSamples": 0,
+      "dcOffset": -0.00017,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.32,
+      "pauses": [
+       [
+        1.0,
+        0.32
+       ]
+      ],
+      "speechSpanS": 4.09,
+      "f0MedianHz": 136.0,
+      "f0RangeSemitones": 7.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.431,
+      "burstDb": 5.7,
+      "burstAtS": 1.4,
+      "onsetBurstDb": 4.4,
+      "spikes": 0,
+      "hfShareDb": -29.2,
+      "words": 11,
+      "wpm": 156.0,
+      "speechWpm": 161.4,
+      "rawPeakDbfs": -4.89,
+      "phonemesPerS": 8.8
+     },
+     "asr": {
+      "hypothesis": "Watch the flames, sill into one, then three, then four, then two.",
+      "reference": "watch the flames cylinder one then three then four then two",
+      "errors": 2,
+      "refWords": 11,
+      "wer": 0.182,
+      "diffs": [
+       [
+        "cylinder",
+        "sill into"
+       ]
+      ]
+     },
+     "flags": [
+      "rate-outlier"
+     ]
+    },
+    {
+     "id": "firing-1342-2",
+     "text": "Pistons 1 and 4 move together, as do 2 and 3, so the engine stays balanced.",
+     "startMs": 4880,
+     "endMs": 10390,
+     "audioText": "Pistons one and four move together, as do two and three, so the engine stays balanced.",
+     "phonemes": "pˈɪstᵊnz wˈʌn and fˈɔː mˈuːv təɡˈɛðə, az dˈuː tˈuː and θɹˈiː, sˌQ ði ˈɛnʤɪn stˈAz bˈalənst.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 91,
+     "chunks": 1,
+     "synthS": 1.304,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.505,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -69.8,
+       "t": 2.085
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 3.51
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.51,
+      "peakDbfs": -1.89,
+      "clippedSamples": 0,
+      "dcOffset": -0.00029,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.32,
+      "pauses": [
+       [
+        1.87,
+        0.32
+       ],
+       [
+        3.28,
+        0.29
+       ]
+      ],
+      "speechSpanS": 5.38,
+      "f0MedianHz": 143.2,
+      "f0RangeSemitones": 9.7,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.367,
+      "burstDb": 5.9,
+      "burstAtS": 3.65,
+      "onsetBurstDb": 5.7,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 16,
+      "wpm": 174.2,
+      "speechWpm": 178.4,
+      "rawPeakDbfs": -5.29,
+      "phonemesPerS": 10.41
+     },
+     "asr": {
+      "hypothesis": "Pistons won and four moved together as due two and three, so the engine stays balanced.",
+      "reference": "pistons one four move together as do two three so the engine stays balanced",
+      "errors": 3,
+      "refWords": 14,
+      "wer": 0.214,
+      "diffs": [
+       [
+        "one",
+        "won"
+       ],
+       [
+        "move",
+        "moved"
+       ],
+       [
+        "do",
+        "due"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "idle-speed",
+   "file": "idle-speed.mp3",
+   "durationMs": 9670,
+   "loudness": {
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -5.3,
+    "gainDb": 3.8,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 77952,
+    "decodedSamples": 232080,
+    "sourceSamples": 232080,
+    "durationMs": 9670,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 405,
+     "bytes": 77952,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 624
+    },
+    "decodedPeakDbfs": -1.98
+   },
+   "decodedPeakDbfs": -1.98,
+   "flags": [],
+   "cues": [
+    {
+     "id": "idle-speed-1",
+     "text": "At an idle of 750 revolutions a minute, that is 25 power strokes every second; at 6,000, two hundred.",
+     "startMs": 300,
+     "endMs": 9170,
+     "audioText": "At an idle of seven hundred and fifty revolutions a minute, that is twenty-five power strokes every second; at six thousand, two hundred.",
+     "phonemes": "ˌat ɐn ˈIdᵊl ɒv sˈɛvᵊn hˈʌndɹəd and fˈɪfti ɹˌɛvəljˈuːʃᵊnz ɐ mˈɪnɪt, ðat ɪz twˈɛntifˌIv pˈWə stɹˈQks ˈɛvəɹi sˈɛkᵊnd; at sˈɪks θˈWzᵊnd, tˈuː hˈʌndɹəd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 148,
+     "chunks": 1,
+     "synthS": 2.392,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -67.0,
+       "t": 3.635
+      },
+      {
+       "mark": ";",
+       "pauseS": 0.15,
+       "depthDb": -69.0,
+       "t": 6.785
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -68.7,
+       "t": 7.985
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 8.87,
+      "peakDbfs": -1.48,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.44,
+      "pauses": [
+       [
+        3.33,
+        0.41
+       ],
+       [
+        6.43,
+        0.44
+       ],
+       [
+        7.89,
+        0.19
+       ]
+      ],
+      "speechSpanS": 8.73,
+      "f0MedianHz": 140.5,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.367,
+      "burstDb": 7.3,
+      "burstAtS": 8.15,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -27.1,
+      "words": 23,
+      "wpm": 155.6,
+      "speechWpm": 158.1,
+      "rawPeakDbfs": -5.28,
+      "phonemesPerS": 11.68
+     },
+     "asr": {
+      "hypothesis": "At an idol of seven hundred and fifty revolutions a minute, that is twenty-five power strokes every second at six thousand, two hundred.",
+      "reference": "at an idle of seven hundred fifty revolutions a minute that is twenty five power strokes every second at six thousand two hundred",
+      "errors": 1,
+      "refWords": 23,
+      "wer": 0.043,
+      "diffs": [
+       [
+        "idle",
+        "idol"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "torque-path",
+   "file": "torque-path.mp3",
+   "durationMs": 10290,
+   "loudness": {
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -5.9,
+    "gainDb": 3.8,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.1
+   },
+   "encoded": {
+    "bytes": 82944,
+    "decodedSamples": 246960,
+    "sourceSamples": 246960,
+    "durationMs": 10290,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 431,
+     "bytes": 82944,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 720
+    },
+    "decodedPeakDbfs": -2.89
+   },
+   "decodedPeakDbfs": -2.89,
+   "flags": [],
+   "cues": [
+    {
+     "id": "torque-path-1",
+     "text": "In Drive, torque flows from the crankshaft through the torque converter and the gearbox, along the driveshaft to the differential, and out to the rear wheels.",
+     "startMs": 300,
+     "endMs": 9790,
+     "audioText": "In Drive, torque flows from the crankshaft through the torque converter and the gearbox, along the driveshaft to the differential, and out to the rear wheels.",
+     "phonemes": "ɪn dɹˈIv, tˈɔːk flˈQz fɹɒm ðə kɹˈaŋkʃɑːft θɹuː ðə tˈɔːk kənvˈɜːtə and ðə ɡˈɪəbɒks, əlˈɒŋ ðə dɹˈIvʃɑːft tə ðə dˌɪfəɹˈɛnʃl, and ˈWt tə ðə ɹˈɪə wˈiːlz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 148,
+     "chunks": 1,
+     "synthS": 2.188,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.475,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -67.9,
+       "t": 0.735
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -67.2,
+       "t": 5.235
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -68.6,
+       "t": 7.61
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 9.49,
+      "peakDbfs": -2.16,
+      "clippedSamples": 0,
+      "dcOffset": -0.00028,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.4,
+      "pauses": [
+       [
+        0.65,
+        0.19
+       ],
+       [
+        3.82,
+        0.19
+       ],
+       [
+        4.92,
+        0.4
+       ],
+       [
+        7.35,
+        0.36
+       ]
+      ],
+      "speechSpanS": 9.34,
+      "f0MedianHz": 139.7,
+      "f0RangeSemitones": 8.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.39,
+      "burstDb": 6.4,
+      "burstAtS": 0.9,
+      "onsetBurstDb": 6.3,
+      "spikes": 0,
+      "hfShareDb": -29.5,
+      "words": 26,
+      "wpm": 164.4,
+      "speechWpm": 167.0,
+      "rawPeakDbfs": -5.96,
+      "phonemesPerS": 10.49
+     },
+     "asr": {
+      "hypothesis": "In drive, torque flows from the crankshaft through the torque converter and the gearbox along the drive shaft to the differential and out to the rear wheels.",
+      "reference": "in drive torque flows from the crankshaft through the torque converter the gearbox along the driveshaft to the differential out to the rear wheels",
+      "errors": 0,
+      "refWords": 24,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "converter",
+   "file": "converter.mp3",
+   "durationMs": 14350,
+   "loudness": {
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -5.8,
+    "gainDb": 3.8,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.0
+   },
+   "encoded": {
+    "bytes": 115392,
+    "decodedSamples": 344400,
+    "sourceSamples": 344400,
+    "durationMs": 14350,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 600,
+     "bytes": 115392,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 624
+    },
+    "decodedPeakDbfs": -2.65
+   },
+   "decodedPeakDbfs": -2.65,
+   "flags": [],
+   "cues": [
+    {
+     "id": "converter-1",
+     "text": "The engine spins the impeller, in blue, which flings fluid into the amber turbine that drives the gearbox.",
+     "startMs": 300,
+     "endMs": 7410,
+     "audioText": "The engine spins the impeller, in blue, which flings fluid into the amber turbine that drives the gearbox.",
+     "phonemes": "ði ˈɛnʤɪn spˈɪnz ði ɪmpˈɛlə, ɪn blˈuː, wˌɪʧ flˈɪŋz flˈuːɪd ˈɪntuː ði ˈambə tˈɜːbIn ðat dɹˈIvz ðə ɡˈɪəbɒks.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 106,
+     "chunks": 1,
+     "synthS": 1.812,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.48,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -69.4,
+       "t": 1.91
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -69.3,
+       "t": 2.96
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.11,
+      "peakDbfs": -2.05,
+      "clippedSamples": 0,
+      "dcOffset": -0.00032,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.38,
+      "pauses": [
+       [
+        1.75,
+        0.26
+       ],
+       [
+        2.68,
+        0.38
+       ],
+       [
+        5.32,
+        0.27
+       ]
+      ],
+      "speechSpanS": 6.97,
+      "f0MedianHz": 140.6,
+      "f0RangeSemitones": 8.2,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.408,
+      "burstDb": 5.5,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -27.8,
+      "words": 18,
+      "wpm": 151.9,
+      "speechWpm": 154.9,
+      "rawPeakDbfs": -5.85,
+      "phonemesPerS": 10.04
+     },
+     "asr": {
+      "hypothesis": "The engine spins the impeller in blue, which flings fluid into the amber turbine that drives the gearbox.",
+      "reference": "the engine spins the impeller in blue which flings fluid into the amber turbine that drives the gearbox",
+      "errors": 0,
+      "refWords": 18,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "converter-2",
+     "text": "While the car is slow, the stator turns the fluid back to help the impeller, multiplying the torque.",
+     "startMs": 7760,
+     "endMs": 13850,
+     "audioText": "While the car is slow, the stator turns the fluid back to help the impeller, multiplying the torque.",
+     "phonemes": "wˌIl ðə kˈɑː ɪz slˈQ, ðə stˈAtə tˈɜːnz ðə flˈuːɪd bˈak tə hˈɛlp ði ɪmpˈɛlə, mˌʌltɪplˈIɪŋ ðə tˈɔːk.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 98,
+     "chunks": 1,
+     "synthS": 1.521,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -68.6,
+       "t": 1.41
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -68.7,
+       "t": 4.51
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.09,
+      "peakDbfs": -2.4,
+      "clippedSamples": 0,
+      "dcOffset": -0.00019,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.32,
+      "pauses": [
+       [
+        1.23,
+        0.31
+       ],
+       [
+        4.28,
+        0.32
+       ]
+      ],
+      "speechSpanS": 5.95,
+      "f0MedianHz": 140.3,
+      "f0RangeSemitones": 8.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.355,
+      "burstDb": 5.9,
+      "burstAtS": 2.15,
+      "onsetBurstDb": 4.9,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 18,
+      "wpm": 177.3,
+      "speechWpm": 181.5,
+      "rawPeakDbfs": -6.2,
+      "phonemesPerS": 10.42
+     },
+     "asr": {
+      "hypothesis": "While the car is slow, the stainter turns the fluid back to help the impeller, multiplying the torque.",
+      "reference": "while the car is slow the stator turns the fluid back to help the impeller multiplying the torque",
+      "errors": 1,
+      "refWords": 18,
+      "wer": 0.056,
+      "diffs": [
+       [
+        "stator",
+        "stainter"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "upshift",
+   "file": "upshift.mp3",
+   "durationMs": 12960,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -6.3,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.6
+   },
+   "encoded": {
+    "bytes": 104256,
+    "decodedSamples": 311040,
+    "sourceSamples": 311040,
+    "durationMs": 12960,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 542,
+     "bytes": 104256,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 576
+    },
+    "decodedPeakDbfs": -3.03
+   },
+   "decodedPeakDbfs": -3.03,
+   "flags": [],
+   "cues": [
+    {
+     "id": "upshift-1",
+     "text": "At about 3,700 rpm the gearbox control unit changes up: clutch C releases while clutch E applies, in about a third of a second, and the engine speed falls.",
+     "startMs": 300,
+     "endMs": 12460,
+     "audioText": "At about three thousand seven hundred R P M the gearbox control unit changes up: clutch C releases while clutch E applies, in about a third of a second, and the engine speed falls.",
+     "phonemes": "ˌat əbˈWt θɹˈiː θˈWzᵊnd sˈɛvᵊn hˈʌndɹəd ˈɑː pˈiː ˈɛm ðə ɡˈɪəbɒks kəntɹˈQl jˈuːnɪt ʧˈAnʤɪz ˌʌp: klˈʌʧ sˈiː ɹɪlˈiːsɪz wˌIl klˈʌʧ ˈiː əplˈIz, ɪn əbˈWt ɐ θˈɜːd ɒv ɐ sˈɛkᵊnd, and ði ˈɛnʤɪn spˈiːd fˈɔːlz.",
+     "dictionary": [
+      "rpm"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 198,
+     "chunks": 1,
+     "synthS": 2.969,
+     "cached": true,
+     "modelLeadS": 0.29,
+     "modelTailS": 0.495,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.175,
+       "depthDb": -68.6,
+       "t": 5.275
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.6,
+       "t": 8.5
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.8,
+       "t": 10.275
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 12.16,
+      "peakDbfs": -2.69,
+      "clippedSamples": 0,
+      "dcOffset": -0.00022,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.52,
+      "pauses": [
+       [
+        2.66,
+        0.19
+       ],
+       [
+        4.88,
+        0.52
+       ],
+       [
+        6.54,
+        0.32
+       ],
+       [
+        8.24,
+        0.33
+       ],
+       [
+        9.99,
+        0.36
+       ]
+      ],
+      "speechSpanS": 12.02,
+      "f0MedianHz": 136.7,
+      "f0RangeSemitones": 7.7,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.369,
+      "burstDb": 5.9,
+      "burstAtS": 10.4,
+      "onsetBurstDb": 5.3,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 34,
+      "wpm": 167.8,
+      "speechWpm": 169.7,
+      "rawPeakDbfs": -6.39,
+      "phonemesPerS": 10.32
+     },
+     "asr": {
+      "hypothesis": "At about 3,700 RPM, the gearbox control unit changes up. Clutch C releases, while Clutch E applies in about a third of a second, and the engine speed falls.",
+      "reference": "at about three seven hundred rpm the gearbox control unit changes up clutch c releases while clutch e applies in about a third of a second the engine speed falls",
+      "errors": 0,
+      "refWords": 30,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "differential",
+   "file": "differential.mp3",
+   "durationMs": 11020,
+   "loudness": {
+    "inputLufs": -21.8,
+    "inputTruePeakDb": -6.1,
+    "gainDb": 3.8,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.3
+   },
+   "encoded": {
+    "bytes": 88896,
+    "decodedSamples": 264480,
+    "sourceSamples": 264480,
+    "durationMs": 11020,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 462,
+     "bytes": 88896,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1056
+    },
+    "decodedPeakDbfs": -2.74
+   },
+   "decodedPeakDbfs": -2.74,
+   "flags": [],
+   "cues": [
+    {
+     "id": "differential-1",
+     "text": "At the rear axle, the pinion turns the ring gear at a 3.15 to 1 reduction, and the differential shares the torque between the two half shafts.",
+     "startMs": 300,
+     "endMs": 10520,
+     "audioText": "At the rear axle, the pinion turns the ring gear at a three point one five to one reduction, and the differential shares the torque between the two half shafts.",
+     "phonemes": "ˌat ðə ɹˈɪə ˈaksᵊl, ðə pˈɪnjən tˈɜːnz ðə ɹˈɪŋ ɡˈɪə at ɐ θɹˈiː pˈYnt wˈʌn fˈIv tə wˈʌn ɹɪdˈʌkʃᵊn, and ðə dˌɪfəɹˈɛnʃl ʃˈɛːz ðə tˈɔːk bɪtwˈiːn ðə tˈuː hˈɑːf ʃˈɑːfts.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 162,
+     "chunks": 1,
+     "synthS": 2.578,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.47,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.5,
+       "t": 1.41
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -67.9,
+       "t": 6.36
+      }
+     ],
+     "unpunctuatedGaps": [
+      [
+       7.335,
+       0.15
+      ]
+     ],
+     "qa": {
+      "durationS": 10.22,
+      "peakDbfs": -2.41,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.45,
+      "pauses": [
+       [
+        1.17,
+        0.34
+       ],
+       [
+        3.26,
+        0.28
+       ],
+       [
+        5.99,
+        0.45
+       ],
+       [
+        8.25,
+        0.25
+       ]
+      ],
+      "speechSpanS": 10.08,
+      "f0MedianHz": 141.6,
+      "f0RangeSemitones": 8.2,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.383,
+      "burstDb": 6.3,
+      "burstAtS": 1.7,
+      "onsetBurstDb": 4.3,
+      "spikes": 0,
+      "hfShareDb": -28.4,
+      "words": 30,
+      "wpm": 176.1,
+      "speechWpm": 178.6,
+      "rawPeakDbfs": -6.21,
+      "phonemesPerS": 10.02
+     },
+     "asr": {
+      "hypothesis": "At the rear axle, the pinion turns the ring gear at a three point one five to one reduction, and the differential shares the torque between the two half shafts.",
+      "reference": "at the rear axle the pinion turns the ring gear at a three point one five to one reduction the differential shares the torque between the two half shafts",
+      "errors": 0,
+      "refWords": 29,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "contact",
+   "file": "contact.mp3",
+   "durationMs": 9500,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.4,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.9
+   },
+   "encoded": {
+    "bytes": 76608,
+    "decodedSamples": 228000,
+    "sourceSamples": 228000,
+    "durationMs": 9500,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 398,
+     "bytes": 76608,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 672
+    },
+    "decodedPeakDbfs": -2.36
+   },
+   "decodedPeakDbfs": -2.36,
+   "flags": [],
+   "cues": [
+    {
+     "id": "contact-1",
+     "text": "Each rear tyre grips the road over a patch about the size of a hand and pushes backward on it.",
+     "startMs": 300,
+     "endMs": 6220,
+     "audioText": "Each rear tyre grips the road over a patch about the size of a hand and pushes backward on it.",
+     "phonemes": "ˈiːʧ ɹˈɪə tˈIə ɡɹˈɪps ðə ɹˈQd ˈQvə ɐ pˈaʧ əbˈWt ðə sˈIz ɒv ɐ hˈand and pˈʊʃɪz bˈakwəd ˌɒn ɪt.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 93,
+     "chunks": 1,
+     "synthS": 1.495,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.53,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.92,
+      "peakDbfs": -1.91,
+      "clippedSamples": 0,
+      "dcOffset": -0.00028,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.37,
+      "pauses": [
+       [
+        1.07,
+        0.29
+       ],
+       [
+        4.06,
+        0.37
+       ]
+      ],
+      "speechSpanS": 5.79,
+      "f0MedianHz": 142.2,
+      "f0RangeSemitones": 9.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.362,
+      "burstDb": 6.1,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.1,
+      "spikes": 0,
+      "hfShareDb": -28.0,
+      "words": 20,
+      "wpm": 202.7,
+      "speechWpm": 207.3,
+      "rawPeakDbfs": -5.41,
+      "phonemesPerS": 10.19
+     },
+     "asr": {
+      "hypothesis": "Each re-attire grips the road over a patch about the size of a hand and pushes backward on it.",
+      "reference": "each rear tyre grips the road over a patch about the size of a hand pushes backward on it",
+      "errors": 2,
+      "refWords": 19,
+      "wer": 0.105,
+      "diffs": [
+       [
+        "rear tyre",
+        "re attire"
+       ]
+      ]
+     },
+     "flags": []
+    },
+    {
+     "id": "contact-2",
+     "text": "The road pushes the car forward.",
+     "startMs": 6570,
+     "endMs": 9000,
+     "audioText": "The road pushes the car forward.",
+     "phonemes": "ðə ɹˈQd pˈʊʃɪz ðə kˈɑː fˈɔːwəd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 31,
+     "chunks": 1,
+     "synthS": 0.698,
+     "cached": true,
+     "modelLeadS": 0.26,
+     "modelTailS": 0.48,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.43,
+      "peakDbfs": -3.67,
+      "clippedSamples": 0,
+      "dcOffset": -0.00033,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.12,
+      "longestInternalSilenceS": 0.17,
+      "pauses": [
+       [
+        1.11,
+        0.17
+       ]
+      ],
+      "speechSpanS": 2.26,
+      "f0MedianHz": 156.8,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.4,
+      "burstDb": 4.5,
+      "burstAtS": 0.15,
+      "onsetBurstDb": 4.5,
+      "spikes": 0,
+      "hfShareDb": -30.6,
+      "words": 6,
+      "wpm": 148.1,
+      "speechWpm": 159.3,
+      "rawPeakDbfs": -7.17,
+      "phonemesPerS": 8.41
+     },
+     "asr": {
+      "hypothesis": "The road pushes the car forward.",
+      "reference": "the road pushes the car forward",
+      "errors": 0,
+      "refWords": 6,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": [
+      "rate-outlier"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "away",
+   "file": "away.mp3",
+   "durationMs": 11390,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -6.1,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.4
+   },
+   "encoded": {
+    "bytes": 91776,
+    "decodedSamples": 273360,
+    "sourceSamples": 273360,
+    "durationMs": 11390,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 477,
+     "bytes": 91776,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 816
+    },
+    "decodedPeakDbfs": -2.86
+   },
+   "decodedPeakDbfs": -2.86,
+   "flags": [],
+   "cues": [
+    {
+     "id": "away-1",
+     "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+     "startMs": 300,
+     "endMs": 10890,
+     "audioText": "The fuel’s chemical energy has become forward motion: one thousand five hundred and sixty kilograms gaining about twelve kilometres an hour every second.",
+     "phonemes": "ðə fjˈuːəlz kˈɛmɪkᵊl ˈɛnəʤi haz bɪkˈʌm fˈɔːwəd mˈQʃᵊn: wˈʌn θˈWzᵊnd fˈIv hˈʌndɹəd and sˈɪksti kˈɪləɡɹamz ɡˈAnɪŋ əbˈWt twˈɛlv kˈɪləmˌiːtəz ɐn ˈWə ˈɛvəɹi sˈɛkᵊnd.",
+     "dictionary": [
+      "km/h"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 160,
+     "chunks": 1,
+     "synthS": 4.96,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.535,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.125,
+       "depthDb": -68.5,
+       "t": 3.795
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 10.59,
+      "peakDbfs": -2.41,
+      "clippedSamples": 0,
+      "dcOffset": -0.00022,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.46,
+      "pauses": [
+       [
+        1.61,
+        0.25
+       ],
+       [
+        3.42,
+        0.46
+       ],
+       [
+        5.21,
+        0.17
+       ],
+       [
+        6.76,
+        0.21
+       ],
+       [
+        8.69,
+        0.33
+       ]
+      ],
+      "speechSpanS": 10.44,
+      "f0MedianHz": 138.4,
+      "f0RangeSemitones": 7.6,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.389,
+      "burstDb": 5.9,
+      "burstAtS": 0.25,
+      "onsetBurstDb": 5.9,
+      "spikes": 0,
+      "hfShareDb": -27.9,
+      "words": 23,
+      "wpm": 130.3,
+      "speechWpm": 132.2,
+      "rawPeakDbfs": -6.11,
+      "phonemesPerS": 10.82
+     },
+     "asr": {
+      "hypothesis": "The fuel's chemical energy has become forward motion, one thousand five hundred and sixty kilograms gaining about twelve kilometres an hour every second.",
+      "reference": "the fuels chemical energy has become forward motion one thousand five hundred sixty kilograms gaining about twelve kilometers an hour every second",
+      "errors": 0,
+      "refWords": 22,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "diff-straight",
+   "file": "diff-straight.mp3",
+   "durationMs": 9130,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -5.9,
+    "gainDb": 3.5,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.4
+   },
+   "encoded": {
+    "bytes": 73728,
+    "decodedSamples": 219120,
+    "sourceSamples": 219120,
+    "durationMs": 9130,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 383,
+     "bytes": 73728,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 912
+    },
+    "decodedPeakDbfs": -3.08
+   },
+   "decodedPeakDbfs": -3.08,
+   "flags": [],
+   "cues": [
+    {
+     "id": "diff-straight-1",
+     "text": "Driving straight, both rear wheels turn at the same speed.",
+     "startMs": 300,
+     "endMs": 3880,
+     "audioText": "Driving straight, both rear wheels turn at the same speed.",
+     "phonemes": "dɹˈIvɪŋ stɹˈAt, bˈQθ ɹˈɪə wˈiːlz tˈɜːn at ðə sˈAm spˈiːd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 57,
+     "chunks": 1,
+     "synthS": 1.237,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -69.4,
+       "t": 1.095
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.58,
+      "peakDbfs": -2.49,
+      "clippedSamples": 0,
+      "dcOffset": -0.00038,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.3,
+      "pauses": [
+       [
+        0.91,
+        0.3
+       ]
+      ],
+      "speechSpanS": 3.44,
+      "f0MedianHz": 145.2,
+      "f0RangeSemitones": 6.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.383,
+      "burstDb": 5.5,
+      "burstAtS": 0.1,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -28.1,
+      "words": 10,
+      "wpm": 167.6,
+      "speechWpm": 174.4,
+      "rawPeakDbfs": -5.99,
+      "phonemesPerS": 10.17
+     },
+     "asr": {
+      "hypothesis": "Driving straight, both rear wheels turn at the same speed.",
+      "reference": "driving straight both rear wheels turn at the same speed",
+      "errors": 0,
+      "refWords": 10,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "diff-straight-2",
+     "text": "The spider gears ride round with the carrier without turning on their pin.",
+     "startMs": 4230,
+     "endMs": 8630,
+     "audioText": "The spider gears ride round with the carrier without turning on their pin.",
+     "phonemes": "ðə spˈIdə ɡˈɪəz ɹˈId ɹˈWnd wɪð ðə kˈaɹɪə wɪðˈWt tˈɜːnɪŋ ˌɒn ðɛː pˈɪn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 69,
+     "chunks": 1,
+     "synthS": 1.066,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.5,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.4,
+      "peakDbfs": -2.74,
+      "clippedSamples": 0,
+      "dcOffset": -0.00036,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.38,
+      "pauses": [
+       [
+        2.55,
+        0.38
+       ]
+      ],
+      "speechSpanS": 4.27,
+      "f0MedianHz": 141.2,
+      "f0RangeSemitones": 8.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.405,
+      "burstDb": 6.2,
+      "burstAtS": 2.95,
+      "onsetBurstDb": 4.4,
+      "spikes": 0,
+      "hfShareDb": -26.6,
+      "words": 13,
+      "wpm": 177.3,
+      "speechWpm": 182.7,
+      "rawPeakDbfs": -6.24,
+      "phonemesPerS": 10.54
+     },
+     "asr": {
+      "hypothesis": "The spider gears ride round with the carrier without turning on their pin.",
+      "reference": "the spider gears ride round with the carrier without turning on their pin",
+      "errors": 0,
+      "refWords": 13,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "corner-path",
+   "file": "corner-path.mp3",
+   "durationMs": 10840,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -5.4,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.7
+   },
+   "encoded": {
+    "bytes": 87360,
+    "decodedSamples": 260160,
+    "sourceSamples": 260160,
+    "durationMs": 10840,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 454,
+     "bytes": 87360,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 768
+    },
+    "decodedPeakDbfs": -2.27
+   },
+   "decodedPeakDbfs": -2.27,
+   "flags": [],
+   "cues": [
+    {
+     "id": "corner-path-1",
+     "text": "In a corner the outer wheel has farther to go.",
+     "startMs": 300,
+     "endMs": 3470,
+     "audioText": "In a corner the outer wheel has farther to go.",
+     "phonemes": "ɪn ɐ kˈɔːnə ði ˈWtə wˈiːl haz fˈɑːðə tə ɡˌQ.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 44,
+     "chunks": 1,
+     "synthS": 0.88,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.48,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.17,
+      "peakDbfs": -1.7,
+      "clippedSamples": 0,
+      "dcOffset": -0.00016,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.17,
+      "pauses": [
+       [
+        0.76,
+        0.15
+       ],
+       [
+        1.74,
+        0.17
+       ]
+      ],
+      "speechSpanS": 3.03,
+      "f0MedianHz": 142.2,
+      "f0RangeSemitones": 9.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.404,
+      "burstDb": 5.0,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.0,
+      "spikes": 0,
+      "hfShareDb": -29.2,
+      "words": 10,
+      "wpm": 189.3,
+      "speechWpm": 198.0,
+      "rawPeakDbfs": -5.4,
+      "phonemesPerS": 8.58
+     },
+     "asr": {
+      "hypothesis": "In a corner, the outer wheel has farther to go.",
+      "reference": "in a corner the outer wheel has farther to go",
+      "errors": 0,
+      "refWords": 10,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": [
+      "rate-outlier"
+     ]
+    },
+    {
+     "id": "corner-path-2",
+     "text": "On this 12-metre turn it travels about 14 percent farther than the inner wheel, in the same time.",
+     "startMs": 3820,
+     "endMs": 10340,
+     "audioText": "On this twelve-metre turn it travels about fourteen percent farther than the inner wheel, in the same time.",
+     "phonemes": "ˌɒn ðɪs twˌɛlvmˈiːtə tˈɜːn ɪt tɹˈavᵊlz əbˈWt fˌɔːtˈiːn pəsˈɛnt fˈɑːðə ðən ði ˈɪnə wˈiːl, ɪn ðə sˈAm tˈIm.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 105,
+     "chunks": 1,
+     "synthS": 2.105,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.6,
+       "t": 5.285
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.52,
+      "peakDbfs": -2.89,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.34,
+      "pauses": [
+       [
+        1.54,
+        0.32
+       ],
+       [
+        5.02,
+        0.34
+       ]
+      ],
+      "speechSpanS": 6.38,
+      "f0MedianHz": 138.6,
+      "f0RangeSemitones": 7.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.393,
+      "burstDb": 6.6,
+      "burstAtS": 1.2,
+      "onsetBurstDb": 5.6,
+      "spikes": 0,
+      "hfShareDb": -28.2,
+      "words": 18,
+      "wpm": 165.6,
+      "speechWpm": 169.3,
+      "rawPeakDbfs": -6.59,
+      "phonemesPerS": 10.34
+     },
+     "asr": {
+      "hypothesis": "On this 12-meter turn, it travels about 14% farther than the inner wheel in the same time.",
+      "reference": "on this twelve metre turn it travels about fourteen percent farther than the inner wheel in the same time",
+      "errors": 2,
+      "refWords": 19,
+      "wer": 0.105,
+      "diffs": [
+       [
+        "metre",
+        "meter"
+       ],
+       [
+        "percent",
+        "∅"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "diff-corner",
+   "file": "diff-corner.mp3",
+   "durationMs": 10460,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -4.8,
+    "gainDb": 3.3,
+    "outputLufs": -18.3,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 84288,
+    "decodedSamples": 251040,
+    "sourceSamples": 251040,
+    "durationMs": 10460,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 438,
+     "bytes": 84288,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 672
+    },
+    "decodedPeakDbfs": -2.13
+   },
+   "decodedPeakDbfs": -2.13,
+   "flags": [],
+   "cues": [
+    {
+     "id": "diff-corner-1",
+     "text": "Now the spider gears turn on their pin: the outer side gear speeds up and the inner one slows by the same amount, while both still receive the same torque.",
+     "startMs": 300,
+     "endMs": 9960,
+     "audioText": "Now the spider gears turn on their pin: the outer side gear speeds up and the inner one slows by the same amount, while both still receive the same torque.",
+     "phonemes": "nˈW ðə spˈIdə ɡˈɪəz tˈɜːn ˌɒn ðɛː pˈɪn: ði ˈWtə sˈId ɡˈɪə spˈiːdz ˌʌp and ði ˈɪnə wˈʌn slˈQz bI ðə sˈAm əmˈWnt, wˌIl bˈQθ stˈɪl ɹɪsˈiːv ðə sˈAm tˈɔːk.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 150,
+     "chunks": 1,
+     "synthS": 4.912,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.53,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.125,
+       "depthDb": -68.5,
+       "t": 2.435
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.5,
+       "t": 7.085
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 9.66,
+      "peakDbfs": -1.61,
+      "clippedSamples": 0,
+      "dcOffset": -0.0002,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.42,
+      "pauses": [
+       [
+        2.13,
+        0.42
+       ],
+       [
+        4.21,
+        0.37
+       ],
+       [
+        6.79,
+        0.4
+       ]
+      ],
+      "speechSpanS": 9.53,
+      "f0MedianHz": 138.5,
+      "f0RangeSemitones": 8.2,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.379,
+      "burstDb": 5.9,
+      "burstAtS": 4.6,
+      "onsetBurstDb": 5.8,
+      "spikes": 0,
+      "hfShareDb": -27.2,
+      "words": 30,
+      "wpm": 186.3,
+      "speechWpm": 188.9,
+      "rawPeakDbfs": -4.91,
+      "phonemesPerS": 9.55
+     },
+     "asr": {
+      "hypothesis": "Now the spider gears turn on their pin. The outer side gear speeds up, and the inner one slows by the same amount, while both still receive the same torque.",
+      "reference": "now the spider gears turn on their pin the outer side gear speeds up the inner one slows by the same amount while both still receive the same torque",
+      "errors": 0,
+      "refWords": 29,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "susp-parts",
+   "file": "susp-parts.mp3",
+   "durationMs": 10840,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -6.3,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.6
+   },
+   "encoded": {
+    "bytes": 87360,
+    "decodedSamples": 260160,
+    "sourceSamples": 260160,
+    "durationMs": 10840,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 454,
+     "bytes": 87360,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 768
+    },
+    "decodedPeakDbfs": -3.09
+   },
+   "decodedPeakDbfs": -3.09,
+   "flags": [],
+   "cues": [
+    {
+     "id": "susp-parts-1",
+     "text": "Each front wheel hangs on two wishbones.",
+     "startMs": 300,
+     "endMs": 3270,
+     "audioText": "Each front wheel hangs on two wishbones.",
+     "phonemes": "ˈiːʧ fɹˈʌnt wˈiːl hˈaŋz ˌɒn tˈuː wˈɪʃbQnz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 42,
+     "chunks": 1,
+     "synthS": 0.777,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.48,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.97,
+      "peakDbfs": -2.63,
+      "clippedSamples": 0,
+      "dcOffset": -0.00043,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.12,
+      "longestInternalSilenceS": 0.25,
+      "pauses": [
+       [
+        1.04,
+        0.25
+       ]
+      ],
+      "speechSpanS": 2.81,
+      "f0MedianHz": 158.1,
+      "f0RangeSemitones": 10.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.425,
+      "burstDb": 5.7,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.7,
+      "spikes": 0,
+      "hfShareDb": -29.3,
+      "words": 7,
+      "wpm": 141.4,
+      "speechWpm": 149.5,
+      "rawPeakDbfs": -6.33,
+      "phonemesPerS": 8.9
+     },
+     "asr": {
+      "hypothesis": "Each front wheel hangs on two wishbones.",
+      "reference": "each front wheel hangs on two wishbones",
+      "errors": 0,
+      "refWords": 7,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": [
+      "rate-outlier"
+     ]
+    },
+    {
+     "id": "susp-parts-2",
+     "text": "A coil spring carries the car’s weight, and the damper inside it controls how fast the wheel can move.",
+     "startMs": 3620,
+     "endMs": 10340,
+     "audioText": "A coil spring carries the car’s weight, and the damper inside it controls how fast the wheel can move.",
+     "phonemes": "ɐ kˈYl spɹˈɪŋ kˈaɹiz ðə kˈɑːz wˈAt, and ðə dˈampə ˌɪnsˈId ɪt kəntɹˈQlz hˌW fˈɑːst ðə wˈiːl kan mˈuːv.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 101,
+     "chunks": 1,
+     "synthS": 1.563,
+     "cached": true,
+     "modelLeadS": 0.25,
+     "modelTailS": 0.525,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.8,
+       "t": 2.69
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.72,
+      "peakDbfs": -3.35,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.41,
+      "pauses": [
+       [
+        2.36,
+        0.41
+       ],
+       [
+        4.7,
+        0.25
+       ]
+      ],
+      "speechSpanS": 6.56,
+      "f0MedianHz": 139.4,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.387,
+      "burstDb": 5.9,
+      "burstAtS": 2.8,
+      "onsetBurstDb": 4.6,
+      "spikes": 0,
+      "hfShareDb": -28.0,
+      "words": 19,
+      "wpm": 169.6,
+      "speechWpm": 173.8,
+      "rawPeakDbfs": -7.05,
+      "phonemesPerS": 9.76
+     },
+     "asr": {
+      "hypothesis": "A coil spring carries the car's weight and the damper inside it controls how fast the wheel can move.",
+      "reference": "a coil spring carries the cars weight the damper inside it controls how fast the wheel can move",
+      "errors": 0,
+      "refWords": 18,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "susp-bump",
+   "file": "susp-bump.mp3",
+   "durationMs": 8400,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -6.5,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.8
+   },
+   "encoded": {
+    "bytes": 67776,
+    "decodedSamples": 201600,
+    "sourceSamples": 201600,
+    "durationMs": 8400,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 352,
+     "bytes": 67776,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 576
+    },
+    "decodedPeakDbfs": -3.1
+   },
+   "decodedPeakDbfs": -3.1,
+   "flags": [],
+   "cues": [
+    {
+     "id": "susp-bump-1",
+     "text": "The wheel rises over the bump and the spring compresses, storing the energy instead of passing the jolt to the body.",
+     "startMs": 300,
+     "endMs": 7900,
+     "audioText": "The wheel rises over the bump and the spring compresses, storing the energy instead of passing the jolt to the body.",
+     "phonemes": "ðə wˈiːl ɹˈIzɪz ˈQvə ðə bˈʌmp and ðə spɹˈɪŋ kˈɒmpɹɛsɪz, stˈɔːɹɪŋ ði ˈɛnəʤi ɪnstˈɛd ɒv pˈɑːsɪŋ ðə ʤˈQlt tə ðə bˈɒdi.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 115,
+     "chunks": 1,
+     "synthS": 1.804,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -67.9,
+       "t": 3.77
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.6,
+      "peakDbfs": -2.88,
+      "clippedSamples": 0,
+      "dcOffset": -0.00029,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.36,
+      "pauses": [
+       [
+        1.81,
+        0.29
+       ],
+       [
+        3.47,
+        0.36
+       ],
+       [
+        4.98,
+        0.27
+       ]
+      ],
+      "speechSpanS": 7.45,
+      "f0MedianHz": 145.3,
+      "f0RangeSemitones": 9.2,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.38,
+      "burstDb": 5.0,
+      "burstAtS": 0.1,
+      "onsetBurstDb": 5.0,
+      "spikes": 0,
+      "hfShareDb": -27.6,
+      "words": 21,
+      "wpm": 165.8,
+      "speechWpm": 169.1,
+      "rawPeakDbfs": -6.58,
+      "phonemesPerS": 10.47
+     },
+     "asr": {
+      "hypothesis": "The wheel rises over the bump and the spring compresses, storing the energy instead of passing the jolt to the body.",
+      "reference": "the wheel rises over the bump the spring compresses storing the energy instead of passing the jolt to the body",
+      "errors": 0,
+      "refWords": 20,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "susp-worn",
+   "file": "susp-worn.mp3",
+   "durationMs": 8410,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -6.3,
+    "gainDb": 3.6,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.7
+   },
+   "encoded": {
+    "bytes": 67968,
+    "decodedSamples": 201840,
+    "sourceSamples": 201840,
+    "durationMs": 8410,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 353,
+     "bytes": 67968,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 912
+    },
+    "decodedPeakDbfs": -2.94
+   },
+   "decodedPeakDbfs": -2.94,
+   "flags": [],
+   "cues": [
+    {
+     "id": "susp-worn-1",
+     "text": "With worn front dampers the same bump leaves the wheels bouncing, and each bounce loosens the tyre’s grip on the road.",
+     "startMs": 300,
+     "endMs": 7910,
+     "audioText": "With worn front dampers the same bump leaves the wheels bouncing, and each bounce loosens the tyre’s grip on the road.",
+     "phonemes": "wˌɪð wˈɔːn fɹˈʌnt dˈampəz ðə sˈAm bˈʌmp lˈiːvz ðə wˈiːlz bˈWnsɪŋ, and ˈiːʧ bˈWns lˈuːsᵊnz ðə tˈIəz ɡɹˈɪp ˌɒn ðə ɹˈQd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 117,
+     "chunks": 1,
+     "synthS": 1.901,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.53,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 4.36
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.61,
+      "peakDbfs": -2.67,
+      "clippedSamples": 0,
+      "dcOffset": -0.0003,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.44,
+      "pauses": [
+       [
+        0.92,
+        0.24
+       ],
+       [
+        3.99,
+        0.44
+       ]
+      ],
+      "speechSpanS": 7.46,
+      "f0MedianHz": 144.3,
+      "f0RangeSemitones": 7.8,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.368,
+      "burstDb": 6.6,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.6,
+      "spikes": 0,
+      "hfShareDb": -27.8,
+      "words": 21,
+      "wpm": 165.6,
+      "speechWpm": 168.9,
+      "rawPeakDbfs": -6.27,
+      "phonemesPerS": 9.92
+     },
+     "asr": {
+      "hypothesis": "With worn front, dampers the same bump leaves the wheels bouncing, and each bounce loosens the tires grip on the road.",
+      "reference": "with worn front dampers the same bump leaves the wheels bouncing each bounce loosens the tyres grip on the road",
+      "errors": 1,
+      "refWords": 20,
+      "wer": 0.05,
+      "diffs": [
+       [
+        "tyres",
+        "tires"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "brake-system",
+   "file": "brake-system.mp3",
+   "durationMs": 10190,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -6.0,
+    "gainDb": 3.6,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.4
+   },
+   "encoded": {
+    "bytes": 82176,
+    "decodedSamples": 244560,
+    "sourceSamples": 244560,
+    "durationMs": 10190,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 427,
+     "bytes": 82176,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 816
+    },
+    "decodedPeakDbfs": -2.79
+   },
+   "decodedPeakDbfs": -2.79,
+   "flags": [],
+   "cues": [
+    {
+     "id": "brake-system-1",
+     "text": "Press the pedal and the booster multiplies the push.",
+     "startMs": 300,
+     "endMs": 3840,
+     "audioText": "Press the pedal and the booster multiplies the push.",
+     "phonemes": "pɹˈɛs ðə pˈɛdᵊl and ðə bˈuːstə mˈʌltɪplIz ðə pˈʊʃ.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 50,
+     "chunks": 1,
+     "synthS": 0.956,
+     "cached": true,
+     "modelLeadS": 0.26,
+     "modelTailS": 0.495,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.54,
+      "peakDbfs": -2.96,
+      "clippedSamples": 0,
+      "dcOffset": -0.00014,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.25,
+      "pauses": [
+       [
+        0.91,
+        0.25
+       ]
+      ],
+      "speechSpanS": 3.39,
+      "f0MedianHz": 133.9,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.342,
+      "burstDb": 5.8,
+      "burstAtS": 1.2,
+      "onsetBurstDb": 3.4,
+      "spikes": 0,
+      "hfShareDb": -27.8,
+      "words": 9,
+      "wpm": 152.5,
+      "speechWpm": 159.3,
+      "rawPeakDbfs": -6.56,
+      "phonemesPerS": 10.32
+     },
+     "asr": {
+      "hypothesis": "Press the pedal and the booster multiplies the push.",
+      "reference": "press the pedal the booster multiplies the push",
+      "errors": 0,
+      "refWords": 8,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "brake-system-2",
+     "text": "The master cylinder turns it into fluid pressure, carried to a caliper at each wheel.",
+     "startMs": 4190,
+     "endMs": 9690,
+     "audioText": "The master cylinder turns it into fluid pressure, carried to a caliper at each wheel.",
+     "phonemes": "ðə mˈɑːstə sˈɪlɪndə tˈɜːnz ɪt ˈɪntuː flˈuːɪd pɹˈɛʃə, kˈaɹid tə ɐ kˈalɪpə at ˈiːʧ wˈiːl.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 87,
+     "chunks": 1,
+     "synthS": 1.355,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -68.0,
+       "t": 3.145
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.5,
+      "peakDbfs": -2.45,
+      "clippedSamples": 0,
+      "dcOffset": -0.00025,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.36,
+      "pauses": [
+       [
+        2.91,
+        0.36
+       ],
+       [
+        4.34,
+        0.15
+       ]
+      ],
+      "speechSpanS": 5.35,
+      "f0MedianHz": 140.5,
+      "f0RangeSemitones": 6.6,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.382,
+      "burstDb": 6.2,
+      "burstAtS": 0.1,
+      "onsetBurstDb": 6.2,
+      "spikes": 0,
+      "hfShareDb": -28.6,
+      "words": 15,
+      "wpm": 163.6,
+      "speechWpm": 168.2,
+      "rawPeakDbfs": -6.05,
+      "phonemesPerS": 10.28
+     },
+     "asr": {
+      "hypothesis": "The master cylinder turns it into fluid pressure, carried to a caliper at each wheel.",
+      "reference": "the master cylinder turns it into fluid pressure carried to a caliper at each wheel",
+      "errors": 0,
+      "refWords": 15,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "lockup",
+   "file": "lockup.mp3",
+   "durationMs": 14320,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -6.0,
+    "gainDb": 3.6,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.4
+   },
+   "encoded": {
+    "bytes": 115200,
+    "decodedSamples": 343680,
+    "sourceSamples": 343680,
+    "durationMs": 14320,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 599,
+     "bytes": 115200,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 768
+    },
+    "decodedPeakDbfs": -2.78
+   },
+   "decodedPeakDbfs": -2.78,
+   "flags": [],
+   "cues": [
+    {
+     "id": "lockup-1",
+     "text": "In an emergency stop on a wet road without ABS, the wheels lock.",
+     "startMs": 300,
+     "endMs": 4870,
+     "audioText": "In an emergency stop on a wet road without A B S, the wheels lock.",
+     "phonemes": "ɪn ɐn ɪmˈɜːʤᵊnsi stˈɒp ˌɒn ɐ wˈɛt ɹˈQd wɪðˈWt ɐ bˈiː ˈɛs, ðə wˈiːlz lˈɒk.",
+     "dictionary": [
+      "ABS"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 73,
+     "chunks": 1,
+     "synthS": 1.196,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.495,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.5,
+       "t": 3.485
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.57,
+      "peakDbfs": -3.53,
+      "clippedSamples": 0,
+      "dcOffset": -0.00029,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.35,
+      "pauses": [
+       [
+        3.26,
+        0.35
+       ]
+      ],
+      "speechSpanS": 4.42,
+      "f0MedianHz": 145.5,
+      "f0RangeSemitones": 7.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.407,
+      "burstDb": 5.1,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.1,
+      "spikes": 0,
+      "hfShareDb": -28.9,
+      "words": 15,
+      "wpm": 196.9,
+      "speechWpm": 203.6,
+      "rawPeakDbfs": -7.13,
+      "phonemesPerS": 9.95
+     },
+     "asr": {
+      "hypothesis": "In an emergency stop on a wet road without a BS, the wheels lock.",
+      "reference": "in an emergency stop on a wet road without abs the wheels lock",
+      "errors": 0,
+      "refWords": 13,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "lockup-2",
+     "text": "A sliding tyre grips less and cannot steer: the car needs about 65 metres to stop from 80 km/h.",
+     "startMs": 5220,
+     "endMs": 13820,
+     "audioText": "A sliding tyre grips less and cannot steer: the car needs about sixty-five metres to stop from eighty kilometres an hour.",
+     "phonemes": "ɐ slˈIdɪŋ tˈIə ɡɹˈɪps lˈɛs and kˈanɒt stˈɪə: ðə kˈɑː nˈiːdz əbˈWt sˈɪkstifˌIv mˈiːtəz tə stˈɒp fɹɒm ˈAti kˈɪləmˌiːtəz ɐn ˈWə.",
+     "dictionary": [
+      "km/h"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 125,
+     "chunks": 1,
+     "synthS": 1.943,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.525,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.15,
+       "depthDb": -68.9,
+       "t": 3.495
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 8.6,
+      "peakDbfs": -2.42,
+      "clippedSamples": 0,
+      "dcOffset": -0.00021,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.52,
+      "pauses": [
+       [
+        1.78,
+        0.29
+       ],
+       [
+        3.1,
+        0.52
+       ],
+       [
+        5.85,
+        0.28
+       ]
+      ],
+      "speechSpanS": 8.47,
+      "f0MedianHz": 142.4,
+      "f0RangeSemitones": 7.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.361,
+      "burstDb": 6.5,
+      "burstAtS": 3.8,
+      "onsetBurstDb": 4.0,
+      "spikes": 0,
+      "hfShareDb": -27.5,
+      "words": 21,
+      "wpm": 146.5,
+      "speechWpm": 148.8,
+      "rawPeakDbfs": -6.02,
+      "phonemesPerS": 9.68
+     },
+     "asr": {
+      "hypothesis": "A sliding tire grips less and cannot steer. The car needs about 65 meters to stop from 80 kilometers an hour.",
+      "reference": "a sliding tyre grips less cannot steer the car needs about sixty five metres to stop from eighty kilometers an hour",
+      "errors": 2,
+      "refWords": 21,
+      "wer": 0.095,
+      "diffs": [
+       [
+        "tyre",
+        "tire"
+       ],
+       [
+        "metres",
+        "meters"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "with-abs",
+   "file": "with-abs.mp3",
+   "durationMs": 12910,
+   "loudness": {
+    "inputLufs": -21.5,
+    "inputTruePeakDb": -4.7,
+    "gainDb": 3.2,
+    "outputLufs": -18.3,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 103872,
+    "decodedSamples": 309840,
+    "sourceSamples": 309840,
+    "durationMs": 12910,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 540,
+     "bytes": 103872,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 624
+    },
+    "decodedPeakDbfs": -2.07
+   },
+   "decodedPeakDbfs": -2.07,
+   "flags": [],
+   "cues": [
+    {
+     "id": "with-abs-1",
+     "text": "With ABS, each wheel’s pressure is released and re-applied many times a second, keeping the tyre just short of locking.",
+     "startMs": 300,
+     "endMs": 7890,
+     "audioText": "With A B S, each wheel’s pressure is released and re-applied many times a second, keeping the tyre just short of locking.",
+     "phonemes": "wˌɪð ɐ bˈiː ˈɛs, ˈiːʧ wˈiːlz pɹˈɛʃə ɪz ɹɪlˈiːst and ɹˌiːəplˈId mˈɛni tˈImz ɐ sˈɛkᵊnd, kˈiːpɪŋ ðə tˈIə ʤˈʌst ʃˈɔːt ɒv lˈɒkɪŋ.",
+     "dictionary": [
+      "ABS"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 124,
+     "chunks": 1,
+     "synthS": 1.917,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.525,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.0,
+       "t": 1.06
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.0,
+       "t": 5.36
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.59,
+      "peakDbfs": -2.96,
+      "clippedSamples": 0,
+      "dcOffset": -0.00027,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.37,
+      "pauses": [
+       [
+        0.92,
+        0.25
+       ],
+       [
+        2.87,
+        0.31
+       ],
+       [
+        5.08,
+        0.37
+       ]
+      ],
+      "speechSpanS": 7.46,
+      "f0MedianHz": 142.9,
+      "f0RangeSemitones": 7.3,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.352,
+      "burstDb": 7.2,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 7.2,
+      "spikes": 0,
+      "hfShareDb": -28.4,
+      "words": 22,
+      "wpm": 173.9,
+      "speechWpm": 176.9,
+      "rawPeakDbfs": -6.16,
+      "phonemesPerS": 10.19
+     },
+     "asr": {
+      "hypothesis": "With a BS, each wheels pressure is released and reapplied many times a second, keeping the tire just short of locking.",
+      "reference": "with a bs each wheels pressure is released reapplied many times a second keeping the tyre just short of locking",
+      "errors": 1,
+      "refWords": 20,
+      "wer": 0.05,
+      "diffs": [
+       [
+        "tyre",
+        "tire"
+       ]
+      ]
+     },
+     "flags": []
+    },
+    {
+     "id": "with-abs-2",
+     "text": "The car stops in about 46 metres, and can still steer.",
+     "startMs": 8240,
+     "endMs": 12410,
+     "audioText": "The car stops in about forty-six metres, and can still steer.",
+     "phonemes": "ðə kˈɑː stˈɒps ɪn əbˈWt fˈɔːtisˌɪks mˈiːtəz, and kan stˈɪl stˈɪə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 65,
+     "chunks": 1,
+     "synthS": 1.149,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.505,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.2,
+       "t": 2.745
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.17,
+      "peakDbfs": -1.56,
+      "clippedSamples": 0,
+      "dcOffset": -0.0002,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.35,
+      "pauses": [
+       [
+        2.47,
+        0.35
+       ]
+      ],
+      "speechSpanS": 4.04,
+      "f0MedianHz": 151.1,
+      "f0RangeSemitones": 9.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.319,
+      "burstDb": 7.2,
+      "burstAtS": 3.0,
+      "onsetBurstDb": 6.1,
+      "spikes": 0,
+      "hfShareDb": -28.9,
+      "words": 11,
+      "wpm": 158.3,
+      "speechWpm": 163.4,
+      "rawPeakDbfs": -4.76,
+      "phonemesPerS": 10.4
+     },
+     "asr": {
+      "hypothesis": "The car stops in about 46 meters and can still steer.",
+      "reference": "the car stops in about forty six metres can still steer",
+      "errors": 1,
+      "refWords": 11,
+      "wer": 0.091,
+      "diffs": [
+       [
+        "metres",
+        "meters"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "thermostat-opens",
+   "file": "thermostat-opens.mp3",
+   "durationMs": 13790,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -6.1,
+    "gainDb": 3.6,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -2.5
+   },
+   "encoded": {
+    "bytes": 110976,
+    "decodedSamples": 330960,
+    "sourceSamples": 330960,
+    "durationMs": 13790,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 577,
+     "bytes": 110976,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 816
+    },
+    "decodedPeakDbfs": -2.89
+   },
+   "decodedPeakDbfs": -2.89,
+   "flags": [],
+   "cues": [
+    {
+     "id": "thermostat-opens-1",
+     "text": "Under load the coolant passes 88 degrees.",
+     "startMs": 300,
+     "endMs": 3530,
+     "audioText": "Under load the coolant passes eighty-eight degrees.",
+     "phonemes": "ˈʌndə lˈQd ðə kˈuːlənt pˈɑːsɪz ˈAtiˌAt dɪɡɹˈiːz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 48,
+     "chunks": 1,
+     "synthS": 0.912,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.545,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.23,
+      "peakDbfs": -2.52,
+      "clippedSamples": 0,
+      "dcOffset": -0.00034,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.13,
+      "pauses": [],
+      "speechSpanS": 3.09,
+      "f0MedianHz": 146.5,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.453,
+      "burstDb": 3.5,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 3.5,
+      "spikes": 0,
+      "hfShareDb": -29.0,
+      "words": 7,
+      "wpm": 130.0,
+      "speechWpm": 135.9,
+      "rawPeakDbfs": -6.12,
+      "phonemesPerS": 10.03
+     },
+     "asr": {
+      "hypothesis": "Under load, the coolant passes 88 degrees.",
+      "reference": "under load the coolant passes eighty eight degrees",
+      "errors": 0,
+      "refWords": 8,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "thermostat-opens-2",
+     "text": "The wax in the thermostat melts and expands, opening the way to the radiator, where the air carries the heat away.",
+     "startMs": 3880,
+     "endMs": 11260,
+     "audioText": "The wax in the thermostat melts and expands, opening the way to the radiator, where the air carries the heat away.",
+     "phonemes": "ðə wˈaks ɪn ðə θˈɜːmQstat mˈɛlts and ɪkspˈandz, ˈQpᵊnɪŋ ðə wˈA tə ðə ɹˈAdɪAtə, wˌɛː ði ˈɛː kˈaɹiz ðə hˈiːt əwˈA.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 112,
+     "chunks": 1,
+     "synthS": 1.76,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.495,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.175,
+       "depthDb": -68.3,
+       "t": 3.245
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.2,
+       "t": 5.27
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.38,
+      "peakDbfs": -2.95,
+      "clippedSamples": 0,
+      "dcOffset": -0.00025,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.4,
+      "pauses": [
+       [
+        1.93,
+        0.19
+       ],
+       [
+        2.97,
+        0.4
+       ],
+       [
+        5.02,
+        0.37
+       ]
+      ],
+      "speechSpanS": 7.23,
+      "f0MedianHz": 141.6,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.376,
+      "burstDb": 5.4,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.4,
+      "spikes": 0,
+      "hfShareDb": -28.1,
+      "words": 21,
+      "wpm": 170.7,
+      "speechWpm": 174.3,
+      "rawPeakDbfs": -6.55,
+      "phonemesPerS": 10.1
+     },
+     "asr": {
+      "hypothesis": "The wax in the thermostat melts and expands, opening the way to the radiator, where the air carries the heat away.",
+      "reference": "the wax in the thermostat melts expands opening the way to the radiator where the air carries the heat away",
+      "errors": 0,
+      "refWords": 20,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "thermostat-opens-3",
+     "text": "Time is sped up here.",
+     "startMs": 11610,
+     "endMs": 13290,
+     "audioText": "Time is sped up here.",
+     "phonemes": "tˈIm ɪz spˈɛd ˌʌp hˈɪə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 23,
+     "chunks": 1,
+     "synthS": 0.505,
+     "cached": true,
+     "modelLeadS": 0.25,
+     "modelTailS": 0.465,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 1.68,
+      "peakDbfs": -3.96,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.02,
+      "pauses": [],
+      "speechSpanS": 1.55,
+      "f0MedianHz": 173.0,
+      "f0RangeSemitones": 6.8,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.364,
+      "burstDb": 6.2,
+      "burstAtS": 0.1,
+      "onsetBurstDb": 6.2,
+      "spikes": 0,
+      "hfShareDb": -28.3,
+      "words": 5,
+      "wpm": 178.6,
+      "speechWpm": 193.5,
+      "rawPeakDbfs": -7.56,
+      "phonemesPerS": 9.03
+     },
+     "asr": {
+      "hypothesis": "Time is sped up here.",
+      "reference": "time is sped up here",
+      "errors": 0,
+      "refWords": 5,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "fan",
+   "file": "fan.mp3",
+   "durationMs": 11390,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -4.6,
+    "gainDb": 3.1,
+    "outputLufs": -18.5,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 91776,
+    "decodedSamples": 273360,
+    "sourceSamples": 273360,
+    "durationMs": 11390,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 477,
+     "bytes": 91776,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 816
+    },
+    "decodedPeakDbfs": -1.87
+   },
+   "decodedPeakDbfs": -1.87,
+   "flags": [],
+   "cues": [
+    {
+     "id": "fan-1",
+     "text": "Stopped in hot traffic, little air passes through the radiator.",
+     "startMs": 300,
+     "endMs": 4330,
+     "audioText": "Stopped in hot traffic, little air passes through the radiator.",
+     "phonemes": "stˈɒpt ɪn hˈɒt tɹˈafɪk, lˈɪtᵊl ˈɛː pˈɑːsɪz θɹuː ðə ɹˈAdɪAtə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 60,
+     "chunks": 1,
+     "synthS": 1.043,
+     "cached": true,
+     "modelLeadS": 0.24,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -69.2,
+       "t": 1.55
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.03,
+      "peakDbfs": -1.51,
+      "clippedSamples": 0,
+      "dcOffset": -0.00029,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.32,
+      "pauses": [
+       [
+        1.31,
+        0.32
+       ]
+      ],
+      "speechSpanS": 3.89,
+      "f0MedianHz": 146.5,
+      "f0RangeSemitones": 8.1,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.34,
+      "burstDb": 6.3,
+      "burstAtS": 1.65,
+      "onsetBurstDb": 4.2,
+      "spikes": 0,
+      "hfShareDb": -29.4,
+      "words": 10,
+      "wpm": 148.9,
+      "speechWpm": 154.2,
+      "rawPeakDbfs": -4.61,
+      "phonemesPerS": 10.03
+     },
+     "asr": {
+      "hypothesis": "Stopped in hot traffic, little air passes through the radiator.",
+      "reference": "stopped in hot traffic little air passes through the radiator",
+      "errors": 0,
+      "refWords": 10,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "fan-2",
+     "text": "When the coolant passes 102 degrees, the electric fans switch on and pull air through it.",
+     "startMs": 4680,
+     "endMs": 10890,
+     "audioText": "When the coolant passes one hundred and two degrees, the electric fans switch on and pull air through it.",
+     "phonemes": "wˌɛn ðə kˈuːlənt pˈɑːsɪz wˈʌn hˈʌndɹəd and tˈuː dɪɡɹˈiːz, ði ɪlˈɛktɹɪk fˈanz swˈɪʧ ˌɒn and pˈʊl ˈɛː θɹuː ɪt.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 108,
+     "chunks": 1,
+     "synthS": 1.518,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.53,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 2.885
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 6.21,
+      "peakDbfs": -2.96,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.38,
+      "pauses": [
+       [
+        2.62,
+        0.38
+       ],
+       [
+        4.74,
+        0.27
+       ]
+      ],
+      "speechSpanS": 6.08,
+      "f0MedianHz": 139.6,
+      "f0RangeSemitones": 9.2,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.359,
+      "burstDb": 6.6,
+      "burstAtS": 0.3,
+      "onsetBurstDb": 6.6,
+      "spikes": 0,
+      "hfShareDb": -28.6,
+      "words": 19,
+      "wpm": 183.6,
+      "speechWpm": 187.5,
+      "rawPeakDbfs": -6.06,
+      "phonemesPerS": 11.35
+     },
+     "asr": {
+      "hypothesis": "When the coolant passes 102 degrees, the electric fans switch on and pull air through it.",
+      "reference": "when the coolant passes one hundred two degrees the electric fans switch on pull air through it",
+      "errors": 0,
+      "refWords": 17,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "oil",
+   "file": "oil.mp3",
+   "durationMs": 12310,
+   "loudness": {
+    "inputLufs": -21.6,
+    "inputTruePeakDb": -4.5,
+    "gainDb": 3.0,
+    "outputLufs": -18.6,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 99072,
+    "decodedSamples": 295440,
+    "sourceSamples": 295440,
+    "durationMs": 12310,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 515,
+     "bytes": 99072,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 624
+    },
+    "decodedPeakDbfs": -2.03
+   },
+   "decodedPeakDbfs": -2.03,
+   "flags": [],
+   "cues": [
+    {
+     "id": "oil-1",
+     "text": "Meanwhile the oil pump draws oil from the pan and pushes it through the filter to every bearing, the camshafts and the chain.",
+     "startMs": 300,
+     "endMs": 8230,
+     "audioText": "Meanwhile the oil pump draws oil from the pan and pushes it through the filter to every bearing, the camshafts and the chain.",
+     "phonemes": "mˈiːnwIl ði ˈYl pˈʌmp dɹˈɔːz ˈYl fɹɒm ðə pˈan and pˈʊʃɪz ɪt θɹuː ðə fˈɪltə tʊ ˈɛvəɹi bˈɛːɹɪŋ, ðə kˈamʃɑːfts and ðə ʧˈAn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 120,
+     "chunks": 1,
+     "synthS": 3.68,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.52,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.6,
+       "t": 5.795
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.93,
+      "peakDbfs": -1.51,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.39,
+      "pauses": [
+       [
+        2.67,
+        0.32
+       ],
+       [
+        5.51,
+        0.39
+       ],
+       [
+        6.87,
+        0.23
+       ]
+      ],
+      "speechSpanS": 7.79,
+      "f0MedianHz": 143.0,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.373,
+      "burstDb": 6.7,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 6.7,
+      "spikes": 0,
+      "hfShareDb": -29.2,
+      "words": 23,
+      "wpm": 174.0,
+      "speechWpm": 177.2,
+      "rawPeakDbfs": -4.51,
+      "phonemesPerS": 10.14
+     },
+     "asr": {
+      "hypothesis": "Meanwhile the oil pump draws oil from the pan and pushes it through the filter to every bearing, the camshafts and the chain.",
+      "reference": "meanwhile the oil pump draws oil from the pan pushes it through the filter to every bearing the camshafts the chain",
+      "errors": 0,
+      "refWords": 21,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "oil-2",
+     "text": "The parts never touch: they ride on a film of oil.",
+     "startMs": 8580,
+     "endMs": 11810,
+     "audioText": "The parts never touch: they ride on a film of oil.",
+     "phonemes": "ðə pˈɑːts nˈɛvə tˈʌʧ: ðA ɹˈId ˌɒn ɐ fˈɪlm ɒv ˈYl.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 49,
+     "chunks": 1,
+     "synthS": 2.043,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.47,
+     "pauses": [
+      {
+       "mark": ":",
+       "pauseS": 0.15,
+       "depthDb": -68.6,
+       "t": 1.395
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 3.23,
+      "peakDbfs": -2.75,
+      "clippedSamples": 0,
+      "dcOffset": -0.00015,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.28,
+      "pauses": [
+       [
+        1.24,
+        0.28
+       ]
+      ],
+      "speechSpanS": 3.09,
+      "f0MedianHz": 145.7,
+      "f0RangeSemitones": 7.9,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.378,
+      "burstDb": 5.9,
+      "burstAtS": 0.2,
+      "onsetBurstDb": 5.9,
+      "spikes": 0,
+      "hfShareDb": -30.2,
+      "words": 11,
+      "wpm": 204.3,
+      "speechWpm": 213.6,
+      "rawPeakDbfs": -5.75,
+      "phonemesPerS": 9.39
+     },
+     "asr": {
+      "hypothesis": "The parts never touch, they ride on a film of oil.",
+      "reference": "the parts never touch they ride on a film of oil",
+      "errors": 0,
+      "refWords": 11,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "charging",
+   "file": "charging.mp3",
+   "durationMs": 10010,
+   "loudness": {
+    "inputLufs": -21.9,
+    "inputTruePeakDb": -5.0,
+    "gainDb": 3.5,
+    "outputLufs": -18.4,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 80832,
+    "decodedSamples": 240240,
+    "sourceSamples": 240240,
+    "durationMs": 10010,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 420,
+     "bytes": 80832,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 1104
+    },
+    "decodedPeakDbfs": -2.03
+   },
+   "decodedPeakDbfs": -2.03,
+   "flags": [],
+   "cues": [
+    {
+     "id": "charging-1",
+     "text": "Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about 14 volts.",
+     "startMs": 300,
+     "endMs": 9510,
+     "audioText": "Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about fourteen volts.",
+     "phonemes": "wˈʌns ði ˈɛnʤɪn ɹˈʌnz, ðə bˌɛltdɹˈɪvᵊn ˈɔːltənAtə pˈWəz ðə kˈɑː and ɹˌiːʧˈɑːʤɪz ðə bˈatəɹi, hˈQldɪŋ ðə sˈɪstɪm at əbˈWt fˌɔːtˈiːn vˈQlts.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 137,
+     "chunks": 1,
+     "synthS": 2.319,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.455,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 1.66
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.1,
+       "t": 6.185
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 9.21,
+      "peakDbfs": -1.55,
+      "clippedSamples": 0,
+      "dcOffset": -0.00023,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.11,
+      "longestInternalSilenceS": 0.4,
+      "pauses": [
+       [
+        1.44,
+        0.32
+       ],
+       [
+        4.16,
+        0.3
+       ],
+       [
+        5.9,
+        0.4
+       ],
+       [
+        7.25,
+        0.24
+       ]
+      ],
+      "speechSpanS": 9.05,
+      "f0MedianHz": 138.7,
+      "f0RangeSemitones": 7.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.361,
+      "burstDb": 5.6,
+      "burstAtS": 6.35,
+      "onsetBurstDb": 4.9,
+      "spikes": 0,
+      "hfShareDb": -27.6,
+      "words": 21,
+      "wpm": 136.8,
+      "speechWpm": 139.2,
+      "rawPeakDbfs": -5.05,
+      "phonemesPerS": 10.06
+     },
+     "asr": {
+      "hypothesis": "Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about fourteen volts.",
+      "reference": "once the engine runs the belt driven alternator powers the car recharges the battery holding the system at about fourteen volts",
+      "errors": 0,
+      "refWords": 21,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "can",
+   "file": "can.mp3",
+   "durationMs": 13570,
+   "loudness": {
+    "inputLufs": -21.4,
+    "inputTruePeakDb": -4.3,
+    "gainDb": 2.8,
+    "outputLufs": -18.6,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 109248,
+    "decodedSamples": 325680,
+    "sourceSamples": 325680,
+    "durationMs": 13570,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 568,
+     "bytes": 109248,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 912
+    },
+    "decodedPeakDbfs": -1.9
+   },
+   "decodedPeakDbfs": -1.9,
+   "flags": [],
+   "cues": [
+    {
+     "id": "can-1",
+     "text": "The control units share information over a two-wire data network called CAN.",
+     "startMs": 300,
+     "endMs": 5630,
+     "audioText": "The control units share information over a two-wire data network called can.",
+     "phonemes": "ðə kəntɹˈQl jˈuːnɪts ʃˈɛː ˌɪnfəmˈAʃᵊn ˈQvə ɐ tˌuːwˈIə dˈAtə nˈɛtwəːk kˈɔːld kˈan.",
+     "dictionary": [
+      "CAN"
+     ],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 81,
+     "chunks": 1,
+     "synthS": 1.405,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.52,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 5.33,
+      "peakDbfs": -1.53,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.26,
+      "pauses": [
+       [
+        0.97,
+        0.18
+       ],
+       [
+        2.23,
+        0.15
+       ],
+       [
+        4.18,
+        0.26
+       ]
+      ],
+      "speechSpanS": 5.19,
+      "f0MedianHz": 141.2,
+      "f0RangeSemitones": 8.0,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.421,
+      "burstDb": 6.2,
+      "burstAtS": 0.15,
+      "onsetBurstDb": 6.2,
+      "spikes": 0,
+      "hfShareDb": -29.9,
+      "words": 12,
+      "wpm": 135.1,
+      "speechWpm": 138.7,
+      "rawPeakDbfs": -4.33,
+      "phonemesPerS": 10.02
+     },
+     "asr": {
+      "hypothesis": "The control units share information over a two-wire data network called CAN.",
+      "reference": "the control units share information over a two wire data network called can",
+      "errors": 0,
+      "refWords": 13,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "can-2",
+     "text": "The engine unit broadcasts engine speed and torque; the gearbox, brakes and instruments listen and answer.",
+     "startMs": 5980,
+     "endMs": 13070,
+     "audioText": "The engine unit broadcasts engine speed and torque; the gearbox, brakes and instruments listen and answer.",
+     "phonemes": "ði ˈɛnʤɪn jˈuːnɪt bɹˈɔːdkɑːsts ˈɛnʤɪn spˈiːd and tˈɔːk; ðə ɡˈɪəbɒks, bɹˈAks and ˈɪnstɹʊmᵊnts lˈɪsᵊn and ˈɑːnsə.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 111,
+     "chunks": 1,
+     "synthS": 1.688,
+     "cached": true,
+     "modelLeadS": 0.28,
+     "modelTailS": 0.5,
+     "pauses": [
+      {
+       "mark": ";",
+       "pauseS": 0.125,
+       "depthDb": -68.4,
+       "t": 3.56
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.0,
+       "t": 4.56
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 7.09,
+      "peakDbfs": -3.15,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.05,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.44,
+      "pauses": [
+       [
+        0.89,
+        0.21
+       ],
+       [
+        3.22,
+        0.44
+       ],
+       [
+        4.44,
+        0.25
+       ]
+      ],
+      "speechSpanS": 6.94,
+      "f0MedianHz": 141.3,
+      "f0RangeSemitones": 6.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.381,
+      "burstDb": 5.5,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -27.5,
+      "words": 16,
+      "wpm": 135.4,
+      "speechWpm": 138.3,
+      "rawPeakDbfs": -5.95,
+      "phonemesPerS": 10.95
+     },
+     "asr": {
+      "hypothesis": "The engine unit broadcasts engine speed and talk, the gearbox breaks an instrument's listen and answer.",
+      "reference": "the engine unit broadcasts engine speed torque the gearbox brakes instruments listen answer",
+      "errors": 3,
+      "refWords": 13,
+      "wer": 0.231,
+      "diffs": [
+       [
+        "torque",
+        "talk"
+       ],
+       [
+        "brakes",
+        "breaks an"
+       ]
+      ]
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "explode",
+   "file": "explode.mp3",
+   "durationMs": 12300,
+   "loudness": {
+    "inputLufs": -21.7,
+    "inputTruePeakDb": -5.4,
+    "gainDb": 3.7,
+    "outputLufs": -18.0,
+    "outputTruePeakDb": -1.7
+   },
+   "encoded": {
+    "bytes": 99072,
+    "decodedSamples": 295200,
+    "sourceSamples": 295200,
+    "durationMs": 12300,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 515,
+     "bytes": 99072,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 864
+    },
+    "decodedPeakDbfs": -2.01
+   },
+   "decodedPeakDbfs": -2.01,
+   "flags": [],
+   "cues": [
+    {
+     "id": "explode-1",
+     "text": "Taken apart, it is a few hundred major parts in ten systems: the body, the engine and its air, fuel and cooling, the driveline, the chassis, the brakes, the electrics and the cabin.",
+     "startMs": 300,
+     "endMs": 11800,
+     "audioText": "Taken apart, it is a few hundred major parts in ten systems: the body, the engine and its air, fuel and cooling, the driveline, the chassis, the brakes, the electrics and the cabin.",
+     "phonemes": "tˈAkᵊn əpˈɑːt, ɪt ɪz ɐ fjˈuː hˈʌndɹəd mˈAʤə pˈɑːts ɪn tˈɛn sˈɪstɪmz: ðə bˈɒdi, ði ˈɛnʤɪn and ɪts ˈɛː, fjˈuːəl and kˈuːlɪŋ, ðə dɹˈIvlIn, ðə ʃˈasi, ðə bɹˈAks, ði ɪlˈɛktɹɪks and ðə kˈabɪn.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 185,
+     "chunks": 1,
+     "synthS": 2.704,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.525,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.1,
+       "depthDb": -67.7,
+       "t": 0.87
+      },
+      {
+       "mark": ":",
+       "pauseS": 0.125,
+       "depthDb": -68.2,
+       "t": 3.895
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -68.5,
+       "t": 4.595
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -51.0,
+       "t": 6.07
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.1,
+       "depthDb": -67.3,
+       "t": 7.295
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.1,
+       "depthDb": -64.9,
+       "t": 8.195
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -67.6,
+       "t": 8.945
+      },
+      {
+       "mark": ",",
+       "pauseS": 0.125,
+       "depthDb": -64.8,
+       "t": 9.895
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 11.5,
+      "peakDbfs": -1.7,
+      "clippedSamples": 0,
+      "dcOffset": -0.00024,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.09,
+      "longestInternalSilenceS": 0.47,
+      "pauses": [
+       [
+        3.53,
+        0.47
+       ],
+       [
+        4.48,
+        0.22
+       ],
+       [
+        5.98,
+        0.15
+       ],
+       [
+        7.18,
+        0.19
+       ],
+       [
+        9.67,
+        0.34
+       ]
+      ],
+      "speechSpanS": 11.37,
+      "f0MedianHz": 137.2,
+      "f0RangeSemitones": 8.4,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.37,
+      "burstDb": 6.2,
+      "burstAtS": 6.75,
+      "onsetBurstDb": 5.7,
+      "spikes": 0,
+      "hfShareDb": -27.7,
+      "words": 33,
+      "wpm": 172.2,
+      "speechWpm": 174.1,
+      "rawPeakDbfs": -5.4,
+      "phonemesPerS": 10.55
+     },
+     "asr": {
+      "hypothesis": "Taken apart, it is a few hundred major parts in ten systems, the body, the engine and its air, fuel and cooling, the drive line, the chassis, the brakes, the electrics and the cabin.",
+      "reference": "taken apart it is a few hundred major parts in ten systems the body the engine its air fuel cooling the driveline the chassis the brakes the electrics the cabin",
+      "errors": 0,
+      "refWords": 30,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  },
+  {
+   "id": "reassemble",
+   "file": "reassemble.mp3",
+   "durationMs": 7770,
+   "loudness": {
+    "inputLufs": -21.4,
+    "inputTruePeakDb": -4.3,
+    "gainDb": 2.8,
+    "outputLufs": -18.6,
+    "outputTruePeakDb": -1.5
+   },
+   "encoded": {
+    "bytes": 62784,
+    "decodedSamples": 186480,
+    "sourceSamples": 186480,
+    "durationMs": 7770,
+    "lagSamples": 0,
+    "lengthMatches": true,
+    "gapless": {
+     "xingTag": true,
+     "tag": "Info",
+     "frames": 326,
+     "bytes": 62784,
+     "encoder": "Lavf lame",
+     "encoderDelaySamples": 576,
+     "paddingSamples": 720
+    },
+    "decodedPeakDbfs": -1.89
+   },
+   "decodedPeakDbfs": -1.89,
+   "flags": [],
+   "cues": [
+    {
+     "id": "reassemble-1",
+     "text": "Each one depends on the others.",
+     "startMs": 300,
+     "endMs": 2630,
+     "audioText": "Each one depends on the others.",
+     "phonemes": "ˈiːʧ wˈʌn dɪpˈɛndz ˌɒn ði ˈʌðəz.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 32,
+     "chunks": 1,
+     "synthS": 0.719,
+     "cached": true,
+     "modelLeadS": 0.27,
+     "modelTailS": 0.495,
+     "pauses": [],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 2.33,
+      "peakDbfs": -3.65,
+      "clippedSamples": 0,
+      "dcOffset": -0.0003,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.11,
+      "pauses": [],
+      "speechSpanS": 2.19,
+      "f0MedianHz": 145.1,
+      "f0RangeSemitones": 7.5,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.391,
+      "burstDb": 4.7,
+      "burstAtS": 0.05,
+      "onsetBurstDb": 4.7,
+      "spikes": 0,
+      "hfShareDb": -30.2,
+      "words": 6,
+      "wpm": 154.5,
+      "speechWpm": 164.4,
+      "rawPeakDbfs": -6.45,
+      "phonemesPerS": 9.13
+     },
+     "asr": {
+      "hypothesis": "Each one depends on the others.",
+      "reference": "each one depends on the others",
+      "errors": 0,
+      "refWords": 6,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    },
+    {
+     "id": "reassemble-2",
+     "text": "Together they turn a few grams of fuel into motion, every second.",
+     "startMs": 2980,
+     "endMs": 7270,
+     "audioText": "Together they turn a few grams of fuel into motion, every second.",
+     "phonemes": "təɡˈɛðə ðA tˈɜːn ɐ fjˈuː ɡɹˈamz ɒv fjˈuːəl ˈɪntuː mˈQʃᵊn, ˈɛvəɹi sˈɛkᵊnd.",
+     "dictionary": [],
+     "espeakWords": [],
+     "g2pWarnings": [],
+     "tokens": 73,
+     "chunks": 1,
+     "synthS": 1.103,
+     "cached": true,
+     "modelLeadS": 0.26,
+     "modelTailS": 0.545,
+     "pauses": [
+      {
+       "mark": ",",
+       "pauseS": 0.15,
+       "depthDb": -69.0,
+       "t": 3.23
+      }
+     ],
+     "unpunctuatedGaps": [],
+     "qa": {
+      "durationS": 4.29,
+      "peakDbfs": -1.58,
+      "clippedSamples": 0,
+      "dcOffset": -0.00036,
+      "leadingSilenceS": 0.04,
+      "trailingSilenceS": 0.1,
+      "longestInternalSilenceS": 0.29,
+      "pauses": [
+       [
+        3.05,
+        0.29
+       ]
+      ],
+      "speechSpanS": 4.15,
+      "f0MedianHz": 143.0,
+      "f0RangeSemitones": 6.3,
+      "pitchJumpsPerMin": 0.0,
+      "voicedShare": 0.397,
+      "burstDb": 5.5,
+      "burstAtS": 0.2,
+      "onsetBurstDb": 5.5,
+      "spikes": 0,
+      "hfShareDb": -29.0,
+      "words": 12,
+      "wpm": 167.8,
+      "speechWpm": 173.5,
+      "rawPeakDbfs": -4.38,
+      "phonemesPerS": 11.33
+     },
+     "asr": {
+      "hypothesis": "Together they turn a few grams of fuel into motion every second.",
+      "reference": "together they turn a few grams of fuel into motion every second",
+      "errors": 0,
+      "refWords": 12,
+      "wer": 0.0,
+      "diffs": []
+     },
+     "flags": []
+    }
+   ]
+  }
+ ]
+}

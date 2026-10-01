@@ -5,8 +5,11 @@
  */
 import { useApp, type AppState } from '../state/store';
 import { LESSONS } from '../content/lessons';
+import { FILM } from '../content/film';
 import { presetIdle } from '../sim/car';
 import { SYSTEM_VIEWS } from './views';
+import { viewFor } from './partViews';
+import { BY_ID } from '../content/registry';
 import type { World } from './world';
 
 /** The car idling in Park: the opening and Explore. */
@@ -46,15 +49,25 @@ export function attachController(world: World): () => void {
         }
         break;
       case 'watch':
-        if (modeChanged) world.playSequence(LESSONS.slice);
+        if (modeChanged) {
+          // a shared link may start the film part way (?t=seconds)
+          const t = first ? Number(new URLSearchParams(location.search).get('t') ?? 0) : 0;
+          world.playSequence(FILM, Number.isFinite(t) ? Math.max(0, t) : 0);
+        }
         break;
       case 'explore': {
         if (modeChanged) {
           world.stopSequence();
           world.setLive(IDLE_PROGRAM as never);
         }
-        const v = s.system ? SYSTEM_VIEWS[s.system] : 'xray';
-        if (modeChanged || s.system !== prev?.system || (!s.lesson && prev?.lesson)) world.request(v ?? 'xray', { instant: first, returning: !!prev && !s.system && !!prev.system });
+        if (modeChanged || s.system !== prev?.system || s.part !== prev?.part || (!s.lesson && prev?.lesson)) {
+          // going up the hierarchy reads as returning
+          const depth = (st: AppState | null) => (!st?.system ? 0 : !st.part ? 1 : BY_ID.get(st.part)?.kind === 'assembly' ? 2 : 3);
+          const returning = !!prev && depth(s) < depth(prev);
+          const pv = s.part && world.car ? viewFor(s.part, world.car) : null;
+          if (pv) world.request(pv, { instant: first, returning });
+          else world.request((s.system && SYSTEM_VIEWS[s.system]) || 'xray', { instant: first, returning });
+        }
         break;
       }
       default:

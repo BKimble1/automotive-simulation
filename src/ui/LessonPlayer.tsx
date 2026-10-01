@@ -3,7 +3,7 @@
  * ticks, play/pause, previous/next step, replay and exit. Everything it does goes to the world
  * (pause stops the presentation; seeking reconstructs the exact state at that moment).
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp, usePlayer } from '../state/store';
 import type { World } from '../world/world';
 import { CloseIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon, ReplayIcon } from './icons';
@@ -15,6 +15,9 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
   const p = usePlayer();
   const captions = useApp((s) => s.captions);
   const step = p.beats[p.beat];
+  const [menu, setMenu] = useState(false);
+  const chapters = p.beats.map((b, i) => ({ ...b, i })).filter((b) => b.chapter);
+  const chapterNow = [...chapters].reverse().find((c) => c.i <= p.beat);
   const seek = (t: number) => {
     world.player.seek(t);
     world.publishPlayer();
@@ -50,11 +53,35 @@ export function LessonPlayer({ world, onExit, exitLabel = 'Exit' }: { world: Wor
       )}
       <section className="lesson pe" data-occludes="bottom" aria-label={p.title}>
         <div className="lesson__head">
-          <span className="lesson__step">
-            {p.beat + 1} / {p.beats.length}
-          </span>
+          {chapters.length > 1 ? (
+            <button className="lesson__chapter" aria-expanded={menu} aria-haspopup="true" onClick={() => setMenu(!menu)}>
+              {chapterNow?.chapter ?? p.title}
+            </button>
+          ) : (
+            <span className="lesson__step">
+              {p.beat + 1} / {p.beats.length}
+            </span>
+          )}
           <h2 className="lesson__title">{step?.title ?? p.title}</h2>
         </div>
+        {menu && (
+          <ol className="chapters" aria-label="Chapters">
+            {chapters.map((c) => (
+              <li key={c.i}>
+                <button
+                  aria-current={c === chapterNow ? 'true' : undefined}
+                  onClick={() => {
+                    seek(c.start);
+                    setMenu(false);
+                  }}
+                >
+                  <span>{c.chapter}</span>
+                  <span className="num">{fmt(c.start)}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
         <p className="lesson__text">{step?.text}</p>
         {step && <ReadoutChips ids={step.readouts ?? []} timeScale={step.timeScale} />}
         <div className="lesson__controls">

@@ -186,7 +186,7 @@ export class Looks {
       }
     }
     LAMPS.uBodyDim.value = this.dimNow.get('body') ?? 0;
-    for (const p of car.body.panels) p.mats.uniforms.uHighlight.value = ch.get('hl:body');
+    for (const p of car.body.panels) p.mats.uniforms.uHighlight.value = Math.max(ch.get('hl:body'), ch.get(`hl:panel-${p.name}`));
 
     // ── heat: brake discs from their temperature, exhaust from the engine's work, the engine
     // from its coolant

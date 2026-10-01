@@ -235,7 +235,7 @@ const torqueBeats: Beat[] = [
   {
     id: 'away',
     title: 'Motion',
-    text: 'The fuel’s chemical energy has become forward motion: 1,560 kilograms accelerating at about a third of g.',
+    text: 'The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.',
     duration: 5,
     view: 'drive-away',
     timeScale: 1,

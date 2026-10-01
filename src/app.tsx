@@ -14,6 +14,7 @@ import { Notices } from './ui/Notices';
 import type { World } from './world/world';
 import { attachController } from './world/controller';
 import { useFreeArea } from './ui/useFreeArea';
+import { useNarration } from './ui/useNarration';
 
 function webglAvailable(): boolean {
   if (new URLSearchParams(location.search).get('nowebgl') === '1') return false;
@@ -113,6 +114,7 @@ function App() {
   const [world, setWorld] = useState<World | null>(null);
   const [gl] = useState(webglAvailable);
   useFreeArea(world);
+  useNarration(world);
   if (!gl) return <NoWebGL />;
   return (
     <div className="app">

@@ -1,0 +1,530 @@
+{
+  "version": "film-2",
+  "voice": "bm_george",
+  "speed": 1,
+  "segments": [
+    {
+      "id": "film-intro",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "film-intro-1",
+          "text": "This is a modern petrol sedan: an engine at the front, drive to the rear wheels, and about 1,560 kilograms to move.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "film-intro-2",
+          "text": "In the next few minutes, we follow how it turns fuel into motion.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "film-xray",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "film-xray-1",
+          "text": "Under the paint, ten systems work together.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "film-xray-2",
+          "text": "We start where every journey starts: with a button on the dashboard.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "press",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "press-1",
+          "text": "With the brake pedal held, one press of the start button wakes the car’s control units and asks the engine control unit to start the engine.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "battery",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "battery-1",
+          "text": "The 12-volt battery sends about 200 amps to the starter motor.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "battery-2",
+          "text": "Its voltage dips while the starter works.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "crank",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "crank-1",
+          "text": "The starter’s small pinion meshes with the ring gear on the flexplate and spins the crankshaft at about 200 rpm.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "first-fire",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "first-fire-1",
+          "text": "Once the crankshaft and camshaft sensors show where each piston is, the injectors spray fuel and the plugs fire.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "first-fire-2",
+          "text": "The engine starts turning on its own.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "intake",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "intake-1",
+          "text": "The piston moves down with the intake valves open, drawing air into the cylinder.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "intake-2",
+          "text": "During this stroke the injector sprays in the fuel.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "compression",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "compression-1",
+          "text": "Both valves close and the rising piston squeezes the mixture to a thirteenth of its volume.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "compression-2",
+          "text": "Just before the top, the spark plug fires.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "power",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "power-1",
+          "text": "The flame spreads and the pressure rises sharply.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "power-2",
+          "text": "The hot gas drives the piston down, and the connecting rod turns its push into rotation of the crankshaft.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "exhaust",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "exhaust-1",
+          "text": "The exhaust valves open and the rising piston pushes the burnt gas out.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "exhaust-2",
+          "text": "The camshafts turn at half crankshaft speed, so each valve opens once every two revolutions.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "firing-1342",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "firing-1342-1",
+          "text": "Watch the flames: cylinder 1, then 3, then 4, then 2.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "firing-1342-2",
+          "text": "Pistons 1 and 4 move together, as do 2 and 3, so the engine stays balanced.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "idle-speed",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "idle-speed-1",
+          "text": "At an idle of 750 revolutions a minute, that is 25 power strokes every second; at 6,000, two hundred.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "torque-path",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "torque-path-1",
+          "text": "In Drive, torque flows from the crankshaft through the torque converter and the gearbox, along the driveshaft to the differential, and out to the rear wheels.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "converter",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "converter-1",
+          "text": "The engine spins the impeller, in blue, which flings fluid into the amber turbine that drives the gearbox.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "converter-2",
+          "text": "While the car is slow, the stator turns the fluid back to help the impeller, multiplying the torque.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "upshift",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "upshift-1",
+          "text": "At about 3,700 rpm the gearbox control unit changes up: clutch C releases while clutch E applies, in about a third of a second, and the engine speed falls.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "differential",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "differential-1",
+          "text": "At the rear axle, the pinion turns the ring gear at a 3.15 to 1 reduction, and the differential shares the torque between the two half shafts.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "contact",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "contact-1",
+          "text": "Each rear tyre grips the road over a patch about the size of a hand and pushes backward on it.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "contact-2",
+          "text": "The road pushes the car forward.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "away",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "away-1",
+          "text": "The fuel’s chemical energy has become forward motion: 1,560 kilograms gaining about 12 km/h every second.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "diff-straight",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "diff-straight-1",
+          "text": "Driving straight, both rear wheels turn at the same speed.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "diff-straight-2",
+          "text": "The spider gears ride round with the carrier without turning on their pin.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "corner-path",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "corner-path-1",
+          "text": "In a corner the outer wheel has farther to go.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "corner-path-2",
+          "text": "On this 12-metre turn it travels about 14 percent farther than the inner wheel, in the same time.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "diff-corner",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "diff-corner-1",
+          "text": "Now the spider gears turn on their pin: the outer side gear speeds up and the inner one slows by the same amount, while both still receive the same torque.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "susp-parts",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "susp-parts-1",
+          "text": "Each front wheel hangs on two wishbones.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "susp-parts-2",
+          "text": "A coil spring carries the car’s weight, and the damper inside it controls how fast the wheel can move.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "susp-bump",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "susp-bump-1",
+          "text": "The wheel rises over the bump and the spring compresses, storing the energy instead of passing the jolt to the body.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "susp-worn",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "susp-worn-1",
+          "text": "With worn front dampers the same bump leaves the wheels bouncing, and each bounce loosens the tyre’s grip on the road.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "brake-system",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "brake-system-1",
+          "text": "Press the pedal and the booster multiplies the push.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "brake-system-2",
+          "text": "The master cylinder turns it into fluid pressure, carried to a caliper at each wheel.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "lockup",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "lockup-1",
+          "text": "In an emergency stop on a wet road without ABS, the wheels lock.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "lockup-2",
+          "text": "A sliding tyre grips less and cannot steer: the car needs about 65 metres to stop from 80 km/h.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "with-abs",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "with-abs-1",
+          "text": "With ABS, each wheel’s pressure is released and re-applied many times a second, keeping the tyre just short of locking.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "with-abs-2",
+          "text": "The car stops in about 46 metres, and can still steer.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "thermostat-opens",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "thermostat-opens-1",
+          "text": "Under load the coolant passes 88 degrees.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "thermostat-opens-2",
+          "text": "The wax in the thermostat melts and expands, opening the way to the radiator, where the air carries the heat away.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "thermostat-opens-3",
+          "text": "Time is sped up here.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "fan",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "fan-1",
+          "text": "Stopped in hot traffic, little air passes through the radiator.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "fan-2",
+          "text": "When the coolant passes 102 degrees, the electric fans switch on and pull air through it.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "oil",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "oil-1",
+          "text": "Meanwhile the oil pump draws oil from the pan and pushes it through the filter to every bearing, the camshafts and the chain.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "oil-2",
+          "text": "The parts never touch: they ride on a film of oil.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "charging",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "charging-1",
+          "text": "Once the engine runs, the belt-driven alternator powers the car and recharges the battery, holding the system at about 14 volts.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "can",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "can-1",
+          "text": "The control units share information over a two-wire data network called CAN.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "can-2",
+          "text": "The engine unit broadcasts engine speed and torque; the gearbox, brakes and instruments listen and answer.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "explode",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "explode-1",
+          "text": "Taken apart, it is a few hundred major parts in ten systems: the body, the engine and its air, fuel and cooling, the driveline, the chassis, the brakes, the electrics and the cabin.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    },
+    {
+      "id": "reassemble",
+      "leadIn": 0.3,
+      "cues": [
+        {
+          "id": "reassemble-1",
+          "text": "Each one depends on the others.",
+          "pauseAfter": 0.35
+        },
+        {
+          "id": "reassemble-2",
+          "text": "Together they turn a few grams of fuel into motion, every second.",
+          "pauseAfter": 0.35
+        }
+      ],
+      "tail": 0.5
+    }
+  ]
+}
