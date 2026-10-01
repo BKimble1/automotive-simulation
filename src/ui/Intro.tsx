@@ -7,15 +7,17 @@ export function Intro() {
   const base = import.meta.env.BASE_URL;
   return (
     <>
-      <section className="intro" aria-labelledby="intro-title" data-occludes="left">
-        <div className="intro__eyebrow">
-          <img src={`${base}brand/kimble-mark-light.svg`} alt="" />
-          <span>KIMBLE · A FAB / ONE simulation</span>
+      <section className="intro" aria-labelledby="intro-title" data-occludes="bottom">
+        <div className="intro__head">
+          <div className="intro__eyebrow">
+            <img src={`${base}brand/kimble-mark-light.svg`} alt="" />
+            <span>KIMBLE · A FAB / ONE simulation</span>
+          </div>
+          <h2 id="intro-title" className="intro__title">
+            AUTOMOTIVE<span className="slash"> / </span>ONE
+          </h2>
+          <p className="intro__tag">How a car becomes motion: one modern car, every system, working.</p>
         </div>
-        <h2 id="intro-title" className="intro__title">
-          AUTOMOTIVE<span className="slash"> / </span>ONE
-        </h2>
-        <p className="intro__tag">How a car becomes motion: one modern car, every system, working.</p>
         <div className="intro__cards">
           <button className="card card--primary pe" onClick={() => go({ mode: 'watch' })}>
             <b>
@@ -33,7 +35,7 @@ export function Intro() {
           </button>
           <button className="card pe" onClick={() => go({ mode: 'simulate' })}>
             <b>Simulate</b>
-            <span>Drive it, then diagnose six real faults</span>
+            <span>Drive it yourself, or diagnose six real faults</span>
           </button>
         </div>
       </section>

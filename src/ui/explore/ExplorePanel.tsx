@@ -10,6 +10,9 @@ import { useApp } from '../../state/store';
 import { BY_ID, childrenOf, pathTo, search, SYSTEMS, type Component } from '../../content/registry';
 import { LESSONS } from '../../content/lessons';
 import type { World } from '../../world/world';
+import { SheetHandle, useSheet } from '../Sheet';
+import { SYSTEM_VIEWS, VIEWS, viewModes, viewVariant, type ViewMode } from '../../world/views';
+import { viewFor } from '../../world/partViews';
 import { BackIcon } from '../icons';
 
 /** Lessons that show each system working. */
@@ -54,36 +57,70 @@ function Row({ c, onPick }: { c: Component; onPick: (id: string) => void }) {
   );
 }
 
+/**
+ * A part's details, a little at a time: where it is first, then how it works with the rest,
+ * what it is made of, how it fails, and what it connects to, each opened on request.
+ */
 function Facts({ c }: { c: Component }) {
   const go = useApp((s) => s.go);
-  const facts: [string, string | string[]][] = [
-    ['Where', c.location],
-    ['Takes in', c.inputs],
-    ['Gives out', c.outputs],
-    ['While it works', c.changes],
-    ['Made of', c.material],
-    ['When it fails', c.failures],
-  ];
+  const list = (v: string | string[]) => (Array.isArray(v) ? (v.length > 1 ? <ul>{v.map((x) => <li key={x}>{x}</li>)}</ul> : v[0]) : v);
+  const has = (v: string | string[] | undefined) => (Array.isArray(v) ? v.length > 0 : !!v);
   return (
     <>
-      <dl className="ex-facts">
-        {facts
-          .filter(([, v]) => (Array.isArray(v) ? v.length : v))
-          .map(([k, v]) => (
-            <div key={k}>
-              <dt>{k}</dt>
-              <dd>{Array.isArray(v) ? (v.length > 1 ? <ul>{v.map((x) => <li key={x}>{x}</li>)}</ul> : v[0]) : v}</dd>
-            </div>
-          ))}
-      </dl>
-      {c.compare && (
-        <p className="ex-compare">
-          <b>Other designs.</b> {c.compare}
+      {has(c.location) && (
+        <p className="ex-where">
+          <b>Where</b> {c.location}
         </p>
       )}
+      {(has(c.inputs) || has(c.outputs) || has(c.changes)) && (
+        <details className="ex-more">
+          <summary>How it works with the rest</summary>
+          <dl className="ex-facts">
+            {has(c.inputs) && (
+              <div>
+                <dt>Takes in</dt>
+                <dd>{list(c.inputs)}</dd>
+              </div>
+            )}
+            {has(c.outputs) && (
+              <div>
+                <dt>Gives out</dt>
+                <dd>{list(c.outputs)}</dd>
+              </div>
+            )}
+            {has(c.changes) && (
+              <div>
+                <dt>While it works</dt>
+                <dd>{list(c.changes)}</dd>
+              </div>
+            )}
+          </dl>
+        </details>
+      )}
+      {(has(c.material) || c.compare) && (
+        <details className="ex-more">
+          <summary>How it is made</summary>
+          {has(c.material) && (
+            <p>
+              <b>Made of.</b> {c.material}
+            </p>
+          )}
+          {c.compare && (
+            <p>
+              <b>Other designs.</b> {c.compare}
+            </p>
+          )}
+        </details>
+      )}
+      {has(c.failures) && (
+        <details className="ex-more">
+          <summary>When it fails</summary>
+          <div className="ex-fail">{list(c.failures)}</div>
+        </details>
+      )}
       {c.neighbours.length > 0 && (
-        <>
-          <h3>Connected to</h3>
+        <details className="ex-more" open>
+          <summary>Connected to</summary>
           <div className="ex-links">
             {c.neighbours.map((n) => {
               const nb = BY_ID.get(n);
@@ -94,13 +131,72 @@ function Facts({ c }: { c: Component }) {
               ) : null;
             })}
           </div>
-        </>
+        </details>
       )}
     </>
   );
 }
 
-export function ExplorePanel(_: { world: World }) {
+const MODE_LABEL: Record<ViewMode, string> = { explained: 'Explained', exterior: 'Exterior', opened: 'Opened', cutaway: 'Cutaway', exploded: 'Exploded' };
+
+/** The view choices for the place shown: the same subject drawn another way. */
+function ViewChoices({ world, here }: { world: World; here: Component | null }) {
+  const [mode, setMode] = useState<ViewMode>('explained');
+  const kind = !here ? 'car' : here.kind;
+  const system = here?.system ?? null;
+  const modes = viewModes(system, kind as 'car' | 'system' | 'assembly' | 'part');
+  // a new place starts explained
+  useEffect(() => setMode('explained'), [here?.id]);
+  const choose = (m: ViewMode) => {
+    setMode(m);
+    const base = here ? (here.kind === 'system' ? VIEWS[SYSTEM_VIEWS[here.id]] : viewFor(here.id, world.car)) : VIEWS.xray;
+    if (base) world.request(viewVariant(base, m, system));
+  };
+  return (
+    <div className="seg ex-views" role="group" aria-label="How to show it">
+      {modes.map((m) => (
+        <button key={m} aria-pressed={mode === m} onClick={() => choose(m)}>
+          {MODE_LABEL[m]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Tap a part in the scene to go to it (a tap, not a drag: the camera keeps its drags). */
+function usePicking(world: World) {
+  const go = useApp((s) => s.go);
+  useEffect(() => {
+    const el = world.canvas;
+    let start: { x: number; y: number; t: number; id: number } | null = null;
+    const down = (e: PointerEvent) => {
+      start = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId } : null;
+    };
+    const up = (e: PointerEvent) => {
+      const s0 = start;
+      start = null;
+      if (!s0 || e.pointerId !== s0.id) return;
+      if (Math.hypot(e.clientX - s0.x, e.clientY - s0.y) > 7 || performance.now() - s0.t > 450) return;
+      if (world.director.busy) return;
+      const id = world.pick(e.clientX, e.clientY);
+      const c = id ? BY_ID.get(id) : null;
+      if (c) go({ system: c.system, part: c.kind === 'system' ? null : c.id });
+    };
+    const cancel = () => (start = null);
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', cancel);
+    return () => {
+      el.removeEventListener('pointerdown', down);
+      el.removeEventListener('pointerup', up);
+      el.removeEventListener('pointercancel', cancel);
+    };
+  }, [world, go]);
+}
+
+export function ExplorePanel({ world }: { world: World }) {
+  usePicking(world);
+  const sheet = useSheet();
   const system = useApp((s) => s.system);
   const part = useApp((s) => s.part);
   const go = useApp((s) => s.go);
@@ -141,7 +237,8 @@ export function ExplorePanel(_: { world: World }) {
 
   const lessons = here ? (here.kind === 'system' ? SYSTEM_LESSONS[here.id] ?? [] : here.animation ? [here.animation] : []) : [];
   return (
-    <nav className="panel panel--left ex pe" data-occludes="left" aria-label="Explore the car" ref={panel}>
+    <nav className={`panel panel--left ex pe ${sheet.className}`} style={sheet.style} data-occludes="left" aria-label="Explore the car" ref={panel}>
+      <SheetHandle />
       <div className="ex-search">
         <input type="search" placeholder="Search parts and systems" aria-label="Search parts and systems" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
@@ -162,7 +259,8 @@ export function ExplorePanel(_: { world: World }) {
       ) : !here ? (
         <section>
           <h2>The car</h2>
-          <p>A front-engined, rear-wheel-drive four-door sedan with a 2.5-litre four-cylinder engine and an eight-speed automatic. Choose a system to look inside.</p>
+          <p>A front-engined, rear-wheel-drive four-door sedan with a 2.5-litre four-cylinder engine and an eight-speed automatic. Choose a system, or tap a part of the car, to look inside.</p>
+          <ViewChoices world={world} here={null} />
           <ul className="ex-list">
             {SYSTEMS.map((c) => (
               <Row key={c.id} c={c} onPick={pick} />
@@ -191,6 +289,7 @@ export function ExplorePanel(_: { world: World }) {
           {here.aliases.length > 0 && <p className="ex-aka">Also called {here.aliases.slice(0, 4).join(', ')}</p>}
           <p className="ex-fn">{here.function}</p>
           <Lessons ids={lessons} />
+          <ViewChoices world={world} here={here} />
           {here.kind !== 'part' ? (
             <>
               <h3>{here.kind === 'system' ? 'Assemblies' : 'Parts'}</h3>

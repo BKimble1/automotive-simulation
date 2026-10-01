@@ -143,7 +143,7 @@ export class Stage {
         this.ao = ao;
       }
       const effects = [];
-      if (spec.bloom) effects.push(new BloomEffect({ intensity: 0.28, luminanceThreshold: 0.95, luminanceSmoothing: 0.18, mipmapBlur: true, radius: 0.5 }));
+      if (spec.bloom) effects.push(new BloomEffect({ intensity: 0.2, luminanceThreshold: 1.0, luminanceSmoothing: 0.2, mipmapBlur: true, radius: 0.45 }));
       effects.push(new ToneMappingEffect({ mode: ToneMappingMode.AGX }));
       effects.push(new VignetteEffect({ offset: 0.3, darkness: 0.38 }));
       if (!msaa) effects.push(new SMAAEffect({ preset: SMAAPreset.HIGH }));

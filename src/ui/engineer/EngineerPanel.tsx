@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useApp, useRun } from '../../state/store';
 import { LABS, LAB_BY_ID, defaults, labRun, type Lab, type LabValues, type Sample } from '../../content/labs';
 import type { World } from '../../world/world';
+import { SheetHandle, useSheet } from '../Sheet';
 import { IDLE_RUN } from '../../world/controller';
 import { Chart, type ChartRun } from '../Chart';
 import { BackIcon, PauseIcon, PlayIcon, ReplayIcon } from '../icons';
@@ -82,6 +83,7 @@ export function EngineerPanel({ world }: { world: World }) {
   const [active, setActive] = useState(0);
   const [slow, setSlow] = useState(false);
   const serial = useRef(0);
+  const sheet = useSheet();
 
   /** Start a run: the live car at once, its chart from the worker. */
   const start = (l: Lab, v: LabValues, replaceBaseline = false) => {
@@ -133,7 +135,8 @@ export function EngineerPanel({ world }: { world: World }) {
       : '';
 
   return (
-    <aside className="panel panel--right eng pe" data-occludes="right" aria-label="Engineer labs">
+    <aside className={`panel panel--right eng pe ${sheet.className}`} style={sheet.style} data-occludes="right" aria-label="Engineer labs">
+      <SheetHandle />
       {!lab ? (
         <>
           <h2>Engineer</h2>

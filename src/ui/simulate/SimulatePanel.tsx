@@ -10,6 +10,7 @@ import { Workbench } from './Workbench';
 import { BY_ID } from '../../content/registry';
 import { NO_FAULTS } from '../../sim/car';
 import type { World } from '../../world/world';
+import { SheetHandle, useSheet } from '../Sheet';
 import { viewFor } from '../../world/partViews';
 import { VIEWS } from '../../world/views';
 import { READOUTS } from '../Readouts';
@@ -209,14 +210,17 @@ export function SimulatePanel({ world }: { world: World }) {
   const go = useApp((s) => s.go);
   const sc = id ? SCENARIO_BY_ID[id] : null;
   const fault = id ? FAULT_BY_ID[id] : null;
+  const sheet = useSheet();
   if (id === WORKBENCH.id)
     return (
-      <aside className="panel panel--right eng sim wb pe" data-occludes="right" aria-label="Drive it yourself">
+      <aside className={`panel panel--right eng sim wb pe ${sheet.className}`} style={sheet.style && { ...sheet.style, height: 'auto', maxHeight: '34dvh', bottom: 'calc(110px + var(--safe-b))' }} data-occludes="right" aria-label="Drive it yourself">
+        <SheetHandle />
         <Workbench world={world} />
       </aside>
     );
   return (
-    <aside className="panel panel--right eng sim pe" data-occludes="right" aria-label="Simulate">
+    <aside className={`panel panel--right eng sim pe ${sheet.className}`} style={sheet.style} data-occludes="right" aria-label="Simulate">
+      <SheetHandle />
       {!sc && !fault ? (
         <>
           <h2>Simulate</h2>

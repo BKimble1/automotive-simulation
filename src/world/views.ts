@@ -69,7 +69,7 @@ export const VIEWS: Record<string, View> = {
   // ─────────── the vehicle ───────────
   hero: {
     id: 'hero',
-    shot: { id: 'hero', target: V(0.05, 0.62, 0), az: 2.32, el: 0.13, dist: 9.2, fov: 26, ox: -0.12, drift: 0.018, sway: 0.02, subject: { w: 5.2, h: 1.7 }, orbit: { az: null, el: [0.03, 0.7], dist: [0.7, 1.4] } },
+    shot: { id: 'hero', target: V(0.05, 0.6, 0), az: 2.32, el: 0.12, dist: 8.4, fov: 26, drift: 0.012, sway: 0.015, subject: { w: 4.8, h: 1.45 }, orbit: { az: null, el: [0.03, 0.7], dist: [0.7, 1.4] } },
     channels: {},
   },
   overview: {
@@ -373,3 +373,37 @@ export const KEEP_OUT: { a: Vector3; b: Vector3; r: number }[] = [
   { a: V(-1.2, 1.0, 0.32), b: V(0.35, 1.0, 0.32), r: 0.42 },
   ...[BODY.xFront, BODY.xRear].flatMap((x) => [-1, 1].map((s) => ({ a: V(x, WHEEL_Y, s * 0.66), b: V(x, WHEEL_Y, s * 0.96), r: 0.36 }))),
 ];
+
+/**
+ * The visitor's view choices in Explore: the same subject, from the same shot, drawn another
+ * way. Only choices with a meaningful picture are offered (a cutaway where there is a section,
+ * the open car where panels open, the exploded car at the car's and the body's level).
+ */
+export type ViewMode = 'explained' | 'exterior' | 'opened' | 'cutaway' | 'exploded';
+
+/** The section planes that cut each system's housings. */
+const SYSTEM_CUTS: Record<string, string[]> = {
+  power: ['engine'],
+  air: ['engine'],
+  driveline: ['transmission', 'diff'],
+};
+
+export function viewModes(system: string | null, kind: 'car' | 'system' | 'assembly' | 'part'): ViewMode[] {
+  const out: ViewMode[] = ['explained', 'exterior'];
+  if (kind === 'car' || system === 'body' || system === 'cabin' || system === 'power') out.push('opened');
+  if (system && SYSTEM_CUTS[system]) out.push('cutaway');
+  if (kind === 'car' || (system === 'body' && kind === 'system')) out.push('exploded');
+  return out;
+}
+
+export function viewVariant(base: View, mode: ViewMode, system: string | null): View {
+  if (mode === 'explained') return base;
+  if (mode === 'exploded') return { ...VIEWS.exploded, id: `${base.id}~exploded`, shot: VIEWS.exploded.shot };
+  const channels: Record<string, number> =
+    mode === 'exterior'
+      ? { studio: base.channels.studio ?? 1 }
+      : mode === 'opened'
+        ? { studio: base.channels.studio ?? 1, open: 1 }
+        : { ...base.channels, ...Object.fromEntries((SYSTEM_CUTS[system ?? ''] ?? []).map((c) => [`cut:${c}`, 1])) };
+  return { ...base, id: `${base.id}~${mode}`, channels, tint: mode === 'cutaway' ? base.tint : {}, focus: mode === 'cutaway' ? base.focus : [] };
+}

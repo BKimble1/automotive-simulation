@@ -24,7 +24,7 @@
  * parts are not ready (it holds the picture instead), so there is never a blank frame or a
  * shader compile in the middle of a move.
  */
-import { Vector3 } from 'three';
+import { Raycaster, Vector2, Vector3, type Material, type Mesh, type Object3D, type Plane } from 'three';
 import { Stage } from '../scene/stage';
 import { Studio } from '../scene/studio';
 import { Road } from '../scene/road';
@@ -764,6 +764,46 @@ export class World {
     this.jobs.dispose();
     this.counters.disposed = disposeTree(this.stage.scene);
     this.stage.dispose();
+  }
+
+  private raycaster = new Raycaster();
+  private nodeOf: WeakMap<Object3D, import('../scene/car/rig').PartNode> | null = null;
+
+  /**
+   * What the visitor tapped (client coordinates): the registry component of the first part under
+   * the pointer that is actually drawn there. Parts faded to glass, hidden, or cut away by a
+   * section plane at that point are passed over, so a tap reaches what the picture shows.
+   */
+  pick(clientX: number, clientY: number): string | null {
+    if (!this.car) return null;
+    if (!this.nodeOf) {
+      this.nodeOf = new WeakMap();
+      for (const n of this.car.rig.parts.values()) this.nodeOf.set(n.object, n);
+    }
+    const rect = this.canvas.getBoundingClientRect();
+    const ndc = new Vector2(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+    this.raycaster.setFromCamera(ndc, this.stage.camera);
+    const hits = this.raycaster.intersectObject(this.car.root, true);
+    const panelGhost = new Map(this.car.body.panels.flatMap((p) => [[p.paint, p.ghost], [p.glass, 1]] as [Mesh, number][]));
+    for (const h of hits) {
+      const m = h.object as Mesh;
+      if (!m.isMesh || !m.visible) continue;
+      let hidden = false;
+      for (let o: Object3D | null = m; o; o = o.parent) if (!o.visible) hidden = true;
+      if (hidden) continue;
+      const pg = panelGhost.get(m);
+      if (pg !== undefined && pg > 0.4) continue;
+      const u = m.userData.pair?.u;
+      if (u && (u.uGhost?.value ?? 0) > 0.4) continue;
+      if (u && (u.uHide?.value ?? 0) > 0.5) continue;
+      const mat = m.material as Material & { clippingPlanes?: Plane[] | null };
+      if (mat.clippingPlanes?.some((pl) => pl.distanceToPoint(h.point) < 0)) continue;
+      for (let o: Object3D | null = m; o; o = o.parent) {
+        const n = this.nodeOf.get(o);
+        if (n) return n.component;
+      }
+    }
+    return null;
   }
 
   /** Test and recording hooks. */

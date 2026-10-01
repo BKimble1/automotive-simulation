@@ -32,6 +32,9 @@ export interface AppState {
   info: boolean;
   /** Phone bottom sheet expanded. */
   sheet: boolean;
+  /** The phone sheet's height (fraction of the screen) and whether a drag is moving it. */
+  sheetH: number;
+  sheetDragging: boolean;
   contextLost: boolean;
   /** The director's state (for tests and the "preparing" hint). */
   director: string;
@@ -60,6 +63,8 @@ export const useApp = create<AppState>((set, get) => ({
   reducedMotion: typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   info: false,
   sheet: true,
+  sheetH: 0.42,
+  sheetDragging: false,
   contextLost: false,
   director: 'idle',
   set: (p) => set(p),

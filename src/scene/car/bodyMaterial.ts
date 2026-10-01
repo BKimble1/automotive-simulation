@@ -325,13 +325,13 @@ export function bodyMaterials(panel: number): BodyMaterialSet {
     // tinted glass: the cabin reads through it dimly; the studio's softboxes reflect in it
     color: new Color('#080b0f'),
     metalness: 0.0,
-    roughness: 0.03,
+    roughness: 0.06,
     transparent: true,
     opacity: 0.84,
     depthWrite: false,
     envMapIntensity: 2.1,
     clearcoat: 1,
-    clearcoatRoughness: 0.02,
+    clearcoatRoughness: 0.06,
   };
   const glass = new MeshPhysicalMaterial({ ...glassParams, side: DoubleSide });
   patch(glass, u, 'glass', false);

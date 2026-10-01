@@ -85,6 +85,8 @@ export function viewFor(id: string, car: Car): View | null {
     delete channels[`ghost:${a}`];
     delete channels[`hide:${a}`];
   }
+  // parts inside a wheel (brakes, uprights, links) are seen through it: the wheels turn to glass
+  if (assemblies.some((a) => a === 'brakes' || a === 'suspension' || a === 'steering') && !assemblies.includes('wheels')) channels['ghost:wheels'] = Math.max(channels['ghost:wheels'] ?? 0, 0.85);
   // the subject's colour fills it (not only its rim), so a small part reads at a glance
   const tint = Object.fromEntries(nodes.filter((n) => !n.startsWith('panel-')).map((n) => [n, '#b9b2ff']));
   if (authored) {

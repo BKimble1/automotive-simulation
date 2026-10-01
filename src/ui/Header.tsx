@@ -37,6 +37,7 @@ export function Header() {
   const mode = useApp((s) => s.mode);
   const go = useApp((s) => s.go);
   const sound = useApp((s) => s.sound);
+  const soundBlocked = useApp((s) => s.soundBlocked);
   const captions = useApp((s) => s.captions);
   const legend = useApp((s) => s.legend);
   const set = useApp((s) => s.set);
@@ -67,7 +68,13 @@ export function Header() {
         <button className="ibtn pe" aria-pressed={captions} onClick={() => set({ captions: !captions })} title={captions ? 'Captions on' : 'Captions off'} aria-label={captions ? 'Turn captions off' : 'Turn captions on'}>
           <CaptionIcon />
         </button>
-        <button className="ibtn pe" aria-pressed={sound} onClick={() => set({ sound: !sound })} title={sound ? 'Sound on' : 'Sound off'} aria-label={sound ? 'Turn sound off' : 'Turn sound on'}>
+        <button
+          className={`ibtn pe ${sound && soundBlocked ? 'ibtn--alert' : ''}`}
+          aria-pressed={sound}
+          onClick={() => set({ sound: !sound || soundBlocked, soundBlocked: false })}
+          title={sound && soundBlocked ? 'Tap to let the browser play the narration' : sound ? 'Sound on' : 'Sound off'}
+          aria-label={sound && soundBlocked ? 'The browser blocked the narration: tap to play it' : sound ? 'Turn sound off' : 'Turn sound on'}
+        >
           <SoundIcon off={!sound} />
         </button>
         <button className="ibtn pe" onClick={() => set({ info: true })} title="About this simulation" aria-label="About this simulation: what is modelled, simplified and approximated">
