@@ -791,13 +791,22 @@ test.describe('V2: real time', () => {
     if (!r.held) expect(Math.abs(r.advance - r.expected)).toBeLessThan(0.25);
     // never ahead of the wall clock
     expect(r.advance).toBeLessThanOrEqual(r.wall + 0.2);
+    // paused: frames go on being drawn and the film stays where it was; played: it moves on
+    // (counted in drawn frames, not seconds: a busy machine draws a frame every second or two)
+    const drawnFrames = (n: number) =>
+      page.evaluate((n) => new Promise<void>((res) => {
+        let k = 0;
+        const f = () => (++k >= n ? res() : requestAnimationFrame(f));
+        requestAnimationFrame(f);
+      }), n);
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
     const p0 = await page.evaluate(() => window.__fab.player.t);
-    await page.waitForTimeout(1500);
+    await drawnFrames(4);
+    await page.waitForTimeout(1000);
     expect(await page.evaluate(() => window.__fab.player.t)).toBe(p0);
     await page.getByRole('button', { name: 'Play', exact: true }).click();
-    await page.waitForTimeout(1500);
-    expect(await page.evaluate(() => window.__fab.player.t)).toBeGreaterThan(p0);
+    await drawnFrames(4);
+    await expect.poll(() => page.evaluate(() => window.__fab.player.t), { timeout: 30_000 }).toBeGreaterThan(p0);
     expect(errors).toEqual([]);
   });
 });
