@@ -690,6 +690,12 @@ test.describe('V2: layout and endurance', () => {
     const filmStop = async (t: number) => {
       await go(page, { mode: 'watch' });
       await page.evaluate((t) => window.__fab.seek(t), t);
+      // the seek is computed in the worker: wait for it, or the frames below would run held on
+      // a busy machine and play on a quiet one, and draw different parts
+      for (let i = 0; i < 200 && (await page.evaluate(() => !!window.__fab.seekPending)); i++) {
+        await frames(page, 1);
+        await page.waitForTimeout(30);
+      }
       await frames(page, 400);
       await page.evaluate(() => window.__fabAdvance(1, true));
     };
